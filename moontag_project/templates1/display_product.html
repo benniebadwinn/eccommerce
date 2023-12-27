@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<h2 style="margin-top: 30px; color: #ff9900; margin-bottom: 30px;">View and remove Products</h2>
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    <strong>Message:</strong> {{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+</div>
+{% endfor %}
+{% csrf_token %}
+<input type="text" id="myInput" onkeyup="tableSearch()" placeholder="Search by product name" style="width: 200px;margin-bottom: 30px;">
+<table class="table table-hover" id="myTable" data-filter-control="true" data-search-clear-button="true">
+    <thead>
+        {% csrf_token %}
+      <tr>
+        <th scope="col">Title</th>
+        <th scope="col">Category</th>
+        <th scope="col">Brand</th>
+        <th scope="col">Color</th>
+        <th scope="col">Size</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for p in products %}
+      <tr>
+        <td><a href="/product/{{p.slug}}/{{p.id}}">{{p.title}}</a></td>
+        <td>{{p.category}}</td>
+        <td>{{p.brand}}</td>
+        <td>{{p.color}}</td>
+        <td>{{p.size}}</td>
+        <td><form method='POST' action='/display-product'><input type='hidden' name='id' value='{{p.id}}'><input type="submit" value="Remove">{% csrf_token %}</form></td>
+    {% endfor %}
+      </tr>
+    </tbody>
+  </table>
+  <script type="application/javascript">
+    function tableSearch(){
+        let input ,filter ,table ,tr ,td ,txtValue;
+
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("myTable");
+        tr = table.getElementsByTagName("tr");
+        
+        for(let i = 0; i < tr.length; i++){
+          td = tr[i].getElementsByTagName("td")[0];
+          if(td) {
+            txtValue = td.textContent || td.innerText;
+            if(txtValue.toUpperCase().indexOf(filter) > -1){
+              tr[i].style.display = "";
+            }
+            else {
+              tr[i].style.display = "none";
+            }
+          }
+        }
+    }
+</script>
+{% endblock %}

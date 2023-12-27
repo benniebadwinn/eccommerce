@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<table class="table table-dark">
+    <thead>
+        <h3 style="margin-top: 40px;">Customers who arrived to Checkout page and paid</h3>
+      <tr>
+        <th>Order Number</th>
+        <th>User name</th>
+        <th>Total Amount</th>
+        <th>Paid Status</th>
+        <th>Order Time</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for order in orders %}
+    {% if order.paid_status == True %}
+      <tr>
+        <td><a href="{% url 'user_orders_items' order.id %}" class="btn btn-sm btn-light">{{order.id}}</a></td>
+        <td>{{order.user}}</td>
+        <td>{{order.total_amt}}</td>
+        <td>{{order.paid_status}}</td>
+        <td>{{order.order_dt}}</td>
+      </tr>
+    {% endif %}
+    {% endfor %}
+    </tbody>
+  </table>
+  <table class="table table-dark">
+    <thead>
+        <h3 style="margin-top: 40px;">Customers who arrived to Checkout page and Dont paid</h3>
+      <tr>
+        <th>Order Number</th>
+        <th>User name</th>
+        <th>Total Amount</th>
+        <th>Paid Status</th>
+        <th>Order Time</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for order in orders %}
+    {% if order.paid_status == False %}
+      <tr>
+        <td><a href="{% url 'user_orders_items' order.id %}" class="btn btn-sm btn-light">{{order.id}}</a></td>
+        <td>{{order.user}}</td>
+        <td>{{order.total_amt}}</td>
+        <td>{{order.paid_status}}</td>
+        <td>{{order.order_dt}}</td>
+      </tr>
+    {% endif %}
+    {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

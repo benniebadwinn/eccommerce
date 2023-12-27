@@ -1,0 +1,37 @@
+.rewiewButton {
+    border: solid 2px gold;
+    background-color: gold;
+}
+
+.rewiewButton:hover {
+    background-color: rgb(228, 202, 54);
+}
+
+.comment{
+    height:100px;
+    width:200px;
+    word-break: break-word;
+    margin-bottom: 10px;
+}
+
+.stars {
+    margin-bottom: 20px;
+    margin-top: 5px;
+}
+
+.reviewButton {
+    background-color: #ff9900;
+    border: none;
+    border-radius: 10px;
+    height: 35px;
+}
+
+.reviewButton:hover {
+    background-color: #131A22;
+    color: #ff9900;
+    transition: all .2s;
+}
+
+.stars {
+    width: 100px;
+}

@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+  Checkout
+{% endblock %}
+
+{% block content %}
+
+
+ <!--Hero Section-->
+   <div class="hero-section hero-background">
+    <h1 class="page-title">Delivery Method</h1>
+</div>
+
+
+
+    <!--Navigation section-->
+    <div class="container">
+        <nav class="biolife-nav">
+            <ul>
+                <li class="nav-item"><a href="index-2.html" class="permal-link">Home</a></li>
+                <li class="nav-item"><span class="current-page">delivery method</span></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="page-contain checkout">
+
+        <!-- Main content -->
+        <div id="main-content" class="main-content">
+            <div class="container sm-margin-top-37px">
+                <div class="row">
+
+                    <!--checkout progress box-->
+                    <div class="col-lg-7 col-md-7 col-sm-6 col-xs-12">
+                        <div class="checkout-progress-wrap">
+                            <ul class="steps">
+                                <li class="step 1st">
+                                    <div class="checkout-act active">
+                                        <h3 class="title-box"><span class="number">1</span>CONFIRM ADDRESS DETAILS</h3>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <a href="{% url 'shop:address_list' %}" class="button light">ADD/CHANGE</a>
+                
+                                    </p>
+                                        <div class="box-content">
+
+                                            <div class="login-on-checkout">
+                                                
+                                                <b>{{address.user.first_name}} {{address.user.last_name}}</b><br>
+                                                {{address.address_name}}<br>
+                                                {{address.phone_number}}
+
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <div class="checkout-act active">
+                                    <h3 class="title-box"><span class="number">2</span>Payment METHOD</h3>
+                                    <div class="box-content">
+                                        <p class="txt-desc"> How do you want your order delivered?</p>
+
+
+                                            <div class="box-content">
+                                              
+                                                <form method="post" class="order-form" id="order-form">
+                                                    
+                                                    {% csrf_token %}
+                                                        
+                                                        <div class="form-group">
+                                                            <label>Payment method:</label>
+                                                            <div class="form-check">
+                                                                <div id="id_payment_method" class="form-check-input"><div>
+                                                                      <label for="id_payment_method_0"><input type="radio" name="payment_method" value="mpesa_on_delivery" class="form-check-input" required="" id="id_payment_method_0">
+                                                                   Mpesa on Delivery</label>
+                                                                  
+                                                                  </div><div>
+                                                                      <label for="id_payment_method_1"><input type="radio" name="payment_method" value="mpesa" class="form-check-input" required="" id="id_payment_method_1">
+                                                                   Mpesa (Coming Soon)</label>
+                                                                  
+                                                                  </div><div>
+                                                                      <label for="id_payment_method_2"><input type="radio" name="payment_method" value="pesapal" class="form-check-input" required="" id="id_payment_method_2">
+                                                                   Pesapal/Mpesa</label>
+                                                                  
+                                                                  </div><div>
+                                                                      <label for="id_payment_method_3"><input type="radio" name="payment_method" value="paypal" class="form-check-input" required="" id="id_payment_method_3">
+                                                                   Paypal</label>
+                                                                </div><div>
+                                                             
+                                                                  
+                                                                  </div>
+                                                                  </div>
+                                                            </div>
+                                                        </div>
+                                                        
+  
+                                                        <button type="submit" class="btn btn-primary">Complete Payment</button>
+                                                    </form>
+                                                    
+                                                
+                                                <script>
+                                                  function validatePaymentMethod() {
+                                                    var radios = document.getElementsByName('payment_method');
+                                                    var selected = false;
+                                                
+                                                    for (var i = 0; i < radios.length; i++) {
+                                                      if (radios[i].checked && radios[i].value !== '--') {
+                                                        selected = true;
+                                                        break;
+                                                      }
+                                                    }
+                                                
+                                                    if (!selected) {
+                                                      alert('Please select a payment method');
+                                                      return;
+                                                    }
+                                                
+                                                    document.getElementById('order-form').submit();
+                                                  }
+                                                </script>
+                                                
+                                    </div>
+
+                                        
+                                        <script>
+                                          function validatePaymentMethod() {
+                                            var radios = document.getElementsByName('payment_method');
+                                            var selected = false;
+                                        
+                                            for (var i = 0; i < radios.length; i++) {
+                                              if (radios[i].checked && radios[i].value !== '--') {
+                                                selected = true;
+                                                break;
+                                              }
+                                            }
+                                        
+                                            if (!selected) {
+                                              alert('Please select a payment method');
+                                              return;
+                                            }
+                                        
+                                            document.getElementById('order-form').submit();
+                                          }
+                                        </script>
+                                        
+                            </ul>
+                        </div>
+                    </div>
+                    {% if coupon_code and coupon_amount %}
+                    <p>Coupon Code: {{ coupon_code }}</p>
+                    <p>Coupon Amount: {{ coupon_amount }}</p>
+                {% endif %}
+                  <!-- The rest of your template -->
+                  
+                    <!--Order Summary-->
+                    <div class="col-lg-5 col-md-5 col-sm-6 col-xs-12 sm-padding-top-48px sm-margin-bottom-0 xs-margin-bottom-15px">
+                        <div class="order-summary sm-margin-bottom-80px">
+                            <div class="title-block">
+                                <h3 class="title">Order Summary</h3>
+                                <a href="#" class="link-forward">Edit cart</a>
+                            </div>
+                            <div class="cart-list-box short-type">
+                                <span class="number">{{ total_items }}</span>
+                                <ul class="cart-list">
+                                    {% for product_id,item in cart_data.items %}
+                                    <li class="cart-elem">
+                                        <div class="cart-item">
+                                            <div class="product-thumb">
+                                                <a class="prd-thumb" href="{% url 'shop:cart' %}">
+                                                    <figure><img src="/media/{{item.img}}" width="113" height="113" alt="shop-cart" ></figure>
+                                                </a>
+                                            </div>
+                                            <div class="info">
+                                                <span class="txt-quantity">{{ item.qty }} X</span>
+                                                <a href="{% url 'shop:cart' %}" class="pr-name">{{ item.title }}</a>
+                                            </div>
+                                            <div class="price price-contain">
+                                                {% if order_item.product.discount_price %}
+                                                         <ins><span class="price-amount"><span class="currencySymbol">Ksh</span>{{ item.discountprice }}<span class="badge bg-success">You save Ksh {{ order_item.get_amount_saved }}</span></span></ins>
+         
+                                                         {% else %}
+                                                         <ins><span class="price-amount"><span class="currencySymbol">Ksh</span>{{ item.price }}</span></ins>
+                                               {% endif %}
+                                                        
+                                    </div>
+                                        </div>
+                                    </li>
+                                    {% endfor %}
+                                   
+                                </ul>
+                                <ul class="subtotal">
+                                    <li>
+                                        <div class="subtotal-line">
+                                            <b class="stt-name">Subtotal</b>
+                                           
+                                            <span class="stt-price">Ksh {{ total_price }}</span>
+                                            
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="subtotal-line">
+                                            <b class="stt-name">Shipping</b>
+                                            <span class="stt-price">£20.00</span>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="subtotal-line">
+                                            <b class="stt-name">Tax</b>
+                                            <span class="stt-price">Ksh {{ tax }}</span>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="subtotal-line">
+                                            {% if coupon_code and coupon_amount %}
+                                            <li class="list-group-item d-flex justify-content-between bg-light">
+                                                <div class="text-success">
+                                                    <h6 class="my-0">Promo code</h6>
+                                                    <small>{{ coupon_code }}</small>
+                                                </div>
+                                                <span class="text-success">-Ksh {{ coupon_value }}</span>
+                                            </li>
+                                        {% else %}
+                                            <li class="list-group-item d-flex justify-content-between bg-light">
+                                                <div class="text-danger">
+                                                    <h6 class="my-0">No Promo code applied</h6>
+                                                </div>
+                                            </li>
+                                        {% endif %}
+                                        
+                                      <!-- Promo code -->
+                                          {% if SHOW_COUPON_FORM %}             <!-- if show coupon form is set to true then do the following below -->
+                                          <form class="card p-2" action="{% url 'shop:add-coupon' %}" method="POST">
+                                            {% csrf_token %}
+                                            <div class="input-group">
+                                              {{ couponform.code }} <!-- Use the correct variable name here -->
+                                              <div class="input-group-append">
+                                                <button class="btn btn-success btn-md waves-effect m-0" type="submit">Redeem</button>
+                                              </div>
+                                            </div>
+                                          </form>
+                                          {% endif %}
+                                          {% if kuja_naivas_message %}
+                                            <p>{{ kuja_naivas_message }}</p>
+                                        {% endif %}
+                                      <!-- Promo code -->
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="subtotal-line">
+                                            <b class="stt-name">Total:</b>
+                                            <span class="stt-price">Ksh {{ order_total_amount }}</span>
+                                           
+
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Function to show/hide the pickup station form based on the selected delivery method
+            function showDiv(select) {
+                var hiddenDiv = document.getElementById('hidden_div');
+                hiddenDiv.style.display = select.value === 'Pickup' ? 'block' : 'none';
+            }
+    
+            // Add an event listener to the delivery method select
+            var deliveryMethodSelect = document.querySelector('[name="shipping_method"]');
+            deliveryMethodSelect.addEventListener('change', function () {
+                showDiv(this);
+            });
+    
+            // Initial display based on the default selected delivery method
+            showDiv(deliveryMethodSelect);
+        });
+    </script>
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

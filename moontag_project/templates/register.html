@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<link rel="stylesheet" href="{% static 'css/register_page.css' %}">
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    <strong>Message:</strong> {{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+</div>
+{% endfor %}
+
+
+<h3 id="head">{{staff}} Rsegister</h3>
+<div id="content">
+    <form action="register1" method="post">
+        {% csrf_token %} 
+        <label for="">Username:</label>
+        <input type="text" id="username" name="username" placeholder="Create Username" required>
+        <br>
+
+        <label for="">First name:</label>
+        <input type="text" id="fname" name="fname" placeholder="Enter your First name" required>
+        <br>
+
+        <label for="">Last name:</label>
+        <input type="text" id="lname" name="lname" placeholder="Enter your Last name" required>
+        <br>
+
+        <label for="">Email:</label>
+        <input type="email" id="email" name="email" placeholder="Enter email adress" required>
+        <br>    
+
+        <label for="">Paswword:</label>
+        <input type="password" id="pass1" name="pass1" placeholder="Create password" required>
+        <br>
+
+        <label for="">Confirm password:</label>
+        <input type="password" id="pass2" name="pass2" placeholder="Confirm password" required>
+        <br>
+
+        <button id="logb" type="submit">Register</button>
+        <p><button id="reglink" type="submit"><a href="http://127.0.0.1:8000/login1">alredy have account ?</a></button></p>
+    </form>
+</div>
+{% endblock %}

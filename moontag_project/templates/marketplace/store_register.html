@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    <strong>Message:</strong> {{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+</div>
+{% endfor %}
+<form action="/store-register" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label>Store Name</label>
+    <input type="text" name="storeName" id="storeName" class="form-control">
+    <br>
+    <label>Company Name</label>
+    <input type="text" name="companyName" id="companyName" class="form-control">
+    <br>
+    <label>Store Image</label>
+    <input type="file" name="storeImage" id="storeImage" accept="image/*" class="form-control-file">
+    <br>
+    <label>bussiness Email</label>
+    <input type="email" name="businessEmail" id="bemail" class="form-control">
+    <br>
+    <label>Pay Pal Email For Payout</label>
+    <input type="text" name="payPalEmail" id="pemail" class="form-control">
+    <br>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}

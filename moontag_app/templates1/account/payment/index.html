@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+{% block content %}
+<h2>Checkout</h2>
+<div>
+  <p align="center">ITEMS IN THIS ORDER</p>
+</div>
+<div class="row">
+
+<div class="card mb-3">
+  <div class="card-body">
+    
+      <h6 class="card-title">Order Number: {{order.order_number}}</h6>
+
+      <hr>
+      <br>
+      {% for item in order.items.all %}
+      <h5 class="card-title">{{item.product.name}}</h5>
+     <p>
+      <img  style="width:50px;height:60px;" src="{% if item.product.thumb_nail %}{{ item.product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}" >
+      &nbsp;&nbsp;&nbsp;
+      QTY: {{ item.quantity }} &nbsp;&nbsp;
+     Price  KSH: {{ item.product.price }}
+     </p>
+      {% endfor %}
+  </div>
+        
+
+<form method="post">
+  
+    <input type="hidden" name="csrfmiddlewaretoken" value="No8KcYUizkC6jpAnIdf0Wn75K2VXDwIG0JYea1XLrivxF5e3DSnuWP8CyGDsZd44">
+    {% csrf_token %}
+
+<div id="div_id_first_name" class="mb-3" style="display: none;"> <label for="id_first_name" class="form-label requiredField">First name<span  class="asteriskField">*</span> </label> <input type="text" name="first_name" value="{{user.first_name}}" maxlength="20" class="textinput form-control" required="" id="id_first_name"> </div> 
+<div id="div_id_last_name" style="display: none;" class="mb-3"> <label for="id_last_name" class="form-label requiredField">Last name<span class="asteriskField">*</span> </label> <input type="text" name="last_name"  value="{{user.last_name}}" maxlength="20" class="textinput form-control" required="" id="id_last_name"> </div> 
+<div id="div_id_email" class="mb-3" style="display: none;" > <label for="id_email" class="form-label requiredField">Email<span style="display: none; class="asteriskField">*</span> </label> <input type="email" name="email" value="{{user.email}}" maxlength="254" class="emailinput form-control" required="" id="id_email"> </div> 
+<div id="div_id_phone" class="mb-3"> <label for="id_phone" class="form-label requiredField">Phone<span class="asteriskField" >*(start with   7*********)</span> </label> <input type="tel" name="phone" value="+254 {{user.phone_number}} " value="+254"required maxlength="128" class="regionalphonenumberwidget form-control" required="" id="id_phone"> </div>
+
+    
+  
+  <strong> <label for="id_amount44">Order Total KSH:<span class="asteriskField">*</span></label></strong>
+                <input type="number" name="amount" step="0.01" class="numberinput form-control" required="" id="id_amount44" readonly value="{{amount}}">
+
+                
+    <button type="submit">Checkout</button>
+    
+  </form>
+  
+  
+</div>
+
+
+
+
+{% endblock %}

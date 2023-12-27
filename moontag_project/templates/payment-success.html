@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<main class="container my-4" id="cart_page">
+    <p>Payment Success</p>
+</main>
+<div class="col-md-9">
+    {% csrf_token %}
+    <div class="table-responsive">
+        <table class="table-bordered table">
+            <thead>
+                <tr>
+                    <th>Order Number</th>
+                    <th>Total Amount</th>
+                    <th>Paid Status</th>
+                    <th>Order Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td><a href="{% url 'user_orders_items' order.id %}" class="btn btn-sm btn-dark">{{order.id}}</a></td>
+                    <td>{{order.total_amt}}</td>
+                    <td>{{order.paid_status}}</td>
+                    <td>{{order.order_dt}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{{a.id}}
+{% endblock %}

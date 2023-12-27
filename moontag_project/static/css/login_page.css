@@ -1,0 +1,35 @@
+#content{
+    margin: auto;
+    width: 50%;
+    border: 3px solid #ff9900;
+    padding: 10px;
+    margin-top: 50px;
+    margin-bottom: 180px;
+}
+
+#head {
+    margin: auto;
+    width: 11%;
+    padding: 10px;
+    margin-top: 55px;    
+}
+
+#uname,#passwordcss {
+    font-weight: 900;
+}
+
+#username,#pass1 {
+    margin-left: 30px;
+}
+
+#pass1 {
+    margin-top: 20px;
+}
+
+#logb {
+    margin-top: 30px;
+}
+
+#reglink {
+    margin-top: 15px;
+}

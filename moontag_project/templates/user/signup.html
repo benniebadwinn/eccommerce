@@ -1,0 +1,125 @@
+
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+ <!--Hero Section-->
+ <div class="hero-section hero-background">
+    <h1 class="page-title">Login/Register</h1>
+</div>
+
+<!--Navigation section-->
+<div class="container">
+    <nav class="biolife-nav">
+        <ul>
+            <li class="nav-item"><a href="index-2.html" class="permal-link">Home</a></li>
+            <li class="nav-item"><span class="current-page">Authentication</span></li>
+        </ul>
+    </nav>
+    
+</div>
+
+<div class="page-contain login-page">
+
+    <!-- Main content -->
+    <div id="main-content" class="main-content">
+        <div class="container">
+
+            <div class="row">
+              {% if otp %}
+              <form method="POST">
+                {% csrf_token %}
+                <fieldset class="form-group">
+                    <legend class="border-bottom display">
+                        <h3 class="float-left">Verify Your Email</h3>
+
+                    <!-- <img src="{% static 'main/img/logo.png' %}" class="logo float-right pt-1" width="25"> -->
+                    </legend>
+                    <input type="hidden" name="usr" value="{{usr.username}}">
+                    <!-- <div class="input-group mb-3">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">OTP</span>
+                      </div>
+                      <input type="text" class="form-control" placeholder="Enter Your OTP" aria-label="OTP" aria-describedby="basic-addon1" name = 'otp'>
+                    </div> -->
+                    
+                    <div class="row margin">
+                      <div class="input-field col s12">
+                        <span class="input-group-text" id="basic-addon1">OTP</span>
+                        <!-- <i class="mdi-communication-email prefix"></i> -->
+                        <input type="text" class="form-control" placeholder="Enter Your OTP" aria-label="OTP" aria-describedby="basic-addon1" name = 'otp'>
+                        <!-- <label for="email" class="center-align">Email</label> -->
+                      </div>
+                    </div>
+
+
+                </fieldset>
+                <div class="form-grounp">
+                    <button class="btn waves-effect waves-light col s12" type="submit">Verify</button>
+                    <p>Didn`t Recieve OTP  <small class="float-right text-muted"><i><a href="#" class="text-dark" 
+                      onclick="ReSendOTP('{{usr.username}}', 'resendOTPmess')"><i id="resendOTPmess">Resend</i> OTP</a></small></p>
+
+                </div>
+
+            </form>
+           {% else %}
+                <!--Form Sign In-->
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="signin-container">
+                        <form action="#" name="frm-login" method="post">
+                            {% csrf_token %}
+                            <p class="form-row">
+                                <label for="fid-name">Username:<span class="requite">*</span></label>
+                                <input type="text" name="name" placeholder="Full Names" class="textinput textInput" required="" id="id_name">
+                            </p>
+                            <p class="form-row">
+                                <label for="fid-pass">Email:<span class="requite">*</span></label>
+                                <input type="email" name="username" placeholder="Email" autofocus="" class="emailinput" required="" id="id_username">
+                            </p>
+                            <p class="form-row">
+                              <label for="fid-pass">Password:<span class="requite">*</span></label>
+                              <input type="password" name="password1" placeholder="Password" autocomplete="new-password" class="textinput textInput" required="" id="id_password1">
+                          </p>
+                          <p class="form-row">
+                            <label for="fid-pass">Retype Password:<span class="requite">*</span></label>
+                            <input type="password" name="password2" placeholder="Re-type password" autocomplete="new-password" class="textinput textInput" required="" id="id_password2">
+                        </p>
+
+
+                        
+                            <p class="form-row wrap-btn">
+                                <button class="btn btn-submit btn-bold" type="submit">Create an account</button>
+                                <!-- <input class="btn btn-submit btn-bold" type="submit" value="sign in"> -->
+                                <a href="{% url 'account:password_reset' %}" class="link-to-help">Forgot your password</a>
+                            </p>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+                <!--Go to Register form-->
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="register-in-container">
+                        <div class="intro">
+                            <h4 class="box-title">Already have an account?</h4>
+                            <!-- <p class="sub-title">Create an account with us and you’ll be able to:</p> -->
+                            <ul class="lis">
+                                <li>Check out faster</li>
+                                <li>Save multiple shipping anddesses</li>
+                                <li>Access your order history</li>
+                                <li>Track new orders</li>
+                                <li>Save items to your Wishlist</li>
+                            </ul>
+                            <a href="{% url 'account:login' %}" class="btn btn-bold">Sign In</a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock content %}

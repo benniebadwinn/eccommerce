@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    <strong>Message:</strong> {{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+</div>
+{% endfor %}
+<form method="POST" action="add-color">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="exampleFormControlInput1">Add Color name</label>
+      <input type="text" class="form-control" name="title" id="title" placeholder="Color name" required>
+    </div>
+    <div class="form-group">
+        <label for="exampleFormControlInput1">Add Color Code !-HAVE TO START WITH A - # -! example - #ffff</label>
+        <input type="text" class="form-control" name="color_code" id="color_code" placeholder="Color Code have to start with # " required>
+      </div>
+    <div class="form-group">
+        <button type="submit">Add Color</button>
+    </div>
+  </form>
+{% endblock %}

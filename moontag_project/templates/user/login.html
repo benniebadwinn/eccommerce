@@ -1,0 +1,85 @@
+
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    <strong>Message:</strong> {{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+</div>
+{% endfor %}
+ <!--Hero Section-->
+ <div class="hero-section hero-background">
+    <h1 class="page-title">Login/Register</h1>
+</div>
+
+<!--Navigation section-->
+<div class="container">
+    <nav class="biolife-nav">
+        <ul>
+            <li class="nav-item"><a href="index-2.html" class="permal-link">Home</a></li>
+            <li class="nav-item"><span class="current-page">Authentication</span></li>
+        </ul>
+    </nav>
+    
+</div>
+
+<div class="page-contain login-page">
+
+    <!-- Main content -->
+    <div id="main-content" class="main-content">
+        <div class="container">
+
+            <div class="row">
+
+                <!--Form Sign In-->
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="signin-container">
+                        <form action="#" name="frm-login" method="post">
+                            {% csrf_token %}
+                            <p class="form-row">Email:
+                              <input type="text" name="username" class="validate" placeholder="Enter your Email" id="username">
+                              <label for="username" data-error="Wrong" data-success="Right" class="center-align"></label>
+                            </p>
+                            <p class="form-row">Password:
+                              <input type="password" name="password" class="input-box" placeholder="Password"  required="" id="password">
+                              <label for="password"></label>
+                            </p>
+                            <p class="form-row wrap-btn">
+                                <button class="btn btn-submit btn-bold" type="submit">sign in</button>
+                                <!-- <input class="btn btn-submit btn-bold" type="submit" value="sign in"> -->
+                                <a href="{% url 'account:password_reset' %}" class="link-to-help">Forgot your password</a>
+                            </p>
+                        </form>
+                    </div>
+                </div>
+
+                <!--Go to Register form-->
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="register-in-container">
+                        <div class="intro">
+                            <h4 class="box-title">New Customer?</h4>
+                            <p class="sub-title">Create an account with us and you’ll be able to:</p>
+                            <ul class="lis">
+                                <li>Check out faster</li>
+                                <li>Save multiple shipping anddesses</li>
+                                <li>Access your order history</li>
+                                <li>Track new orders</li>
+                                <li>Save items to your Wishlist</li>
+                            </ul>
+                            <a href="{% url 'account:signup' %}" class="btn btn-bold">Create an account</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock content %}

@@ -1,0 +1,27 @@
+{% extends "base8.html" %}
+{% block content %} 
+<h1>List of your shipping addresses:</h1>
+   {% for address in addresses %}
+    <p>
+     <h6><b>Address name:</b> {{ address.user.first_name }}</h6>
+     <b>County:</b> {{ address.region }}<br>
+     <b>Town:</b> {{ address.address_name }}<br>
+     <b>Contact1:</b> {{ address.phone_number }}<br>
+     <b>Contact2:</b> {{ address.additional_phone_number }}<br>
+     <b>Delivery_instructions:</b> {{ address.delivery_instructions }}<br>
+      
+    </p>
+    <p>
+     <a href="{% url "shop:address_update" address.id %}">Update address</a>
+    </p>
+    <p>
+      <a href="{% url "shop:address_delete" address.id %}">Delete address</a>
+    </p>
+    {% if not forloop.last %}
+      <hr>
+    {% endif %}
+    {% endfor %}
+    <h5><b><p>
+       <a href="{% url "shop:address_create" %}">Add new address</a>
+    </p></b> </h5>
+{% endblock content %}

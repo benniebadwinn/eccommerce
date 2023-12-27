@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h1 style="margin-top: 30px; margin-bottom: 30px; color: red;">Information about the site</h1>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">The cheapest price in the store</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="font-size: 20px;">{{max_min_price.price__min}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">The most expensive product in the store</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="font-size: 20px;">{{max_min_price.price__max}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Average price on the site</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="font-size: 20px;">{{avg.price__avg}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Total Products in site</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="font-size: 20px;">{{total_products|length}}</td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">How much the site earned until this day</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="font-size: 20px;">{{total_price.total_amt__sum}}</td>
+      </tr>
+    </tbody>
+  </table>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}
+<title>
+  Pay your order
+
+</title>
+{% endblock %}
+
+{% block content %}
+
+  {% if order.items.all %}
+			<tr>
+				<td colspan="4" align="right">
+					{{form.render}}
+				</td>
+			</tr>
+   {% endif %}
+  
+
+
+
+
+</div>
+
+			
+
+				</td>
+			</tr>
+            <script src="https://www.paypal.com/sdk/js?client-id=AQ84lkl9z-6GiVa9cMXD7zkDyCWyghoKWf2viMTZz4AGwz7951RHgtwz4nma08gRxFtDiBAbY-Au5O17&currency=USD"></script>
+  <script>
+    function getCookie(name) {
+      var cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+          var cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+  
+  
+  
+    function initPayPalButton() {
+      paypal.Buttons({
+        style: {
+          shape: 'rect',
+          color: 'gold',
+          layout: 'vertical',
+          label: 'paypal',
+  
+        },
+      createOrder: function (data, actions) {
+          return actions.order.create({
+            purchase_units: [{
+              "amount": {
+                "currency_code": "USD",
+                "value": '{{ order.get_total_cost|floatformat:2 }}'
+              }
+            }]
+          });
+        },
+      onApprove: function (data) {
+          var url = "#"
+          return fetch(url, {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/json',
+              'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({
+              orderID: data.orderID
+            })
+          }).then(function () {
+            location.href = "#";
+          })
+        },
+      }).render('#paypal-button-container');
+    }
+    initPayPalButton();
+  
+  </script>
+{% endblock %}

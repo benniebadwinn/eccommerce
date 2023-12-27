@@ -1,0 +1,31 @@
+#content{
+    margin: auto;
+    width: 50%;
+    border: 3px solid #ff9900;
+    padding: 10px;
+    margin-top: 50px;
+    margin-bottom: 180px;
+}
+
+#head {
+    margin: auto;
+    width: 15%;
+    padding: 10px;
+    margin-top: 55px;    
+}
+
+input {
+    margin-left: 30px;
+}
+
+#logb {
+    margin-top: 30px;
+}
+
+#reglink {
+    margin-top: 15px;
+}
+
+label {
+    font-weight: 900;
+}

@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+  {{ product.name }}
+{% endblock %}
+{% block content %}
+ 
+<main class="container my-4">
+	{% for message in messages %}
+          {{ message|safe }} - <a href="{% url 'account:wishlist' %}" class="alert-link">Your wishlist</a>
+        {% endfor %}
+	<!-- Featured Products -->
+	<h3>{{product.name}} (Viewed {{product.view_count}} times)</h3>
+	<h3 class="my-4 border-bottom pb-1">{{product.name}}</h3>
+	<div class="row">
+		<!-- Images -->
+		<div class="col-md-4">
+			<img id="zoom_01" data-zoom-image="{{ product.image.url }}" src="{{ product.image.url }}" class="card-img-top" alt="{{data.title}}">
+		</div>
+		<div class="col-md-8">
+			<p>{{ product.description|linebreaks }}</p>
+			<hr/>
+			<table class="table table-bordered">
+				<tr>
+					<th>Colors</th>
+					<td>
+						{{product.color.color_tag}}
+					</td>
+				</tr>
+				<tr>
+					<th>Sizes</th>
+					<td>
+                        {{product.size}}
+					</td>
+				</tr>
+				<tr>
+					<th>Price</th>
+					<th>&#36; <span class="product-price-{{data.id}} product-price">{{product.productattribute_set.first.price}}</span></th>
+				</tr>
+			</table>
+			<hr/>
+			<div class="input-group my-3" style="width:30%;">
+			  <input type="number" value="1" class="form-control product-qty-{{data.id}}" id="productQty" />
+			  <div class="input-group-append">
+				<input type="hidden" class="product-img-{{data.id}}" value="{{data.productattribute_set.first.img}}" />
+				   <input type="hidden" class="product-id-{{data.id}}" value="{{data.id}}" />
+				   <input type="hidden" class="product-title-{{data.id}}" value="{{data.title}}" />
+           <a href="{% url 'shop:cart_add_single_item' product.id %}" class="btn btn-sm text-dark p-0"><i class="fas fa-shopping-cart text-primary mr-1"></i>Add to Cart</a>
+		   <a href="{% url 'account:wishlist_product_toggle' product.id %}"
+             class="btn btn-light bnt-lg fw-500"
+             role="button">
+            {% if in_wishlist %}
+              Remove from wishlist
+            {% else %}
+              Add to wishlist
+            {% endif %}
+          </a>
+           
+			  </div>
+			</div>
+		</div>
+	</div>
+	<hr />
+	<div class="row">
+		<div class="col-md-6">
+			<h3 class="my-3">Detail</h3>
+			<!-- Detail -->
+			<table class="table table-bordered">
+				<tr>
+					<th>Brand</th>
+					<td><a href="#">{{product.brand}}</a></td>
+				</tr>
+				<tr>
+					<th>Category</th>
+					<td><a href="#">{{ product.category }}</a></td>
+				</tr>
+				<tr>
+					<th>Specification</th>
+					<td>{{ product.description|linebreaks }}</td>
+				</tr>
+			</table>
+		</div>
+		<!-- Reviews -->
+		<div class="col-md-6">
+			<h3 class="my-3">Reviews - <span>{{avg}}</span> <i class="fa fa-star text-warning"></i>
+				{% if user_review %}
+
+				{% else%}
+				{% if user.is_authenticated %}
+				
+				<button type="button" class="btn rewiewButton"data-toggle="modal" data-target="#exampleModal">Add Review</button></h3>
+				
+				{% else %}
+				<a href="/login1" >Login To Add Reviewiew</a>
+				{% endif %}
+				{% endif %}
+				<!--Modal-->
+				<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+					<div class="modal-dialog">
+					  <div class="modal-content">
+						<div class="modal-header">
+						  <h5 class="modal-title" id="exampleModalLabel">Product Rewiew</h5>
+						  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						  </button>
+						</div>
+						<div class="modal-body">
+							<form method="POST">
+								{% csrf_token %}							
+								<table class="table table-bordered">
+									<form method="post" action="/save-rewiew" id="rewiewForm">
+										<input name="comment" class="comment" type="text"></input>
+										<br>
+										<select name="stars" class="stars">
+											<option value="1">1</option>
+											<option value="2">2</option>
+											<option value="3">3</option>
+											<option value="4">4</option>
+											<option value="5">5</option>
+										</select>
+										<br>
+										<input type="hidden" name="username" value="{{user}}">
+										<input type="hidden" name="product" value="{{product}}">
+										<button class="reviewButton" type="submit">Add Rewiew</button>
+									</form>
+								</table>
+							</form>
+						</div>
+					  </div>
+					</div>
+				  </div>
+				<!--Modal End-->
+			<div class="card">
+				<div class="card-body" style="max-height: 400px; overflow: auto;">
+					<!-- Detail -->
+					{% for review in rewiews %}
+					<blockquote class="blockquote text-right">
+					  <small>{{review.review_text}}</small>
+					  <footer class="blockquote-footer">{{review.user}} 
+					  	<cite title="Source Title">
+							<!---->
+							{% for star in review.review_rating|ljust:review.review_rating %}
+							<i class="fa fa-star text-warning"></i>
+						  	{% endfor %}
+					  	</cite>
+					  </footer>
+					</blockquote>
+					{% endfor %}
+					<hr />
+				</div>
+			</div>
+		</div>
+	</div>
+	<h3 class="mt-4 mb-3 border-bottom pb-1">Related products from the same category</h3>
+	<div class="row">
+		{% for product in related_products %}
+		<div class="col-md-3 mb-4">
+			<div class="card shadow">
+				<a href="/product/{{product.slug}}/{{product.id}}"><img src="/media/{{product.productattribute_set.first.img}}" class="card-img-top" alt="{{product.title}}"></a>
+				<div class="card-body">
+					<h6 class="card-text"><a href="/product/{{product.slug}}/{{product.id}}">{{product.title}}</a></h6>
+				</div>
+				<div class="card-footer">
+
+				</div>
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+</main>
+<script src="https://cdn.jsdelivr.net/gh/igorlino/elevatezoom-plus@1.2.3/src/jquery.ez-plus.js"></script>
+<script>
+    $('#zoom_01').ezPlus();
+</script>
+
+{% endblock %}

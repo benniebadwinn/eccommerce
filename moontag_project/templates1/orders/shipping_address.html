@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+  Checkout
+{% endblock %}
+
+{% block content %}
+
+ <!--Hero Section-->
+   <div class="hero-section hero-background">
+    <h1 class="page-title">Delivery Method</h1>
+</div>
+
+
+
+    <!--Navigation section-->
+    <div class="container">
+        <nav class="biolife-nav">
+            <ul>
+                <li class="nav-item"><a href="index-2.html" class="permal-link">Home</a></li>
+                <li class="nav-item"><span class="current-page">delivery method</span></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="page-contain checkout">
+
+        <!-- Main content -->
+        <div id="main-content" class="main-content">
+            <div class="container sm-margin-top-37px">
+                <div class="row">
+
+                    <!--checkout progress box-->
+                    <div class="col-lg-7 col-md-7 col-sm-6 col-xs-12">
+                        <div class="checkout-progress-wrap">
+                            <ul class="steps">
+                                <li class="step 1st">
+                                    <div class="checkout-act active">
+                                        <h3 class="title-box"><span class="number">1</span>HOME | OFFICE ADDRESS DETAILS</h3>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <a href="{% url 'shop:address_list' %}" class="button light">ADD/CHANGE</a>
+                
+                                    </p>
+                                        <div class="box-content">
+
+                                            <div class="login-on-checkout">
+                                                
+                                                <b>{{address.user.first_name}} {{address.user.last_name}}</b><br>
+                                                {{address.address_name}}<br>
+                                                {{address.phone_number}}
+
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <div class="checkout-act active">
+                                    <h3 class="title-box"><span class="number">2</span>DELIVERY METHOD</h3>
+                                    <div class="box-content">
+                                        <!-- <p class="txt-desc"> How do you want your order delivered?</p> -->
+                                    <form method="POST">
+                                            {% csrf_token %}
+
+                                            <div class="form-group" id="hidden_div" >
+                                                  <form method="post" action="#">
+                                                    {% csrf_token %}
+                                                    {{ form.as_p }}
+
+                                            <p class="text-muted">
+                                                You will be able to add a voucher in the next step.</p>
+                                            <input type="submit"   class="btn button1 btn-primary" value="PROCEED TO NEXT STEP">
+                                        </form>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!--Order Summary-->
+                    <div class="col-lg-5 col-md-5 col-sm-6 col-xs-12 sm-padding-top-48px sm-margin-bottom-0 xs-margin-bottom-15px">
+                        <div class="order-summary sm-margin-bottom-80px">
+                            <div class="title-block">
+                                
+                                <h3 class="page-title">Order Summary</h3>
+                                <a href="{% url 'shop:cart_detail' %}" class="link-forward">Edit cart</a>
+                            </div>
+                            <div class="cart-list-box short-type">
+                                <span class="number">{{ cart.total_items }}</span>
+                                <ul class="cart-list">
+                                    {% for item in cart_items %}
+                                    <li class="cart-elem">
+                                        <div class="cart-item">
+                                            <div class="product-thumb">
+                                                <a class="prd-thumb" href="#">
+                                                    <figure><img src="{{ item.product.product.image.url }}" width="113" height="113" alt="shop-cart" ></figure>
+                                                </a>
+                                            </div>
+                                            <div class="info">
+                                                <span class="txt-quantity">{{ item.quantity }} X</span>
+                                                <a href="#" class="pr-name">{{ item.product.product.name }}</a>
+                                            </div>
+                                            <div class="price price-contain">
+                                                {% if order_item.product.discount_price %}
+                                                         <ins><span class="price-amount"><span class="currencySymbol">Ksh</span>{{ item.price }}<span class="badge bg-success">You save Ksh {{ order_item.get_amount_saved }}</span></span></ins>
+         
+                                                         {% else %}
+                                                         <ins><span class="price-amount"><span class="currencySymbol">Ksh</span>{{ item.price }}</span></ins>
+                                               {% endif %}
+                                                        
+                                    </div>
+                                        </div>
+                                    </li>
+                                    {% endfor %}
+                                   
+                                </ul>
+                                <ul class="subtotal">
+                                    <li>
+                                        <div class="subtotal-line">
+                                            <b class="stt-name">Subtotal</b>
+                                            {% for item in cart_items %}
+                                            <span class="stt-price">Ksh {{ item.subtotal }}</span>
+                                            {% endfor  %}
+                                        </div>
+                                    </li>
+
+                             
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Function to show/hide the pickup station form based on the selected delivery method
+            function showDiv(select) {
+                var hiddenDiv = document.getElementById('hidden_div');
+                hiddenDiv.style.display = select.value === 'Pickup' ? 'block' : 'none';
+            }
+    
+            // Add an event listener to the delivery method select
+            var deliveryMethodSelect = document.querySelector('[name="shipping_method"]');
+            deliveryMethodSelect.addEventListener('change', function () {
+                showDiv(this);
+            });
+    
+            // Initial display based on the default selected delivery method
+            showDiv(deliveryMethodSelect);
+        });
+    </script> -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var pickupOptionField = document.getElementById("id_pickup_option");
+            var pickupStationField = document.getElementById("id_pickup_station");
+    
+            // Initial state
+            togglePickupStationField();
+    
+            // Add event listener for changes in the pickup option
+            pickupOptionField.addEventListener("change", togglePickupStationField);
+    
+            function togglePickupStationField() {
+                if (pickupOptionField.value === "Dropped at a Pickup Station") {
+                    pickupStationField.style.display = "block";
+                } else {
+                    pickupStationField.style.display = "none";
+                }
+            }
+        });
+    </script>
+    
+
+{% endblock %}
+
+
+

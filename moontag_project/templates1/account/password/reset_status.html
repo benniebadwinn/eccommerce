@@ -1,0 +1,16 @@
+{% extends "../sub_base.html" %}
+{% block title %}
+  Reset Password
+{% endblock title %}
+{% block sub_content %}
+  <div>
+    {% if 'email' in request.get_full_path %}
+      <h3 class="mb-4">Password Reset Success</h3>
+      <p>Check your email for instructions</p>
+    {% endif %}
+    {% if 'complete' in request.get_full_path %}
+      <h3 class="mb-4">Password Reset Success</h3>
+      <a href="{% url 'account:login' %}">Login</a>
+    {% endif %}
+  </div>
+{% endblock sub_content %}

@@ -1,0 +1,95 @@
+{% extends 'base4.html' %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<style>
+    table,
+    th,
+    td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+    
+    th,
+    td {
+        padding: 5px;
+        text-align: left;
+    }
+    
+    </style>
+
+<style>
+    .button {
+      background-color: #4CAF50; /* Green */
+      border: none;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 6px;
+      margin: 4px 2px;
+      cursor: pointer;
+    }
+    
+    .button1 {padding: 10px 24px;}
+    
+    </style>
+<main class="container my-4">
+ <!-- my account section start -->
+ <section class="my__account--section section--padding">
+    <div class="container">
+        <p class="account__welcome--text">Hello <strong> {{  user.first_name }} </strong> Welcome to store database!</p>
+        <div class="my__account--section__inner border-radius-10 d-flex">
+            <div class="account__left--sidebar">
+                <h2 class="account__content--title h3 mb-20" style="font-weight: 900;font-size: x-large;">Database</h2>
+                <ul class="account__menu">
+                    <li class="account__menu--list active"><a href="/add-product">add Product</a></li>
+                    <li class="account__menu--list active"><a href="/add-attribute">add Attribute</a></li>
+                    <li class="account__menu--list active"><a href="/add-category">add Category</a></li>
+                    <li class="account__menu--list active"><a href="/add-brand">add Brand</a></li>
+                    <li class="account__menu--list active"><a href="/add-color">add Color</a></li>
+                    <li class="account__menu--list active"><a href="/add-size">add Size</a></li>
+                    <li class="account__menu--list active"><a href="/add-banner">add Banner</a></li>
+                    <li class="account__menu--list active"><a href="/display-product">Product Display + search and Remove</a></li>
+                    <li class="account__menu--list active"><a href="/checkout-purchasing"> Shopping cart conversion</a></li>
+                    <li class="account__menu--list active"><a href="/data">Data</a></li>
+                   
+                    <li class="account__menu--list"><a href="{% url 'account:logout' %}">Log Out</a></li>
+                </ul>
+            </div>
+            <div class="account__wrapper">
+                <div class="account__content">
+                    <div class="row">
+                        
+                           
+                                <table class="table-bordered table">
+                                    <thead class="breadcrumb__section" style="background-color: coral;padding-top: 80%;padding-bottom: 0.5%;">
+                                        <tr>
+                                            <th>Order Number</th>
+                                            <th>Total Amount</th>
+                                            <th>Paid Status</th>
+                                            <th>Order Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for order in orders %}
+                                        <tr>
+                                           <td><strong><a href="{% url 'user_orders_items' order.id %}" class="btn btn-sm btn-dark">{{order.id}}</a></strong></td>
+                                            <td>{{order.total_amt|floatformat:2}}</td>
+                                            <td>{{order.paid_status}}</td>
+                                            <td>{{order.order_dt}}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                           
+                        
+                   
+                
+           
+        
+   
+
+<!-- my account section end -->
+
+{% endblock %}
