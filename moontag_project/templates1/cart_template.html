@@ -1,7 +1,0 @@
-<h1>Your Cart</h1>
-<ul>
-    {% for product in cart_products %}
-        <li>{{ product.quantity }} x {{ product.product.name }} - Subtotal: {{ product.subtotal }}</li>
-    {% endfor %}
-</ul>
-<p>Total: {{ cart.calculate_total }}</p>
