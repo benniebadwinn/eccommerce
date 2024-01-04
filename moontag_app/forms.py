@@ -219,6 +219,7 @@ class OrderCreateForm(forms.ModelForm):
         ('mpesa_on_delivery', 'Mpesa on Delivery'),
         ('mpesa', 'Mpesa'),
         ('pesapal', 'Pesapal'),
+        ('wallet', 'Wallet'),
         ('paypal', 'Paypal'),
     ]
 

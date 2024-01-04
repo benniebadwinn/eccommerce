@@ -8,3 +8,4 @@ class ProfileAdmin(admin.ModelAdmin):
 
 admin.site.register(UserProfuile)
 admin.site.register(subscriptions)
+admin.site.register(WalletTransaction)

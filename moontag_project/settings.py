@@ -1,6 +1,8 @@
 from pathlib import Path
 from .info import *
 import os
+import smtplib
+from email.message import EmailMessage
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,6 +21,10 @@ DEBUG = int(os.environ.get('DEBUG', default=True))
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
+CSRF_TRUSTED_ORIGINS=['https://64f1-197-232-76-74.ngrok-free.app']
+
+SECURE_CROSS_ORIGIN_OPENER_POLICY='same-origin-allow-popups'
+
 
 # Application definition
 
@@ -28,6 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'daphne',
     'django.contrib.staticfiles',
     'moontag_app',
     'paypal.standard.ipn',
@@ -35,6 +42,9 @@ INSTALLED_APPS = [
     'main',
     'crispy_forms',
     'account',
+    'social_django',
+    
+    'channels',
     
 ]
 
@@ -46,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'moontag_project.urls'
@@ -62,12 +73,19 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'moontag_app.template_context.get_filters',
+                'moontag_app.context_processors.total_price',
+                'moontag_app.context_processors.cart_data',
+                'moontag_app.context_processors.wishlist_count',
+                'social_django.context_processors.login_redirect',
+                'social.apps.django_app.context_processors.backends',
+                'social.apps.django_app.context_processors.login_redirect',
             ],
         },
     },
 ]
 
 WSGI_APPLICATION = 'moontag_project.wsgi.application'
+
 
 
 # Database
@@ -122,10 +140,13 @@ STATICFILES_DIRS = [STATIC_DIR]
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-LOGIN_REDIRECT_URL = 'home'
-LOGIN_URL = 'login1'
 
 CRISPY_TEMPLATE_PACK = 'uni_form'
+
+
+
+
+
 
 #mpesa credentials
 
@@ -134,17 +155,45 @@ MPESA_CONSUMER_SECRET = 'QZTekqqfF8el0nAX'
 MPESA_API_URL = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
 
 
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
-        }
-    }
-}
+
+AUTHENTICATION_BACKENDS = [
+    'moontag_app.backends.CaseInsensitiveModelBackend',
+    'social_core.backends.google.GoogleOAuth2',  # Enable Gmail authentication
+    # 'social_core.backends.google.GoogleOpenId',  # for Google authentication
+    'django.contrib.auth.backends.ModelBackend',
+    # ... other backends
+]
+
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         'SCOPE': [
+#             'profile',
+#             'email',
+#         ],
+#         'AUTH_PARAMS': {
+#             'access_type': 'online',
+#         }
+#     }
+# }
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
+# SOCIAL_AUTH_GOOGLE_PLUS_AUTH_EXTRA_ARGUMENTS = {
+#       'access_type': 'offline'
+# }
+SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {'prompt': 'select_account'}
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+# LOGIN_REDIRECT_URL = 'http://localhost:8000/auth/complete/google-oauth2/'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'http://localhost:8000/'
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '468041107750-ruqdmubu7oei07lk4lbb5u7983amhfti.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+
+
+
+
+
 
 
 SITE_ID = 1
@@ -165,6 +214,16 @@ EMAIL_USE_SSL = True
 EMAIL_HOST_USER = "benniebadwin@gmail.com"
 EMAIL_HOST_PASSWORD = 'xomv oqhb ztwo vgya'
 DEFAULT_FROM_EMAIL = 'benniebadwin@gmail.com'
+
+
+
+# Set your email credentials and server information
+# smtp_server = 'smtp.badwin.online.com'  # Replace with your SMTP server
+# port = 587  # Check with your email provider for the correct port number
+# login = 'badwin@badwin.online'  # Replace with your email username
+# password = 'luckyp@tch3r'  # Replace with your email password
+
+
 
 PAYPAL_RECEIVER_EMAIL = 'benniebadwin@gmail.com'
 PAYPAL_TEST = True
@@ -191,4 +250,10 @@ CELERY_TIMEZONE = 'Africa/Nairobi'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+ASGI_APPLICATION = "moontag_project.routing.application"
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 

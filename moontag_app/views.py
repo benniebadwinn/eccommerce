@@ -22,6 +22,7 @@ from django.db.models import Avg ,Sum
 import json
 from datetime import datetime
 import logging
+from django.utils.html import strip_tags
 
 
 
@@ -105,84 +106,48 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404
 from django.http import Http404
+from .models import ChatRoom, Message
 
 
-
-# def home(request):
-#     """
-#     Home page
-#     """
-#     data = Product.objects.filter(is_featured=True).order_by('-id')
-#     banners = Banner.objects.all().order_by('-id')
-#     return render(request,'index.html',{'data':data,'banners':banners})
-
-def home(request, offer_id=None):
-    in_wishlist = False
-    if request.user.id:
-        in_wishlist = ProductAttribute.objects.filter(users_wishlist=request.user).exists()
-
-    # Fetch featured products
-    featured_products = Product.objects.filter(is_featured=True).order_by('-id')
-
-
-
-    # Fetch top-rated products (assuming you have a field for rating)
-    top_rated_products = Product.objects.filter(top_rated=True).order_by('-id')
-
-    # Fetch new products (assuming you have a created field to determine newness)
-    new_products = Product.objects.order_by('-created')[:10]  # Adjust the number as needed
-
-    # Fetch most selling products based on the number of orders
-    # most_selling_products = Product.objects.annotate(order_count=Count('order__product')).order_by('-order_count')[:10]
-
-    # Fetch most visited products
-    most_visited_products = Product.objects.order_by('-view_count')[:10]
-
-    category_data = Category.objects.all().order_by('-id')
-    # sub_category_data = Sub_Category.objects.all().order_by('-id')
-
-    banners = Banner.objects.all().order_by('-id')
-
-    data = Product.objects.filter(is_featured=True).order_by('-id')
-
-    # Check if an offer with the same criteria already exists
-    existing_offer = Offer.objects.filter(
-        title='Example Offer',
-        description='This is an example offer.',
-        end_time__gte=timezone.now()  # Only get offers with end_time in the future
-    ).first()
-
-    # Use the OfferStatus model to track whether the offer has been created
-    offer_status, created = OfferStatus.objects.get_or_create()
-    if existing_offer or not offer_status.created:
-        offer = existing_offer
-    else:
-        # Only create a new offer if there's no existing offer and it hasn't been created in the OfferStatus model
-        offer = Offer.objects.create(
-            title='Example Offer',
-            description='This is an example offer.',
-            end_time=timezone.now() + timezone.timedelta(days=7, hours=5, minutes=30, seconds=15)
-        )
-
-        # Set the created field to False to indicate that the offer has been created
-        offer_status.created = True
-        offer_status.save()
-
-    return render(request, 'index.html', {
-        'data': data,
-        'banners': banners,
-        'offer': offer,
-        'in_wishlist': in_wishlist,
-        'featured_products': featured_products,
-        'top_rated_products': top_rated_products,
-        'new_products': new_products,
-        'data2': category_data,
-        # 'data3': sub_category_data,
+def get_chatrooms_with_last_message():
+    chat_rooms = ChatRoom.objects.all()
+    chat_rooms_with_last_message = []
+    
+    for room in chat_rooms:
+        last_message = Message.objects.filter(chatroom=room).order_by('-timestamp').first()
         
-        'most_visited_products': most_visited_products,
-        
-    })
+        chat_rooms_with_last_message.append({
+            'id': room.id,
+            'room_name': room.name,
+            'last_message': {
+                'message': last_message.message if last_message else None,
+                'timestamp': last_message.timestamp if last_message else None,
+                'sender': last_message.sender.username if last_message and last_message.sender else None
+            }
+        })
+    
+    return chat_rooms_with_last_message
 
+# Create your views here.
+def index(request):
+    user = request.user
+    if not user.is_authenticated:
+        return redirect('login')
+    chat_rooms = get_chatrooms_with_last_message()
+    
+    return render(request, 'account/index.html', context={'chat_rooms': chat_rooms})
+
+def room(request, room_name):
+    chatroom, created = ChatRoom.objects.get_or_create(name=room_name)
+    chat_messages = Message.objects.filter(chatroom=chatroom)
+
+    context = {
+        'room_name': room_name,
+        'chat_messages': chat_messages,
+        'current_user': request.user.username
+    }
+
+    return render(request, 'account/chat_room.html', context)
 
 
 
@@ -386,9 +351,21 @@ def cart_page(request):
     Cart page with all the things like - total price of all the Products, 
     """
     total_price = 0
-    for p_id,item in request.session['cartdata'].items():
+    for p_id, item in request.session['cartdata'].items():
         total_price += int(item['qty']) * float(item['price'])
-    return render(request,'cart.html',{'cart_data':request.session['cartdata'],'total_items':len(request.session['cartdata']),'total_price':total_price})
+    
+    # Assuming you have a default product for related products
+    # Modify as needed based on your actual requirements
+    product = Product.objects.first()
+
+    related_products = Product.objects.filter(category=product.category).exclude(id=product.id)[:4]
+
+    return render(request, 'cart.html', {
+        'cart_data': request.session['cartdata'],
+        'total_items': len(request.session['cartdata']),
+        'total_price': total_price,
+        'related_products': related_products,
+    })
 
 
 
@@ -930,81 +907,81 @@ def update_offer_status(request, offer_id):
         return JsonResponse({'success': False, 'error': 'Offer not found'})
 
 
+def home(request, offer_id=None):
+    in_wishlist = False
+    if request.user.id:
+        in_wishlist = ProductAttribute.objects.filter(users_wishlist=request.user).exists()
+
+    # Fetch featured products
+    featured_products = Product.objects.filter(is_featured=True).order_by('-id')
 
 
 
+    # Fetch top-rated products (assuming you have a field for rating)
+    top_rated_products = Product.objects.filter(top_rated=True).order_by('-id')
+    
 
-# # def home(request, offer_id=None):
-# #     in_wishlist = False
-# #     if request.user.id:
-# #         in_wishlist = ProductAttribute.objects.filter(users_wishlist=request.user).exists()
+    # Fetch new products (assuming you have a created field to determine newness)
+    new_products = Product.objects.order_by('-created')[:10]  # Adjust the number as needed
 
-# #     # Fetch featured products
-# #     featured_products = Product.objects.filter(is_featured=True).order_by('-id')
+    # Fetch most selling products based on the number of orders
+    # most_selling_products = Product.objects.annotate(order_count=Count('order__product')).order_by('-order_count')[:10]
 
+    # Fetch most visited products
+    most_visited_products = Product.objects.order_by('-view_count')[:10]
 
+    category_data = Category.objects.all().order_by('-id')
+    # sub_category_data = Sub_Category.objects.all().order_by('-id')
 
-# #     # Fetch top-rated products (assuming you have a field for rating)
-# #     top_rated_products = Product.objects.filter(top_rated=True).order_by('-id')
+    banners = Banner.objects.all().order_by('-id')
 
-# #     # Fetch new products (assuming you have a created field to determine newness)
-# #     new_products = Product.objects.order_by('-created')[:10]  # Adjust the number as needed
+    data = Product.objects.filter().order_by('-id')
+    data1 = Product.objects.filter(is_data2=True).order_by('-id')
+    data3 = Product.objects.filter(is_data3=True).order_by('-id')
+    
 
+    # Check if an offer with the same criteria already exists
+    existing_offer = Offer.objects.filter(
+        title='Example Offer',
+        description='This is an example offer.',
+        end_time__gte=timezone.now()  # Only get offers with end_time in the future
+    ).first()
 
-   
+    # Use the OfferStatus model to track whether the offer has been created
+    offer_status, created = OfferStatus.objects.get_or_create()
+    if existing_offer or not offer_status.created:
+        offer = existing_offer
+    else:
+        # Only create a new offer if there's no existing offer and it hasn't been created in the OfferStatus model
+        offer = Offer.objects.create(
+            title='Example Offer',
+            description='This is an example offer.',
+            end_time=timezone.now() + timezone.timedelta(days=7, hours=5, minutes=30, seconds=15)
+        )
 
+        # Set the created field to False to indicate that the offer has been created
+        offer_status.created = True
+        offer_status.save()
 
-
-# #     # Fetch most selling products based on the number of orders
-# #     # most_selling_products = Product.objects.annotate(order_count=Count('order__product')).order_by('-order_count')[:10]
-
-# #     # Fetch most visited products
-# #     most_visited_products = Product.objects.order_by('-view_count')[:10]
-
-# #     category_data = Category.objects.all().order_by('-id')
-# #     # sub_category_data = Sub_Category.objects.all().order_by('-id')
-
-# #     banners = Banner.objects.all().order_by('-id')
-
-# #     data = Product.objects.filter(is_featured=True).order_by('-id')
-
-# #     # Check if an offer with the same criteria already exists
-# #     existing_offer = Offer.objects.filter(
-# #         title='Example Offer',
-# #         description='This is an example offer.',
-# #         end_time__gte=timezone.now()  # Only get offers with end_time in the future
-# #     ).first()
-
-# #     # Use the OfferStatus model to track whether the offer has been created
-# #     offer_status, created = OfferStatus.objects.get_or_create()
-# #     if existing_offer or not offer_status.created:
-# #         offer = existing_offer
-# #     else:
-# #         # Only create a new offer if there's no existing offer and it hasn't been created in the OfferStatus model
-# #         offer = Offer.objects.create(
-# #             title='Example Offer',
-# #             description='This is an example offer.',
-# #             end_time=timezone.now() + timezone.timedelta(days=7, hours=5, minutes=30, seconds=15)
-# #         )
-
-# #         # Set the created field to False to indicate that the offer has been created
-# #         offer_status.created = True
-# #         offer_status.save()
-
-# #     return render(request, 'index.html', {
-# #         'data': data,
-# #         'banners': banners,
-# #         'offer': offer,
-# #         'in_wishlist': in_wishlist,
-# #         'featured_products': featured_products,
-# #         'top_rated_products': top_rated_products,
-# #         'new_products': new_products,
-# #         'data2': category_data,
-# #         # 'data3': sub_category_data,
+    return render(request, 'index.html', {
+        'data': data,
+        'data1': data1,
+        'data3': data3,
+        'banners': banners,
+        'offer': offer,
+        'in_wishlist': in_wishlist,
+        'featured_products': featured_products,
+        'top_rated_products': top_rated_products,
+        'new_products': new_products,
+        'data2': category_data,
+        # 'data3': sub_category_data,
         
-# #         'most_visited_products': most_visited_products,
+        'most_visited_products': most_visited_products,
         
-# #     })
+    })
+
+
+
 
 
 
@@ -1055,14 +1032,6 @@ def submit_review(request, product_id):
 
 
 
-
-
-# # def product_list(request):
-# #     """
-# #     Product list
-# #     """
-# #     product_data = Product.objects.all().order_by('-id')
-# #     return render(request, 'product_list.html',{'data':product_data})
 
 
 
@@ -1118,47 +1087,16 @@ def product_page(request, slug, id):
 
 
 
-# def product_list(request):
-#     """
-#     Product list
-#     """
-#     product_data = Product.objects.all().order_by('-id')
-#     return render(request, 'product_list.html',{'data':product_data})
+class ReturnPolicyView(TemplateView):
+	template_name = 'return_policy.html'
 
-
-# def search_result(request):
-#     """
-#     Search result for the search box in the header
-#     """
-#     q = request.GET['q']
-#     data = Product.objects.filter(name__icontains=q).order_by('id')
-#     return render(request,'search_result.html',{'data':data})
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['title'] = 'Return Policy'
+		return context
 
 
 
-# class ReturnPolicyView(TemplateView):
-# 	template_name = 'return_policy.html'
-
-# 	def get_context_data(self, **kwargs):
-# 		context = super().get_context_data(**kwargs)
-# 		context['title'] = 'Return Policy'
-# 		return context
-
-
-
-# class NewsLetterView(CreateView):
-# 	template_name = 'index.html'
-# 	model = Subscriber
-# 	fields = ['name','email']
-# 	success_url = reverse_lazy('index')
-
-# 	def form_valid(self, form):
-# 		subject = 'NewsLetter Subscription'
-# 		message = 'Hello ' + form.cleaned_data['name'] + ', Thanks for subscribing us. You will get notification of latest articles posted on our website. Please do not reply on this email.'
-# 		email_from = settings.EMAIL_HOST_USER
-# 		recipient_list = [form.cleaned_data['email'], ]
-# 		send_mail(subject, message, email_from, recipient_list)
-# 		return super().form_valid(form)
 
 
 # class EmailValidateView(DetailView):
@@ -1208,58 +1146,34 @@ def product_page(request, slug, id):
 # 				return HttpResponse('Invalid header found.')
 
 
-# class ContactView(CreateView):
-# 	template_name = 'contact.html'
-# 	form_class = ContactForm
-# 	success_url = reverse_lazy('contact')
+class ContactView(CreateView):
+	template_name = 'contact.html'
+	form_class = ContactForm
+	success_url = reverse_lazy('contact')
 
-# 	def form_valid(self, form):
-# 		form.save()
-# 		return super().form_valid(form)
+	def form_valid(self, form):
+		form.save()
+		return super().form_valid(form)
 
-# 	def form_invalid(self, form):
-# 		return super().form_invalid(form)
+	def form_invalid(self, form):
+		return super().form_invalid(form)
 
-# 	def get_context_data(self, **kwargs):
-# 		context = super().get_context_data(**kwargs)
-# 		context['title'] = 'Contact Us'
-# 		return context
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['title'] = 'Contact Us'
+		return context
 
-# 	def send_mail(self, form):
-# 		subject = form.cleaned_data['subject']
-# 		from_email = form.cleaned_data['from_email']
-# 		if subject and from_email:
-# 			try:
-# 				send_mail(subject, message, from_email, [''])
-# 			except BadHeaderError:
-# 				return HttpResponse('Invalid header found.')
+	def send_mail(self, form):
+		subject = form.cleaned_data['subject']
+		from_email = form.cleaned_data['from_email']
+		if subject and from_email:
+			try:
+				send_mail(subject, message, from_email, [''])
+			except BadHeaderError:
+				return HttpResponse('Invalid header found.')
 
 
-
-# def filter_data(request):
-#     """
-#     filter for the sidebar in the product list pages that include a sidebar of filters i am using hare also AJAX and JS.
-#     """
-#     colors = request.GET.getlist('color[]')
-#     categories = request.GET.getlist('category[]')
-#     brands = request.GET.getlist('brand[]')
-#     sizes = request.GET.getlist('size[]')
-#     minPrice = request.GET['minPrice']
-#     maxPrice = request.GET['maxPrice']
-#     all_products = Product.objects.all().order_by('-id').distinct() # becuase product can be in two colors we need put the distinct() function to fach them and dont show the same product that he have the same attribute
-#     all_products = all_products.filter(productattribute__price__gte=minPrice)
-#     all_products = all_products.filter(productattribute__price__lte=maxPrice)
-#     if len(colors) > 0:
-#         all_products = all_products.filter(productattribute__color__id__in=colors).distinct()
-#     if len(categories) > 0:
-#         all_products = all_products.filter(category__id__in=categories).distinct()
-#     if len(brands) > 0:
-#         all_products = all_products.filter(brand__id__in=brands).distinct()
-#     if len(sizes) > 0:
-#         all_products = all_products.filter(productattribute__size__id__in=sizes).distinct()   
-#     t = render_to_string('ajax/product-list.html',{'data':all_products})
-#     return JsonResponse({'data':t})
-    
+   
     
 
 # class ProductCreateView( CreateView):
@@ -1310,83 +1224,23 @@ def product_page(request, slug, id):
 
 
 
-# class CouponListView(TemplateView):
-#     template_name = 'shop/coupon/list.html'
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['active_coupons']=Coupon.objects.filter(user=self.request.user,is_active=True)
-#         context['inactive_coupons']=Coupon.objects.filter(user=self.request.user,is_active=False)
-#         return context
 
 
-# #a view to  add a product to  wishlist
-# class AddToWishlistView(TemplateView):
-#     template_name = 'shop/wishlist/add.html'
+class OrderSummaryView( View):
+    def get(self, *args, **kwargs):
+        orders = Order.objects.filter(user=self.request.user, ordered=False)
 
-#     ''' 
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['product'] = Product.objects.get(id=self.kwargs['pk'])
-#         return context
-#     '''
+        if orders.exists():
+            # Get the most recent order if there are multiple (you may adjust this logic)
+            order = orders.latest('created')  
 
-#     def post(self, request, *args, **kwargs):
-#         product = Product.objects.get(id=self.kwargs['id'])
-#         product.wishlist.add(self.request.user)
-#         return redirect('shop:product_list')
-
-
-
-
-
-# #a view to  remove a product from wishlist
-# class RemoveFromWishlistView(TemplateView):
-#     template_name = 'shop/wishlist/remove.html'
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['product'] = Product.objects.get(id=self.kwargs['pk'])
-#         return context
-
-#     def post(self, request, *args, **kwargs):
-#         product = Product.objects.get(id=self.kwargs['pk'])
-#         product.wishlist.remove(self.request.user)
-#         return redirect('shop:product_list')
-
-
-
-
-# #a view to show wishlist
-# class WishlistView(TemplateView):
-#     template_name = 'shop/wishlist/list.html'
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['wishlist']=Wishlist.objects.filter(user=self.request.user)
-#         return context
-    
-
-
-
-
-
-
-# class OrderSummaryView( View):
-#     def get(self, *args, **kwargs):
-#         orders = Order.objects.filter(user=self.request.user, ordered=False)
-
-#         if orders.exists():
-#             # Get the most recent order if there are multiple (you may adjust this logic)
-#             order = orders.latest('created')  
-
-#             context = {
-#                 'object': order
-#             }
-#             return render(self.request, 'cart/detail.html', context)
-#         else:
-#             messages.warning(self.request, "You do not have an active order")
-#             return redirect("/")
+            context = {
+                'object': order
+            }
+            return render(self.request, 'cart/detail.html', context)
+        else:
+            messages.warning(self.request, "You do not have an active order")
+            return redirect("/")
 
    
 
@@ -1687,123 +1541,6 @@ class ManageCartView(View):
 
 
 
-# @method_decorator(login_required(login_url='login:user_login_page'), name='dispatch')
-# class OrderCreateView(CreateView):
-#     model = Order
-#     form_class = OrderCreateForm
-#     template_name = 'orders/create.html'
-#     success_url = reverse_lazy('payment:payment_type')
-
-#     def get_form_kwargs(self):
-#         kwargs = super().get_form_kwargs()
-#         kwargs['request'] = self.request
-#         return kwargs
-
-#     def get_context_data(self,request **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['cart'] = Cart(self.request)
-        
-#         context = {                                                                 # A Context is a dictionary with variable names as the key and their values as the value. Hence, if your context for the above template looks like: {myvar1: 101, myvar2: 102}, when you pass this context to the template render method, {{ myvar1 }} would be replaced with 101 and {{ myvar2 }} with 102 in your template. This is a simplistic example, but really a Context object is the context in which the template is being rendered. ref https://stackoverflow.com/questions/20957388/what-is-a-context-in-django
-#                                                                            # form is set equal to the form variable above
-#                 'couponform': CouponForm(),                                             # This is from forms.py line 39 
-#                                                                          # order is equal to the order definied above
-#                 'SHOW_COUPON_FORM': True                                                # connected to order_snippet.html
-#             }
-
-#         context['cart_items'] = list(cart_items)
-#         context['total_items'] = cartdata.total_items() if cartdata else 0
-#         context['address'] = Address.objects.filter(user=self.request.user).first()
-#         orders = Order.objects.filter(user=self.request.user, ordered=False)
-#         order = orders.order_by('-created').first()
-#         cart_obj = Cart.objects.get(user=self.request.user)
-#         context['total_cost'] = self.calculate_order_total(order, cart_obj)
-
-#         return context
-
-#     def form_valid(self, form):
-#         order = form.save(commit=False)
-#         order.user = self.request.user
-#         order.address = Address.objects.filter(user=self.request.user).first()
-#         pickup_station_id = self.request.session.get('pickup_station')
-#         if pickup_station_id:
-#             order.pickup_station = get_object_or_404(PickupStation, id=pickup_station_id)
-#     total_price = 0
-#     totalPrice = 0
-    
-#     if 'cartdata' in request.session:
-#         for p_id, item in request.session['cartdata'].items():
-#             totalPrice += int(item['qty']) * float(item['price'])
-#         order = Order.objects.create(user=request.user, total_amount=totalPrice)
-    
-#         # Save the order instance first
-#         order.save()
-
-#         # Create order items based on cart products
-#         for p_id, item in request.session['cartdata'].items():
-#             items = OrderItem.objects.create(order=order, in_num='INV-' + str(order.id),
-#                                              product=item['title'], img=item['img'], quantity=item['qty'],
-#                                              price=item['price'], total=float(item['qty']) * float(item['price']))
-    
-#         # Clear the cart
-#         cart.cartproduct_set.all().delete()
-#         # launch asynchronous task to send an email
-#         order_created.delay(order.id)
-    
-#         # Set the order in the session
-#         self.request.session['order_id'] = order.id
-    
-#         # Calculate the total cost and save it to the order
-#         order.total_amount = self.calculate_order_total(order, cart_obj)
-#         order.coupon = None
-#         order.save()
-#         print(f"Order ID after save: {order.id}")
-#         print(f"Order Coupon after save: {order.coupon}")
-    
-#         # Ensure the session is saved before calling get_success_url
-#         self.request.session.save()
-    
-#         return super().form_valid(form)
-    
-#     def get_subtotal(self, cart_product):
-#         for p_id, item in request.session['cartdata'].items():
-#                     subtotal += int(item['qty']) * float(item['price'])
-
-
-#     def calculate_order_total(self, order, cart):
-#     # Retrieve the associated cart
-#         cart_id = self.request.session.get("cart_id", None)
-#         if cart_id:
-#             cart_obj = get_object_or_404(Cart, id=cart_id)
-#         else:
-#             user = self.request.user
-#             cart_obj = Cart.objects.create(user=user, total=0)
-    
-#         # Calculate total based on the associated cart's products
-#         total_cost = cart_obj.cartproduct_set.aggregate(Sum('subtotal'))['subtotal__sum'] or 0
-    
-#         # Apply coupon discount first
-#         coupon = Coupon.objects.filter().first()
-#         if coupon:
-#             total_cost = cart.total
- 
-    
-#         return total_cost
-        
-            
-#     '''
-#     a method to redirect to different payment  pages depending on ,
-#     the payment type selected in the order create form
-#     '''
-#     def get_success_url(self):
-#         payment_type = self.request.POST.get('payment_method')
-#         if payment_type == 'mpesa_on_delivery':
-#             return reverse_lazy('shop:mpesa_on_delivery')
-#         elif payment_type == 'pesapal':
-#             return reverse_lazy('payment:home')
-#         elif payment_type == 'paypal':
-#             return reverse_lazy('shop:paypal')
-#         else:
-#             return reverse_lazy('shop:get_mpesa_number')
 
 
 
@@ -1825,11 +1562,11 @@ class OrderCreateView(CreateView):
         context = super().get_context_data(**kwargs)
         context['cart'] = Cart(self.request)
         context['cart_data'] = self.request.session.get('cartdata', {})
-        
-        context = {  
+
+        context = {
                 'cart_data': self.request.session.get('cartdata', {}),                                                               # A Context is a dictionary with variable names as the key and their values as the value. Hence, if your context for the above template looks like: {myvar1: 101, myvar2: 102}, when you pass this context to the template render method, {{ myvar1 }} would be replaced with 101 and {{ myvar2 }} with 102 in your template. This is a simplistic example, but really a Context object is the context in which the template is being rendered. ref https://stackoverflow.com/questions/20957388/what-is-a-context-in-django
                                                                            # form is set equal to the form variable above
-                'couponform': CouponForm(),                                             # This is from forms.py line 39 
+                'couponform': CouponForm(),                                             # This is from forms.py line 39
                                                                           # order is equal to the order definied above
                  'SHOW_COUPON_FORM': True                                                # connected to order_snippet.html
              }
@@ -1841,7 +1578,7 @@ class OrderCreateView(CreateView):
         if order_id:
             order = get_object_or_404(Order, id=order_id)
             context['order_total_amount'] = order.total_amount
-        
+
         # Calculate total price from cart_data
         total_price = sum(int(item['qty']) * float(item['price']) for item in self.request.session.get('cartdata', {}).values())
         context['total_price'] = total_price
@@ -1856,55 +1593,69 @@ class OrderCreateView(CreateView):
         pickup_station_id = self.request.session.get('pickup_station')
         if pickup_station_id:
             order.pickup_station = get_object_or_404(PickupStation, id=pickup_station_id)
-    
+
         # Calculate total price from cart_data
         total_price = sum(int(item['qty']) * float(item['price']) for item in self.request.session.get('cartdata', {}).values())
-    
+
         # Check if a coupon is applied
         coupon_code = self.request.session.get('coupon_code')
         coupon_amount = 0
-    
+
         if coupon_code:
             coupon = get_coupon(self.request, coupon_code)
             if coupon:
                 coupon_amount = coupon.value
-    
+
         # Include coupon amount in the total price
         total_amount_before_coupon = total_price
         total_amount_after_coupon = total_price - coupon_amount
-    
+
         print(f"Total Price: {total_price}")
         print(f"Coupon Code: {coupon_code}")
         print(f"Coupon Value: {coupon_amount}")
         print(f"Coupon Amount in Session Data: {self.request.session.get('coupon_amount', 0)}")
         print(f"Total Amount Before Coupon: {total_amount_before_coupon}")
         print(f"Total Amount After Coupon: {total_amount_after_coupon}")
-    
+
         order.total_amount = total_amount_after_coupon
         order.save()
-    
+
         for p_id, item in self.request.session.get('cartdata', {}).items():
             items = OrderItem.objects.create(order=order, in_num='INV-' + str(order.id),
                                              product=item['title'], img=item['img'], quantity=item['qty'],
                                              price=item['price'], total=float(item['qty']) * float(item['price']))
-    
+
         # Clear the cart
         self.request.session['cartdata'].clear()
-    
+
         # Clear coupon information from the session
-        del self.request.session['coupon_code']
-        del self.request.session['coupon_amount']
+
+
         self.request.session.modified = True
-    
+
         # Set the order in the session
         self.request.session['order_id'] = order.id
-        
+
         # Clear the total_amount from the session
         if 'total_amount' in self.request.session:
             del self.request.session['total_amount']
             self.request.session.modified = True
-        
+
+
+
+        # Send email to the user
+        subject = 'Order Confirmation'
+        message = render_to_string('orders/order_confirmation.html', {'order': order})
+        plain_message = strip_tags(message)  # Create a plain text version for clients that don't support HTML
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to_email = [order.user.email]
+        send_mail(subject, plain_message, from_email, to_email, html_message=message, fail_silently=False)
+
+        # Debug information
+        print(f"Email sent to {order.user.email} for Order ID {order.id}")
+
         return super().form_valid(form)
+
 
 
 
@@ -1915,65 +1666,100 @@ class OrderCreateView(CreateView):
         elif payment_type == 'pesapal':
             return reverse_lazy('payment:home')
         elif payment_type == 'paypal':
-            return reverse_lazy('shop:paypal')
+            return reverse_lazy('payment:purchase_via_wallet')
+        elif payment_type == 'wallet':
+            return reverse_lazy('payment:purchase_via_wallet')
         else:
             return reverse_lazy('shop:get_mpesa_number')
 
 
+class PayviaMpesaonDeliveryView(DetailView):
+    template_name = 'payments/mpesa_on_delivery.html'
+    model = Order  # Specify the model associated with this view
 
+    def get_object(self, queryset=None):
+        # Access the session through self.request
+        order_id = self.request.session.get('order_id')
+        order = get_object_or_404(Order, id=order_id)
+        return order
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        order_id = self.request.session.get('order_id', None)
+        order = get_object_or_404(Order, id=order_id)
+        context['order'] = order
+        # Include order total amount in the context
+        order_id = self.request.session.get('order_id')
+        if order_id:
+            order = get_object_or_404(Order, id=order_id)
+            context['order_total_amount'] = order.total_amount
 
+        # Calculate total price from cart_data
+        total_price = sum(int(item['qty']) * float(item['price']) for item in self.request.session.get('cartdata', {}).values())
+        context['total_price'] = total_price
+        order_items = order.items.all()  # Assuming 'items' is the related name in your Order model
+
+        context.update({
+            'amount': order.total_amount,
+            'order_items': order_items,
+            'order': order,  # Pass order items to the template
+        })
+        
+    
+        print("Order Items:")
+        if order_items:
+            for order_item in order_items:
+                print(f"Product: {order_item.product.title}, Quantity: {order_item.quantity}")
+        else:
+            print("No Order Items found.")
+    
+        return context
 
 def paypal(request):
-    order_id = request.session.get('order_id', None)
-    order = get_object_or_404(Order, id=order_id)
-
-    totalPrice = 0
-    total_amount = 0
-    price = 0
-    quantityt = 0
-    if 'cart' in request.session:
-        for item in order.items.all():
-
-            product = item.product
-            order_id = request.session.get('order_id', None)
-            total_amount = int(order.total_amount())
-            order = Order.objects.create(
-                  total_amount=total_amount
-                  )
-            quantity=item.quantity
-            item = OrderItem.objects.create(
-                order=order,
-                # in_num='INV-'+str(order.id),
-                quantity=item.quantity,
-                product=product,
-                price=item.price,
-                total = quantity * price,
-                total_amount = total_amount
+        order_id = request.session.get('order_id', None)
+        order = get_object_or_404(Order, id=order_id)
+        totalPrice = 0
+        total_amount = 0
+        price = 0
+        quantityt = 0
+        if 'cartdata' in request.session:
+            for item in order.items.all():
+                product = item.product
+                order_id = request.session.get('order_id', None)
+                total_amount = int(order.total_amount())
+                order = Order.objects.create(total_amount=total_amount)
+                quantity = item.quantity
+                item = OrderItem.objects.create(
+                    order=order,
+                    in_num='INV-' + str(order.id),
+                    quantity=item.quantity,
+                    product=product,
+                    price=item.price,
+                    total=quantity * price,
+                    total_amount=total_amount
                 )
 
-    for item in order.items.all():
-        totalPrice = order.total_amount
-        exchange_rate_usd_to_ksh = 110.00  # 1 USD to KSH
-        exchange_rate_usd_to_ksh = Decimal(str(exchange_rate_usd_to_ksh))
+        for item in order.items.all():
+            totalPrice = order.total_amount
+            exchange_rate_usd_to_ksh = 110.00  # 1 USD to KSH
+            exchange_rate_usd_to_ksh = Decimal(str(exchange_rate_usd_to_ksh))
 
-        totalPrice_ksh = order.total_amount
-        totalPrice_usd = totalPrice_ksh / exchange_rate_usd_to_ksh
-        host = request.get_host()
-        paypal_dict = {
-            'business': settings.PAYPAL_RECIVER_EMAIL,
-            'amount': totalPrice_usd,
-            'item_name': 'OrderNum-' + str(order.id),
-            'invoice': 'INV-' + str(order.id),
-            'currency_code': 'USD',
-            'notify_url': 'http://{}{}'.format(host, reverse('shop:paypal-ipn')),
-            'return_url': 'http://{}{}'.format(host, reverse('shop:payment_done')),
-            'cancel_return': 'http://{}{}'.format(host, reverse('shop:payment_cancelled'))
-        }
-        form = PayPalPaymentsForm(initial=paypal_dict)
-        return render(request,'payment/process.html',{'total_price':totalPrice,'form':form,'order': order,})
-        form = PayPalPaymentsForm(initial=paypal_dict)
-        return render(request,'checkout.html',{'cart_data':request.session['cartdata'],'total_items':len(request.session['cartdata']),'total_price':total_price,'form':form})
+            totalPrice_ksh = order.total_amount
+            totalPrice_usd = totalPrice_ksh / exchange_rate_usd_to_ksh
+            host = request.get_host()
+            paypal_dict = {
+                'business': settings.PAYPAL_RECIVER_EMAIL,
+                'amount': totalPrice_usd,
+                'item_name': 'OrderNum-' + str(order.id),
+                'invoice': 'INV-' + str(order.id),
+                'currency_code': 'USD',
+                'notify_url': 'http://{}{}'.format(host, reverse('shop:paypal-ipn')),
+                'return_url': 'http://{}{}'.format(host, reverse('shop:payment_done')),
+                'cancel_return': 'http://{}{}'.format(host, reverse('shop:payment_cancelled'))
+            }
+            form = PayPalPaymentsForm(initial=paypal_dict)
+            return render(request, 'checkout.html', {'cart_data': request.session['cartdata'], 'total_items': len(request.session['cartdata']), 'total_price': total_price, 'form': form})
+
 
 
 
@@ -2032,55 +1818,6 @@ class CouponAddView(View):
 
 
 
-        
-def paypal(request):
-    order_id = request.session.get('order_id', None)
-    order = get_object_or_404(Order, id=order_id)
-    
-    totalPrice = 0
-    total_amount = 0
-    price = 0
-    quantityt = 0
-    if 'cart' in request.session:
-        for item in order.items.all():
-            
-            product = item.product
-            order_id = request.session.get('order_id', None)
-            total_amount = int(order.total_amount())
-            order = Order.objects.create(
-                  total_amount=total_amount
-                  )
-            quantity=item.quantity
-            item = OrderItem.objects.create(
-                order=order,
-                # in_num='INV-'+str(order.id),
-                quantity=item.quantity,
-                product=product,
-                price=item.price,
-                total = quantity * price,
-                total_amount = total_amount
-                )
-            
-    for item in order.items.all():
-        totalPrice = order.total_amount
-        exchange_rate_usd_to_ksh = 110.00  # 1 USD to KSH
-        exchange_rate_usd_to_ksh = Decimal(str(exchange_rate_usd_to_ksh))
-        
-        totalPrice_ksh = order.total_amount
-        totalPrice_usd = totalPrice_ksh / exchange_rate_usd_to_ksh
-        host = request.get_host()
-        paypal_dict = {
-            'business': settings.PAYPAL_RECIVER_EMAIL,
-            'amount': totalPrice_usd,
-            'item_name': 'OrderNum-' + str(order.id),
-            'invoice': 'INV-' + str(order.id),
-            'currency_code': 'USD',
-            'notify_url': 'http://{}{}'.format(host, reverse('shop:paypal-ipn')),
-            'return_url': 'http://{}{}'.format(host, reverse('shop:payment_done')),
-            'cancel_return': 'http://{}{}'.format(host, reverse('shop:payment_cancelled'))
-        }
-        form = PayPalPaymentsForm(initial=paypal_dict)
-        return render(request,'payment/process.html',{'total_price':totalPrice,'form':form,'order': order,})
 
 
 @csrf_exempt
@@ -2188,51 +1925,51 @@ def remove_coupon(request):                                                # Thi
 
 
 
-# @method_decorator(login_required(login_url='login:user_login_page'), name='dispatch')
-# class OrderListView(LoginRequiredMixin,ListView):
-#     model = Order
-#     template_name = 'orders/list.html'
-#     context_object_name = 'orders'
+@method_decorator(login_required(login_url='login:user_login_page'), name='dispatch')
+class OrderListView(LoginRequiredMixin,ListView):
+    model = Order
+    template_name = 'orders/list.html'
+    context_object_name = 'orders'
 
-#     def get_queryset(self):
-#         return Order.objects.filter(user=self.request.user)
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user)
     
-# @method_decorator(login_required(login_url='login:user_login_page'), name='dispatch')   
-# class OrderDetailView(LoginRequiredMixin,DetailView):
-#     model= Order
-#     template_name= 'orders/detail.html'
-#     context_object_name= 'order'
+@method_decorator(login_required(login_url='login:user_login_page'), name='dispatch')   
+class OrderDetailView(LoginRequiredMixin,DetailView):
+    model= Order
+    template_name= 'orders/detail.html'
+    context_object_name= 'order'
     
     
-#     def get_object(self, queryset=None):
-#         obj = super().get_object(queryset=queryset)
-#         if obj.user != self.request.user:
-#             raise Http404("Order not found or not accessible.")
-#         return obj
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset=queryset)
+        if obj.user != self.request.user:
+            raise Http404("Order not found or not accessible.")
+        return obj
 
  
-# #a view to show list of orders a user has cancelled.
-# @method_decorator(login_required(login_url='login:user_login_page'), name='dispatch')   
-# class CancelledOrderListView(ListView):
-#     model= Order
-#     template_name='orders/cancelled_list.html'
+#a view to show list of orders a user has cancelled.
+@method_decorator(login_required(login_url='login:user_login_page'), name='dispatch')   
+class CancelledOrderListView(ListView):
+    model= Order
+    template_name='orders/cancelled_list.html'
 
     
-#     def get_queryset(self):
-#         return Order.objects.filter(order_status='cancelled',user=self.request.user)
+    def get_queryset(self):
+        return Order.objects.filter(order_status='cancelled',user=self.request.user)
     
     
     
-# class CancelledOrderDetailView(DetailView):
-#     model= Order
-#     template_name='orders/cancelled_detail.html'
+class CancelledOrderDetailView(DetailView):
+    model= Order
+    template_name='orders/cancelled_detail.html'
     
     
-#     def get_object(self, queryset=None):
-#         obj = super().get_object(queryset=queryset)
-#         if obj.order_status != 'cancelled' or obj.user != self.request.user:
-#             raise Http404("Order not found or not accessible.")
-#         return obj
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset=queryset)
+        if obj.order_status != 'cancelled' or obj.user != self.request.user:
+            raise Http404("Order not found or not accessible.")
+        return obj
     
 
 
@@ -2503,35 +2240,7 @@ def confirmation(request):      # we use this function to save successfully tran
 
 
 
-
-
-class PayviaMpesaonDeliveryView(DetailView):
-    template_name = 'payments/mpesa_on_delivery.html'
-    model = Order  # Specify the model associated with this view
-
-    def get_object(self, queryset=None):
-        # Access the session through self.request
-        order_id = self.request.session.get('order_id')
-        order = get_object_or_404(Order, id=order_id)
-        return order
-    
-
-
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        order_id = self.request.session.get('order_id', None)
-        order = get_object_or_404(Order, id=order_id)
-        context['order'] = order
-        return context
-
- 
-
-
-
-
-
-    
+  
 
 class PaymentCompletedView(TemplateView):
     template_name = 'payments/completed.html'
@@ -2617,7 +2326,8 @@ def checkout_purchasing(request):
     
     return render(request, 'checkout_purchasing.html',{'orders':orders})
 
-
+def custom_404_page(request,exception):
+    return render(request,'404.html', status=40)
 
 
 

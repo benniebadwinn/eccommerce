@@ -68,9 +68,10 @@
                                         <p class="txt-desc"> How do you want your order delivered?</p>
 
 
-                                            <div class="box-content">
+                                        <div class="login-on-checkout">
                                               
                                                 <form method="post" class="order-form" id="order-form">
+                                                    <p class="form-row">
                                                     
                                                     {% csrf_token %}
                                                         
@@ -88,10 +89,15 @@
                                                                   </div><div>
                                                                       <label for="id_payment_method_2"><input type="radio" name="payment_method" value="pesapal" class="form-check-input" required="" id="id_payment_method_2">
                                                                    Pesapal/Mpesa</label>
+
+                                                                <!-- </div><div>
+                                                                   <label for="id_payment_method_3"><input type="radio" name="payment_method" value="wallet" class="form-check-input" required="" id="id_payment_method_3">
+                                                                   Wallet</label>
+                                                                 </div><div> -->
                                                                   
                                                                   </div><div>
-                                                                      <label for="id_payment_method_3"><input type="radio" name="payment_method" value="paypal" class="form-check-input" required="" id="id_payment_method_3">
-                                                                   Paypal</label>
+                                                                      <label for="id_payment_method_4"><input type="radio" name="payment_method" value="paypal" class="form-check-input" required="" id="id_payment_method_4">
+                                                                        Wallet</label>
                                                                 </div><div>
                                                              
                                                                   
@@ -101,7 +107,11 @@
                                                         </div>
                                                         
   
-                                                        <button type="submit" class="btn btn-primary">Complete Payment</button>
+                                                  
+                                                        <div class="form-row">
+                                                            <button type="submit" name="btn-sbmt" class="btn">Complete Payment</button>
+                                                        </div>
+                                                    </p>
                                                     </form>
                                                     
                                                 
@@ -256,6 +266,12 @@
                                         <div class="subtotal-line">
                                             <b class="stt-name">Total:</b>
                                             <span class="stt-price">Ksh {{ order_total_amount }}</span>
+
+                                            <!-- Add these lines in your template -->
+<p>Order ID: {{ order.id }}</p>
+<p>Total Amount: {{ order.total_amount }}</p>
+
+                                           
                                            
 
                                         </div>

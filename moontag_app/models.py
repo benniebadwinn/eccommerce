@@ -39,7 +39,20 @@ from django.db.utils import OperationalError, ProgrammingError
 User = get_user_model()
 
 
+class ChatRoom(models.Model):
+    name = models.CharField(max_length=100)
 
+    def __str__(self):
+        return self.name
+    
+class Message(models.Model):
+    chatroom = models.ForeignKey(ChatRoom, on_delete=models.CASCADE)
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.message
 
 
 # Create your models here.
@@ -257,16 +270,19 @@ class Product(models.Model):
         max_digits=10, decimal_places=2,verbose_name='Weight (kg)',blank=True, null=True)
     main_material = models.CharField(max_length=100, blank=True, null=True)
     care_instructions = models.TextField(blank=True,verbose_name='Care Label',null=True)
-    top_rated = models.BooleanField(default=False)
     num_visits = models.IntegerField(default=0)
     last_visit = models.DateTimeField(blank=True, null=True)
     view_count = models.PositiveIntegerField(default=0)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    users_wishlist = models.ManyToManyField(User, related_name='wishlist', blank=True)
     vendor=models.ForeignKey(Vendor,related_name='products',on_delete=models.CASCADE,blank=True,null=True)
     status = models.BooleanField(default=True)
     is_featured = models.BooleanField(default=False)
     top_rated = models.BooleanField(default=False)
+    is_data2 = models.BooleanField(default=False)
+    is_data3 = models.BooleanField(default=False)
+    
     
 
 
@@ -506,11 +522,12 @@ class ProductAttribute(models.Model):
     size = models.ForeignKey(Size, on_delete=models.CASCADE)
     price = models.PositiveBigIntegerField()
     # discountprice = models.PositiveBigIntegerField(null=True, blank=True)
-    discountprice = models.PositiveBigIntegerField()
+    discountprice = models.PositiveBigIntegerField(null=True, blank=True)
     size_of_package = models.CharField(
         max_length=100, blank=True, null=True, choices=SIZE_CHOICES, default='S')
     stock = models.PositiveIntegerField(default=0)
     is_featured = models.BooleanField(default=False)
+    users_wishlist = models.ManyToManyField(User, related_name='wishlist', blank=True)
     created = models.DateTimeField(auto_now_add=True)
     offer = models.ForeignKey(Offer, related_name='products', on_delete=models.SET_NULL, null=True, blank=True)
     users_wishlist = models.ManyToManyField(User, related_name="user_wishlist", blank=True)

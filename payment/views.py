@@ -1,7 +1,7 @@
 import json
 import random
 import string
-
+import logging 
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -9,12 +9,20 @@ from . import pesapal_ops3
 from django.shortcuts import render, get_object_or_404, redirect
 
 from . import forms
-from moontag_app.models import Order
-from moontag_app.models import Address
+from moontag_app.models import Address, OrderItem, Order
+from account.models import WalletTransaction
+from django.contrib.auth.decorators import login_required
+from .utils import get_user_wallet_balance  # Assuming you have a function to get wallet balance
+from django.contrib import messages
+from django.http import HttpResponseRedirect
+from django.db.models import Sum
+from django.conf import settings
+from django.core.mail import send_mail
 
 
 def home(request):
     return redirect(reverse('payment:pay'))
+
 
 
 def payment(request):
@@ -40,11 +48,8 @@ def payment(request):
             Type = payment.type
             payment.save()
             iframe_src = pesapal_ops3.post_transaction(Reference, FirstName, LastName, Email, PhoneNumber, Description, Amount, Type)
-            
-    
-            print(iframe_src)
-            
 
+            print(iframe_src)
 
             return render(request, 'payment/paynow.html', {'iframe_src': iframe_src})
 
@@ -54,15 +59,15 @@ def payment(request):
         total_cost = order.total_amount 
         print(order.total_amount)
 
-       
-        
         form = forms.Payment()
+
     addresses = Address.objects.filter(user=request.user)
-    return render(request, 'payment/index.html', {'amount': total_cost,'order':order,'form': form,'profile': show_more,'addresses': addresses,})
+    
+    # Pass order items to the template
+    order_items = order.items.all()  # Assuming 'items' is the related name in your Order model
+    context = {'amount': total_cost, 'order': order, 'form': form, 'profile': show_more, 'addresses': addresses, 'order_items': order_items}
 
-
-
-
+    return render(request, 'payment/index.html', context)
 
 
 
@@ -84,3 +89,71 @@ def callback(request):
 
     # return render(request, 'payment/status.html', {'status': p_status})
     return redirect(reverse('shop:payment_completed', {'status': p_status}))
+
+logger = logging.getLogger(__name__)
+@login_required
+def purchase_via_wallet(request):
+    # Retrieve the order from the session
+    order_id = request.session.get('order_id', None)
+    order = get_object_or_404(Order, id=order_id)
+
+    # Calculate the total price of the order
+    total_price = sum(item.total for item in order.items.all())
+
+    # Retrieve the user's wallet balance
+    wallet_balance = get_user_wallet_balance(request.user)
+
+    if wallet_balance >= total_price:
+        # Sufficient balance in the wallet, proceed with the purchase
+
+        # Create an order and order items
+        order.total_amount = total_price
+        order.save()
+
+        for item in order.items.all():
+            OrderItem.objects.create(
+                order=order,
+                in_num=f'INV-{order.id}',
+                quantity=item.quantity,
+                product=item.product,
+                price=item.price,
+                total=item.total
+            )
+
+        # Deduct the purchase amount from the wallet balance
+        WalletTransaction.objects.create(
+            user=request.user,
+            amount=-total_price,
+            transaction_type='purchase',
+        )
+
+        # Calculate the remaining wallet balance after the purchase
+        remaining_balance = get_user_wallet_balance(request.user)
+
+        # Send email to user
+        subject = 'Purchase Confirmation'
+        message = f'Thank you for your purchase. ${total_price} has been deducted from your wallet. Your remaining balance is ${remaining_balance}.'
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to_email = [request.user.email]
+
+        send_mail(subject, message, from_email, to_email, fail_silently=False)
+
+        # Clear the cart
+        request.session['cartdata'].clear()
+        request.session.modified = True
+
+        messages.success(request, 'Purchase successful. Amount deducted from wallet.')
+        return HttpResponseRedirect(reverse('payment:purchase_success'))  # Redirect to a success page
+    else:
+        # Insufficient balance in the wallet
+        messages.error(request, 'Insufficient balance in the wallet. Please deposit more funds.')
+        return HttpResponseRedirect(reverse('payment:insufficient_balance'))  # Redirect to a page indicating insufficient balance
+
+
+
+def purchase_success(request):
+    return render(request, 'payment/purchase_success.html')
+
+
+def insufficient_balance(request):
+    return render(request, 'payment/insufficient_balance.html')

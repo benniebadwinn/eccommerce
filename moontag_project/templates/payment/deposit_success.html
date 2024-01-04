@@ -1,0 +1,14 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <div id="success-message">
+    <p>{{ success_message }}</p>
+  </div>
+
+  <script>
+    setTimeout(function(){
+      window.location.href = "{% url 'shop:home' %}";
+    }, 5000); // Redirect after 5 seconds
+  </script>
+{% endblock %}

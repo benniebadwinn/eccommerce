@@ -67,15 +67,16 @@ Order Details
         <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title">
-                    {{item.product.name}}
+                    {{item.product.tilte}}
                 </h5>
-                <img  style="width:100px;height:80px;" src="{{ product.image.url }}" >
+                <img  style="width:100px;height:80px;" src="/media/{{item.img}}" >
                 <br>
                 <br>
-                <p class="card-text">QTY: {{ item.quantity }}</p>
-                <p class="card-text">Product Price: {{ item.product.price }}</p>
+                <p class="card-text">QTY: {{ item.quantity|floatformat:0 }}</p>
+                <p class="card-text">Product Price: {{ item.price }}</p>
                 <p align="left">
-                  <a href="{% url 'shop:addtocart' item.product.id %}"class="btn  btn-warning">BUY AGAIN</a>
+                  
+                  <a href="#" class="btn add-to-cart-btn add-to-cart" data-index="{{product.id}}">BUY AGAIN</a>
 
                 </div>
             </div>
@@ -139,9 +140,6 @@ Order Details
   <a href="{% url 'help' %}" class="btn btn-primary">NEED HELP?</a></p>
 </div>
 
-<br>
-{% include "shop/product/recommended.html" %}
-<br>
-{%include "shop/product/recently_viewed.html" %}
+
 
 {% endblock %}

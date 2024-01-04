@@ -4,8 +4,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from moontag_app.views import (ManageCartView,MpesaStkPushCallbackView,MpesaNumberView,
     PayviaMpesaonDeliveryView,PaymentCompletedView,
-     PaymentCancelledView,AddressCreateView,AddressListView,AddressUpdateView, AddressDeleteView,CouponAddView,remove_coupon,CouponAddView)
-
+     PaymentCancelledView,AddressCreateView,AddressListView,AddressUpdateView, AddressDeleteView,CouponAddView,remove_coupon,CouponAddView,OrderListView,OrderSummaryView,)
+# from moontag_app.consumers import ChatConsumer
 
 
 # from moontag_app.views import (AddressCreateView,OrderSummaryView,AddressListView,AddressUpdateView, AddressDeleteView,MpesaStkPushCallbackView,MpesaNumberView,
@@ -109,10 +109,10 @@ urlpatterns = [
     # # path('remove-item-from-cart/<slug>/', remove_one_item_from_cart, name='remove-one-item-from-cart'),    # This is in connection to the remove_one_item_from_cart function in the views.py
     # path('delivery_method', views.ConfirmShippingAddressView.as_view(), name='delivery_method'),
     # path('Newsletter', views.NewsLetterView.as_view(), name='Newsletter'),
-    # path('list', views.OrderListView.as_view(), name='my_orders'),
-    # path('list-cancelled', views.CancelledOrderListView.as_view(), name='cancelled_orders'),
-    # path('cancelled-detail/<int:pk>/', views.CancelledOrderDetailView.as_view(),name='cancelled_order_detail'),
-    # path('orders/<int:pk>/', views.OrderDetailView.as_view(), name='order_detail'),
+    path('list', views.OrderListView.as_view(), name='my_orders'),
+    path('list-cancelled', views.CancelledOrderListView.as_view(), name='cancelled_orders'),
+    path('cancelled-detail/<int:pk>/', views.CancelledOrderDetailView.as_view(),name='cancelled_order_detail'),
+    path('orders/<int:pk>/', views.OrderDetailView.as_view(), name='order_detail'),
 
 
     # #users
@@ -163,6 +163,11 @@ urlpatterns = [
     path('payment-done/', views.payment_done, name='payment_done'),
     path('completed/', PaymentCompletedView.as_view(), name='completed'),
     path('cancelled/', PaymentCancelledView.as_view(), name='payment_cancelled'),
+    path('custom_404_page/', views.custom_404_page , name='custom_404_page'),
+    
+    
+    path('home/', views.index, name='home'),
+    path('chat/<str:room_name>/', views.room, name='room'),
 ]
 
 

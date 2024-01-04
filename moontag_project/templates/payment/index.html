@@ -2,112 +2,19 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-
 {% block content %}
 
- <!-- Hero Section
- <div class="hero-section hero-background">
-  <h1 class="page-title">Payment Method</h1>
-</div>
-
-<div>
-  <p align="center">ITEMS IN THIS ORDER</p>
-</div>
-<div class="row">
-
-<div class="card mb-3">
-  <div class="card-body">
-    
-      <h6 class="card-title">Order Number: {{order.order_number}}</h6>
-
-      <hr>
-      <br>
-      {% for item in order.items.all %}
-      <h5 class="card-title">{{item.product.name}}</h5>
-     <p>
-      <img  style="width:50px;height:60px;" src="{% if item.product.thumb_nail %}{{ item.product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}" >
-      &nbsp;&nbsp;&nbsp;
-      QTY: {{ item.quantity }} &nbsp;&nbsp;
-     Price  KSH: {{ item.product.price }}
-     </p>
-      {% endfor %}
-  </div>
-        
-
-<form method="post">
-  
-    <input type="hidden" name="csrfmiddlewaretoken" value="No8KcYUizkC6jpAnIdf0Wn75K2VXDwIG0JYea1XLrivxF5e3DSnuWP8CyGDsZd44">
-    {% csrf_token %}
-
-<div id="div_id_first_name" class="mb-3" style="display: none;"> <label for="id_first_name" class="form-label requiredField">First name<span  class="asteriskField">*</span> </label> <input type="text" name="first_name" value="{{ profile.user.first_name }}" maxlength="20" class="textinput form-control" required="" id="id_first_name"> </div> 
-<div id="div_id_last_name" style="display: none;" class="mb-3"> <label for="id_last_name" class="form-label requiredField">Last name<span class="asteriskField">*</span> </label> <input type="text" name="last_name"  value="{{ profile.user.last_name }}" maxlength="20" class="textinput form-control" required="" id="id_last_name"> </div> 
-<div id="div_id_email" class="mb-3" style="display: none;" > <label for="id_email" class="form-label requiredField">Email<span style="display: none; class="asteriskField">*</span> </label> <input type="email" name="email" value="{{ profile.user.email }}" maxlength="254" class="emailinput form-control" required="" id="id_email"> </div> 
-<div id="div_id_phone" class="mb-3"> <label for="id_phone" class="form-label requiredField">Phone<span class="asteriskField" ></span> </label> <input type="tel" name="phone" value="{{ profile.mobile }}" value="+254"required maxlength="128" class="regionalphonenumberwidget form-control" required="" id="id_phone"> </div>
-
-    
-  
-  <strong> <label for="id_amount44">Order Total KSH:<span class="asteriskField">*</span></label></strong>
-                <input type="number" name="amount" step="0.01" class="numberinput form-control" required="" id="id_amount44" readonly value="{{amount}}">
-
-                
-    <button type="submit">Checkout</button>
-    
-  </form>
-  
-  
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- -->
-
-
-
-
-
-
-
-
-
-
-
-
-
- <!--Hero Section-->
-   <div class="hero-section hero-background">
-    <h1 class="page-title">Delivery Method</h1>
-</div>
-
-
+      <!--Hero Section-->
+      <div class="hero-section hero-background">
+        <h1 class="page-title">Pesapal checkout</h1>
+    </div>
 
     <!--Navigation section-->
     <div class="container">
         <nav class="biolife-nav">
             <ul>
                 <li class="nav-item"><a href="index-2.html" class="permal-link">Home</a></li>
-                <li class="nav-item"><span class="current-page">delivery method</span></li>
+                <li class="nav-item"><span class="current-page">Pesapal checkout</span></li>
             </ul>
         </nav>
     </div>
@@ -123,92 +30,336 @@
                     <div class="col-lg-7 col-md-7 col-sm-6 col-xs-12">
                         <div class="checkout-progress-wrap">
                             <ul class="steps">
-                                <h6 class="card-title">Order Number: {{order.order_number}}</h6>
-                                <div class="checkout-act active">
-                                    <h3 class="title-box"><span class="number">1</span>Convinient Payment With Pesapal</h3>
-                                    <div class="box-content">
-                                        <p class="txt-desc"> </p>
-                                <form method="post">                 
-                                  {% csrf_token %}
-                                      <div id="div_id_first_name" class="mb-3" style="display: none;"> <label for="id_first_name" class="form-label requiredField">First name<span  class="asteriskField">*</span> </label> <input type="text" name="first_name" value="{{ user.first_name }}" maxlength="20" class="textinput form-control" required="" id="id_first_name"> </div> 
-                                      <div id="div_id_last_name" style="display: none;" class="mb-3"> <label for="id_last_name" class="form-label requiredField">Last name<span class="asteriskField">*</span> </label> <input type="text" name="last_name"  value="{{ user.last_name }}" maxlength="20" class="textinput form-control" required="" id="id_last_name"> </div> 
-                                      <div id="div_id_email" class="mb-3" style="display: none;" > <label for="id_email" class="form-label requiredField">Email<span style="display: none; class="asteriskField">*</span> </label> <input type="email" name="email" value="{{ user.username }}" maxlength="254" class="emailinput form-control" required="" id="id_email"> </div> 
-                                      {% for address in addresses %}
-                                      <div id="div_id_phone" class="mb-3"> <label for="id_phone" class="form-label requiredField">Phone<span class="asteriskField" ></span> </label> <input type="tel" name="phone" value="{{ address.phone_number }}" value="+254"required maxlength="128" class="regionalphonenumberwidget form-control" required="" id="id_phone"> </div>
-                                      {% endfor %}
-                                      
-                                          
-                                        
-                                        <strong> <label for="id_amount44">Order Total KSH:<span class="asteriskField">*</span></label></strong>
-                                                      <input type="number" name="amount" step="0.01" class="numberinput form-control" required="" id="id_amount44" readonly value="{{amount}}">
-                                      
-                                                      
-                                          <button type="submit">Pay</button>
-                                          
-                                </form>
+                                <li class="step 1st">
+                                    <div class="checkout-act active">
+                                        <h3 class="title-box"><span class="number">1</span>Convinient Payment With Pesapal</h3>
+                                        <div class="box-content">
+                                            <p class="txt-desc">pesapal enables you to pay via the following mode of payments:
+                                               <div>
+                                                <figure><img src="data:image/png;base64,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" width="113" height="113" alt="shop-cart" ></figure>
+                                               </div>
+                                                <figure><img src="data:image/png;base64,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" width="113" height="113" alt="shop-cart" ></figure>
+                                                <figure><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBCgssWttXg4DZu5rof9px9YAu6sAgMGQuKA&usqp=CAU" width="113" height="113" alt="shop-cart" ></figure>
+                                            <div class="login-on-checkout">
+                                            <form action="{% url 'payment:pay' %}" method="post">
+                                                    {% csrf_token %}
+                                                    <p class="form-row">
+                                                    
+                                                    <div id="div_id_first_name" class="mb-3" style="display: none;">
+                                                        <label for="id_first_name" class="form-label requiredField">First name<span class="asteriskField">*</span> </label>
+                                                        <input type="text" name="first_name" value="{{ user.first_name }}" maxlength="20" class="textinput form-control" required="" id="id_first_name">
+                                                    </div>
+                                                    <div id="div_id_last_name" style="display: none;" class="mb-3">
+                                                        <label for="id_last_name" class="form-label requiredField">Last name<span class="asteriskField">*</span> </label>
+                                                        <input type="text" name="last_name"  value="{{ user.last_name }}" maxlength="20" class="textinput form-control" required="" id="id_last_name">
+                                                    </div>
+                                                    <div id="div_id_email" class="mb-3" style="display: none;">
+                                                        <label for="id_email" class="form-label requiredField">Email<span style="display: none;" class="asteriskField">*</span> </label>
+                                                        <input type="email" name="email" value="{{ user.username }}" maxlength="254" class="emailinput form-control" required="" id="id_email">
+                                                    </div>
+                                                    {% for address in addresses %}
+                                                    <div id="div_id_phone" class="mb-3" style="display: none;">
+                                                        <label for="id_phone" class="form-label requiredField">Phone<span class="asteriskField" ></span> </label>
+                                                        <input type="tel" name="phone" value="{{ address.phone_number }}" value="+254" required maxlength="128" class="regionalphonenumberwidget form-control" required="" id="id_phone">
+                                                    </div>
+                                                    {% endfor %}
+        
+                                                    <div id="div_id_phone" class="mb-3" style="display: none;">
+                                                        <strong ><label for="id_amount44">Order Total KSH:<span class="asteriskField">*</span></label></strong>
+                                                        <input type="number" name="amount" step="0.01" class="numberinput form-control" required="" id="id_amount44" readonly value="{{amount}}">
+                                                    </div>
+                                                <div class="form-row">
+                                                    <button type="submit" name="btn-sbmt" class="btn">Proceed to pay</button>
+                                                </div>
+                                            </p>
+                                            </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+
                             </ul>
                         </div>
                     </div>
 
-                    <!-- Order Summary
+                    <!--Order Summary-->
                     <div class="col-lg-5 col-md-5 col-sm-6 col-xs-12 sm-padding-top-48px sm-margin-bottom-0 xs-margin-bottom-15px">
                         <div class="order-summary sm-margin-bottom-80px">
                             <div class="title-block">
                                 <h3 class="title">Order Summary</h3>
-                                <a href="#" class="link-forward">Edit cart</a>
+                          
                             </div>
                             <div class="cart-list-box short-type">
-                                <span class="number">2 items</span>
+                                
+                                <span class="number">{{ order_items|length }} {% if order_items|length == 1 %}Item{% else %}Items{% endif %}</span>
+                                
                                 <ul class="cart-list">
-                                {% for order_item in object.products.all %}
+                                    {% for item in order_items %}
                                     <li class="cart-elem">
                                         <div class="cart-item">
                                             <div class="product-thumb">
                                                 <a class="prd-thumb" href="#">
-                                                    <figure><img src="{{ product.get_absolute_url }}" width="113" height="113" alt="shop-cart" ></figure>
+                                                    <figure><img src="/media/{{item.img}}" width="113" height="113" alt="shop-cart" ></figure>
                                                 </a>
                                             </div>
                                             <div class="info">
-                                                <span class="txt-quantity">{{ order_item.quantity }} X</span>
-                                                <a href="#" class="pr-name">{{ order_item.product.name }}</a>
+                                                <span class="txt-quantity">{{ item.quantity|floatformat:0 }} X</span>
+                                                <a href="#" class="pr-name">{{ order.product.title }}</a>
                                             </div>
                                             <div class="price price-contain">
-                                                {% if order_item.product.discount_price %}
-                                                         <ins><span class="price-amount"><span class="currencySymbol">Ksh</span>{{ order_item.get_total_discount_product_price }}<span class="badge bg-success">You save Ksh {{ order_item.get_amount_saved }}</span></span></ins>
+                                                {% if item in order_items.discountprice %}
+                                                         <ins><span class="price-amount"><span class="currencySymbol">Ksh</span>{{ item.discountprice }}<span class="badge bg-success">You save Ksh {{ order_item.get_amount_saved }}</span></span></ins>
          
                                                          {% else %}
-                                                         <ins><span class="price-amount"><span class="currencySymbol">Ksh</span>{{ order_item.get_total_product_price }}</span></ins>
+                                                         <ins><span class="price-amount"><span class="currencySymbol">Ksh</span>{{ item.price }}</span></ins>
                                                {% endif %}
-                                                        
-                                    </div>
+                                                <!-- <del><span class="price-amount"><span class="currencySymbol">Ksh</span>{{ item.price }}</span></del> -->
+                                            </div>
                                         </div>
                                     </li>
                                     {% endfor %}
-                                   
+
                                 </ul>
                                 <ul class="subtotal">
                                     <li>
                                         <div class="subtotal-line">
                                             <b class="stt-name">Subtotal</b>
-                                            {% for order_item in object.products.all %}
-                                            <span class="stt-price">Ksh {{ order_item.get_final_amount}}</span>
-                                            {% endfor  %}
+                                            <span class="stt-price">Ksh {{ total_price }}</span>
                                         </div>
                                     </li>
-
-                             
+                                    <!-- <li>
+                                        <div class="subtotal-line">
+                                            <b class="stt-name">Shipping</b>
+                                            <span class="stt-price">£20.00</span>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="subtotal-line">
+                                            <b class="stt-name">Tax</b>
+                                            <span class="stt-price">£0.00</span>
+                                        </div>
+                                    </li> -->
+                                    <li>
+                                        <div class="subtotal-line">
+                                            <a href="#" class="link-forward">Promo/Gift Certificate</a>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="subtotal-line">
+                                            <b class="stt-name">total:</b>
+                                            <span class="stt-price">Ksh {{ amount }}</span>
+                                        </div>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
-                    </div> -->
+                    </div>
 
                 </div>
             </div>
         </div>
     </div>
 
- 
+    <!-- FOOTER -->
+    <footer id="footer" class="footer layout-03">
+        <div class="footer-content background-footer-03">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-9">
+                        <section class="footer-item">
+                            <a href="#" class="logo footer-logo"><img src="assets/images/organic-3.png" alt="biolife logo" width="135" height="34"></a>
+                            <div class="footer-phone-info">
+                                <i class="biolife-icon icon-head-phone"></i>
+                                <p class="r-info">
+                                    <span>Got Questions ?</span>
+                                    <span>(700)  9001-1909  (900) 689 -66</span>
+                                </p>
+                            </div>
+                            <div class="newsletter-block layout-01">
+                                <h4 class="title">Newsletter Signup</h4>
+                                <div class="form-content">
+                                    <form action="#" name="new-letter-foter">
+                                        <input type="email" class="input-text email" value="" placeholder="Your email here...">
+                                        <button type="submit" class="bnt-submit" name="ok">Sign up</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-6 md-margin-top-5px sm-margin-top-50px xs-margin-top-40px">
+                        <section class="footer-item">
+                            <h3 class="section-title">Useful Links</h3>
+                            <div class="row">
+                                <div class="col-lg-6 col-sm-6 col-xs-6">
+                                    <div class="wrap-custom-menu vertical-menu-2">
+                                        <ul class="menu">
+                                            <li><a href="#">About Us</a></li>
+                                            <li><a href="#">About Our Shop</a></li>
+                                            <li><a href="#">Secure Shopping</a></li>
+                                            <li><a href="#">Delivery infomation</a></li>
+                                            <li><a href="#">Privacy Policy</a></li>
+                                            <li><a href="#">Our Sitemap</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-sm-6 col-xs-6">
+                                    <div class="wrap-custom-menu vertical-menu-2">
+                                        <ul class="menu">
+                                            <li><a href="#">Who We Are</a></li>
+                                            <li><a href="#">Our Services</a></li>
+                                            <li><a href="#">Projects</a></li>
+                                            <li><a href="#">Contacts Us</a></li>
+                                            <li><a href="#">Innovation</a></li>
+                                            <li><a href="#">Testimonials</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-6 md-margin-top-5px sm-margin-top-50px xs-margin-top-40px">
+                        <section class="footer-item">
+                            <h3 class="section-title">Transport Offices</h3>
+                            <div class="contact-info-block footer-layout xs-padding-top-10px">
+                                <ul class="contact-lines">
+                                    <li>
+                                        <p class="info-item">
+                                            <i class="biolife-icon icon-location"></i>
+                                            <b class="desc">7563 St. Vicent Place, Glasgow, Greater Newyork NH7689, UK </b>
+                                        </p>
+                                    </li>
+                                    <li>
+                                        <p class="info-item">
+                                            <i class="biolife-icon icon-phone"></i>
+                                            <b class="desc">Phone: (+067) 234 789  (+068) 222 888</b>
+                                        </p>
+                                    </li>
+                                    <li>
+                                        <p class="info-item">
+                                            <i class="biolife-icon icon-letter"></i>
+                                            <b class="desc">Email:  contact@company.com</b>
+                                        </p>
+                                    </li>
+                                    <li>
+                                        <p class="info-item">
+                                            <i class="biolife-icon icon-clock"></i>
+                                            <b class="desc">Hours: 7 Days a week from 10:00 am</b>
+                                        </p>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="biolife-social inline">
+                                <ul class="socials">
+                                    <li><a href="#" title="twitter" class="socail-btn"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
+                                    <li><a href="#" title="facebook" class="socail-btn"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+                                    <li><a href="#" title="pinterest" class="socail-btn"><i class="fa fa-pinterest" aria-hidden="true"></i></a></li>
+                                    <li><a href="#" title="youtube" class="socail-btn"><i class="fa fa-youtube" aria-hidden="true"></i></a></li>
+                                    <li><a href="#" title="instagram" class="socail-btn"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+                                </ul>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="separator sm-margin-top-70px xs-margin-top-40px"></div>
+                    </div>
+                    <div class="col-lg-6 col-sm-6 col-xs-12">
+                       <div class="copy-right-text"><p><a href="templateshub.net">Templates Hub</a></p></div>
+                    </div>
+                    <div class="col-lg-6 col-sm-6 col-xs-12">
+                        <div class="payment-methods">
+                            <ul>
+                                <li><a href="#" class="payment-link"><img src="assets/images/card1.jpg" width="51" height="36" alt=""></a></li>
+                                <li><a href="#" class="payment-link"><img src="assets/images/card2.jpg" width="51" height="36" alt=""></a></li>
+                                <li><a href="#" class="payment-link"><img src="assets/images/card3.jpg" width="51" height="36" alt=""></a></li>
+                                <li><a href="#" class="payment-link"><img src="assets/images/card4.jpg" width="51" height="36" alt=""></a></li>
+                                <li><a href="#" class="payment-link"><img src="assets/images/card5.jpg" width="51" height="36" alt=""></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
 
+    <!--Footer For Mobile-->
+    <div class="mobile-footer">
+        <div class="mobile-footer-inner">
+            <div class="mobile-block block-menu-main">
+                <a class="menu-bar menu-toggle btn-toggle" data-object="open-mobile-menu" href="javascript:void(0)">
+                    <span class="fa fa-bars"></span>
+                    <span class="text">Menu</span>
+                </a>
+            </div>
+            <div class="mobile-block block-sidebar">
+                <a class="menu-bar filter-toggle btn-toggle" data-object="open-mobile-filter" href="javascript:void(0)">
+                    <i class="fa fa-sliders" aria-hidden="true"></i>
+                    <span class="text">Sidebar</span>
+                </a>
+            </div>
+            <div class="mobile-block block-minicart">
+                <a class="link-to-cart" href="#">
+                    <span class="fa fa-shopping-bag" aria-hidden="true"></span>
+                    <span class="text">Cart</span>
+                </a>
+            </div>
+            <div class="mobile-block block-global">
+                <a class="menu-bar myaccount-toggle btn-toggle" data-object="global-panel-opened" href="javascript:void(0)">
+                    <span class="fa fa-globe"></span>
+                    <span class="text">Global</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="mobile-block-global">
+        <div class="biolife-mobile-panels">
+            <span class="biolife-current-panel-title">Global</span>
+            <a class="biolife-close-btn" data-object="global-panel-opened" href="#">&times;</a>
+        </div>
+        <div class="block-global-contain">
+            <div class="glb-item my-account">
+                <b class="title">My Account</b>
+                <ul class="list">
+                    <li class="list-item"><a href="#">Login/register</a></li>
+                    <li class="list-item"><a href="#">Wishlist <span class="index">(8)</span></a></li>
+                    <li class="list-item"><a href="#">Checkout</a></li>
+                </ul>
+            </div>
+            <div class="glb-item currency">
+                <b class="title">Currency</b>
+                <ul class="list">
+                    <li class="list-item"><a href="#">€ EUR (Euro)</a></li>
+                    <li class="list-item"><a href="#">$ USD (Dollar)</a></li>
+                    <li class="list-item"><a href="#">£ GBP (Pound)</a></li>
+                    <li class="list-item"><a href="#">¥ JPY (Yen)</a></li>
+                </ul>
+            </div>
+            <div class="glb-item languages">
+                <b class="title">Language</b>
+                <ul class="list inline">
+                    <li class="list-item"><a href="#"><img src="assets/images/languages/us.jpg" alt="flag" width="24" height="18"></a></li>
+                    <li class="list-item"><a href="#"><img src="assets/images/languages/fr.jpg" alt="flag" width="24" height="18"></a></li>
+                    <li class="list-item"><a href="#"><img src="assets/images/languages/ger.jpg" alt="flag" width="24" height="18"></a></li>
+                    <li class="list-item"><a href="#"><img src="assets/images/languages/jap.jpg" alt="flag" width="24" height="18"></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll Top Button -->
+    <a class="btn-scroll-top"><i class="biolife-icon icon-left-arrow"></i></a>
+
+    <script src="assets/js/jquery-3.4.1.min.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/jquery.countdown.min.js"></script>
+    <script src="assets/js/jquery.nice-select.min.js"></script>
+    <script src="assets/js/jquery.nicescroll.min.js"></script>
+    <script src="assets/js/slick.min.js"></script>
+    <script src="assets/js/biolife.framework.js"></script>
+    <script src="assets/js/functions.js"></script>
+</body>
 {% endblock %}
 
 

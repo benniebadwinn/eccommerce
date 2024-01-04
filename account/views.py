@@ -36,15 +36,153 @@ from .models import UserProfuile
 from main.models import Blog, BlogComment
 from .models import subscriptions
 from django.shortcuts import render, redirect,get_object_or_404
-from moontag_app.models import ProductAttribute
+from moontag_app.models import ProductAttribute,Product
+from django.db.models import Sum
+from .models import WalletTransaction
+from django.contrib.auth.models import User
+from payment.utils import get_user_wallet_balance
+import smtplib
+from email.message import EmailMessage
 
 
-success_url = reverse_lazy("django_registration_complete")
+# success_url = reverse_lazy("django_registration_complete")
+
+# def panel(request):
+# 	return render(request, "user/admin_page.html")
+
+# @login_required
+# success_url = reverse_lazy("django_registration_complete")
 
 def panel(request):
-	return render(request, "user/admin_page.html")
+    return render(request, "user/admin_page.html")
+
+@login_required
+def deposit(request):
+    if request.method == 'POST':
+        amount = float(request.POST['amount'])
+        # Perform validation on the amount if needed
+
+        # Create a deposit transaction
+        deposit_transaction = WalletTransaction.objects.create(
+            user=request.user,
+            amount=amount,
+            transaction_type='deposit'
+        )
+
+        # # Send email to user
+        # subject = 'Deposit Confirmation'
+        # # Use the get_user_wallet_balance function from utils to get the updated balance
+        # new_wallet_balance = get_user_wallet_balance(request.user)
+        # message = f'Thank you for depositing ${amount}. Your new wallet balance is ${new_wallet_balance}'
+        # from_email = settings.DEFAULT_FROM_EMAIL
+        # to_email = [request.user.email]
+
+  
+        
+        # Set your email credentials and server information
+        smtp_server = 'smtp.badwin.online.com'  # Replace with your SMTP server
+        port = 587  # Check with your email provider for the correct port number
+        login = 'badwin@badwin.online'  # Replace with your email username
+        password = 'luckyp@tch3r'  # Replace with your email password
+        
+        # Create an EmailMessage object
+        message = EmailMessage()
+        message['Subject'] = 'Your Subject'
+        message['From'] = 'Your Display Name <your_username@yourdomain.com>'
+        message['To'] = 'recipient@example.com'  # Replace with the recipient's email address
+        message.set_content('Hello, this is the email content.')
+        
+        # Initialize the server variable outside the try block
+        server = None
+        
+        # Connect to the SMTP server and send the email
+        try:
+            server = smtplib.SMTP(smtp_server, port)
+            server.starttls()  # Use if your server requires a secure connection
+            server.login(login, password)
+            server.send_message(message)
+            print('Email sent successfully!')
+        except Exception as e:
+            print(f'Error: {e}')
+        finally:
+            # Check if the server variable is defined before trying to quit
+            if server:
+                server.quit()
+                
+        from_email = 'badwin@badwin.online'  # Replace with your email username
+        to_email = [request.user.email]  # Replace with your email username
+        subject = 'Your Subject'
+        # send_mail(subject, message, from_email, to_email, fail_silently=False)
+
+        success_message = 'Deposit successful. Confirmation email sent.'
+        return render(request, 'payment/deposit_success.html', {'success_message': success_message})
+    
+
+    return render(request, 'payment/deposit.html')
 
 
+
+
+
+# def deposit(request):
+#     if request.method == 'POST':
+#         amount = float(request.POST['amount'])
+#         # Perform validation on the amount if needed
+
+#         # Create a deposit transaction
+#         deposit_transaction = WalletTransaction.objects.create(
+#             user=request.user,
+#             amount=amount,
+#             transaction_type='deposit'
+#         )
+
+#         # Send email to user
+#         subject = 'Deposit Confirmation'
+#         # Use the get_user_wallet_balance function from utils to get the updated balance
+#         new_wallet_balance = get_user_wallet_balance(request.user)
+#         message = f'Thank you for depositing ${amount}. Your new wallet balance is ${new_wallet_balance}'
+#         from_email = settings.DEFAULT_FROM_EMAIL
+#         to_email = [request.user.email]
+
+#         send_mail(subject, message, from_email, to_email, fail_silently=False)
+
+#         success_message = 'Deposit successful. Confirmation email sent.'
+#         return render(request, 'payment/deposit_success.html', {'success_message': success_message})
+
+#     return render(request, 'payment/deposit.html')
+# views.py
+
+
+@login_required
+def wallet_balance(request):
+    deposits = WalletTransaction.objects.filter(user=request.user, transaction_type='deposit').aggregate(Sum('amount'))['amount__sum'] or 0
+    withdrawals = WalletTransaction.objects.filter(user=request.user, transaction_type='withdrawal').aggregate(Sum('amount'))['amount__sum'] or 0
+    purchases = WalletTransaction.objects.filter(user=request.user, transaction_type='purchase').aggregate(Sum('amount'))['amount__sum'] or 0
+
+    balance = deposits - withdrawals + purchases
+
+    # Send email to user with their wallet balance
+    subject = 'Wallet Balance Request'
+    message = f'Your current wallet balance is ${balance}.'
+    from_email = settings.DEFAULT_FROM_EMAIL
+    to_email = [request.user.email]
+
+    send_mail(subject, message, from_email, to_email, fail_silently=False)
+
+    return render(request, 'payment/wallet_balance.html', {'balance': balance})
+
+def deposit_success(request):
+    return render(request, 'payment/deposit_success.html')
+
+
+
+def logout_view(request):
+    """
+    Logout
+    """
+    logout(request)
+    messages.success(request, "You are logged out")
+    return redirect('/')
 
 def signup(request):
 	if request.method == 'POST':
@@ -124,54 +262,55 @@ def resend_otp(request):
 
 
 def login_view(request):
-	if request.user.is_authenticated:
-		return redirect('/')
-	if request.method == 'POST':
-		get_otp = request.POST.get('otp') #213243 #None
+    if request.user.is_authenticated:
+        return redirect('/')
 
-		if get_otp:
-			get_usr = request.POST.get('usr')
-			usr = User.objects.get(username=get_usr)
-			if int(get_otp) == UserOTP.objects.filter(user = usr).last().otp:
-				usr.is_active = True
-				usr.save()
-				login(request, usr)
-				return redirect('home')
-			else:
-				messages.warning(request, f'You Entered a Wrong OTP')
-				return render(request, 'user/login.html', {'otp': True, 'usr': usr})
+    if request.method == 'POST':
+        get_otp = request.POST.get('otp')
 
+        if get_otp:
+            get_usr = request.POST.get('usr')
+            usr = User.objects.get(username__iexact=get_usr)
+            if int(get_otp) == UserOTP.objects.filter(user=usr).last().otp:
+                usr.is_active = True
+                usr.save()
+                login(request, usr)
+                return redirect('home')
+            else:
+                messages.warning(request, 'You Entered a Wrong OTP')
+                return render(request, 'user/login.html', {'otp': True, 'usr': usr})
 
-		usrname = request.POST['username']
-		passwd = request.POST['password']
+        usrname = request.POST['username']
+        passwd = request.POST['password']
 
-		user = authenticate(request, username = usrname, password = passwd) #None
-		if user is not None:
-			login(request, user)
-			return redirect('/')
-		elif not User.objects.filter(username = usrname).exists():
-			messages.warning(request, f'Please enter a correct username and password. Note that both fields may be case-sensitive.')
-			return redirect('account:login')
-		elif not User.objects.get(username=usrname).is_active:
-			usr = User.objects.get(username=usrname)
-			usr_otp = random.randint(100000, 999999)
-			UserOTP.objects.create(user = usr, otp = usr_otp)
-			mess = f"Hello {usr.first_name},\nYour OTP is {usr_otp}\nThanks for shopping with us !"
+        # user = User.objects.filter(username__iexact=usrname).first()
+        user = authenticate(request, username=usrname, password=passwd)
+        if user is not None:
+            login(request, user)
+            return redirect('/')
+        elif not User.objects.filter(username__iexact=usrname).exists():
+            messages.warning(request, 'Please enter a correct username and password. Note that both fields may be case-sensitive.')
+            return redirect('account:login')
+        elif not User.objects.get(username__iexact=usrname).is_active:
+            usr = User.objects.get(username__iexact=usrname)
+            usr_otp = random.randint(100000, 999999)
+            UserOTP.objects.create(user=usr, otp=usr_otp)
+            mess = f"Hello {usr.first_name},\nYour OTP is {usr_otp}\nThanks for shopping with us !"
 
-			send_mail(
-				"Welcome to Badwin - Verify Your Email",
-				mess,
-				settings.EMAIL_HOST_USER,
-				[usr.email],
-				fail_silently = False
-				)
-			return render(request, 'user/login.html', {'otp': True, 'usr': usr})
-		else:
-			messages.warning(request, f'Please enter a correct username and password.Note that both fields may be case-sensitive')
-			return redirect('account:login')
+            send_mail(
+                "Welcome to Badwin - Verify Your Email",
+                mess,
+                settings.EMAIL_HOST_USER,
+                [usr.email],
+                fail_silently=False
+            )
+            return render(request, 'user/login.html', {'otp': True, 'usr': usr})
+        else:
+            messages.warning(request, 'Please enter a correct username and password. Note that both fields may be case-sensitive.')
+            return redirect('account:login')
 
-	form = AuthenticationForm()
-	return render(request, 'user/login.html', {'form': form})
+    form = AuthenticationForm()
+    return render(request, 'user/login.html', {'form': form})
     
 
 
@@ -354,28 +493,47 @@ def Subscribe(request):
   messages.error(request, "Subscription Added!")
   return redirect("/")
 
-@login_required
 def wishlist(request):
-    products = Product.objects.filter(users_wishlist=request.user)
+    wishlist_items = Product.objects.filter(users_wishlist=request.user)
+    wishlist_count = wishlist_items.count()
     return render(
-        request, "account/dashboard/user_wishlist.html", {"wishlist": products}
+        request, "account/dashboard/user_wishlist.html", {"wishlist": wishlist_items, "wishlist_count": wishlist_count}
     )
 
 
 @login_required
 def wishlist_product_toggle(request, id):
 	
-    product = get_object_or_404(ProductAttribute, pk=id)
+    product = get_object_or_404(Product, pk=id)
     if product.users_wishlist.filter(id=request.user.id).exists():
         product.users_wishlist.remove(request.user)
         messages.success(
-            request, product.product.title + " has been removed from your wishlist"
+            request, product.title + " has been removed from your wishlist"
         )
     else:
         product.users_wishlist.add(request.user)
-        messages.success(request, "Added " + product.product.title + " to your wishlist")
+        messages.success(request, "Added " + product.title + " to your wishlist")
         
     return HttpResponseRedirect(request.META["HTTP_REFERER"])
+
+
+
+# subscribe
+def subscribe(request):
+    try:
+        email = request.POST['email']
+    except KeyError:
+        messages.error(request, "Email not provided.")
+        return redirect("/")
+
+    # Assuming that 'subscriptions' is a model with 'user' and 'email' fields
+    subscription = subscriptions(user=request.user, email=email)
+    subscription.save()
+
+    messages.success(request, "Subscription Added!")
+    return redirect("/")
+
+
 
 
 
@@ -384,3 +542,7 @@ def dashboard(request):
     # order_id = request.session.get('order_id', None)
     # order = get_object_or_404(Order, id=order_id)
     return render(request, "account/dashboard/dashboard.html")
+
+
+def wallet(request):
+    return render(request, 'account/wallet.html')

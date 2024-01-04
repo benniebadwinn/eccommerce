@@ -22,7 +22,7 @@
         </nav>
     </div>
 
-    <div class="page-contain shopping-cart">
+    <div class="page-contain shopping-cart"  id="cart_page">
 
         <!-- Main content -->
         <div id="main-content" class="main-content">
@@ -97,12 +97,24 @@
                                                     <button class="btn btn-sm btn-danger delete-item" data-item="{{ product_id }}"><i class="fa fa-trash"></i></button>
                                                 </td>
                                             </tr>
-                                            {% endfor %}
                                             
+                                            {% endfor %}
+
+                                       
                                     </tr>
+                                    <tr class="cart_item wrap-buttons">
+                                        <td class="wrap-btn-control" colspan="4">
+                                            <a href="{% url 'shop:home' %}" class="btn back-to-shop">Back to Shop</a>
+                                            <!-- <button class="btn btn-update" type="submit" disabled>update</button> -->
+                                            
+                                            <button class="btn btn-clear" type="reset">clear all</button>
+                                        </td>
+                                    </tr>
+                                    
                                     </tbody>
                                 </table>
                             </form>
+  
                         </div>
                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
                             <div class="shpcart-subtotal-block">
@@ -153,182 +165,47 @@
                         <h3 class="main-title">Related Products</h3>
                     </div>
                     <ul class="products-list biolife-carousel nav-center-02 nav-none-on-mobile" data-slick='{"rows":1,"arrows":true,"dots":false,"infinite":false,"speed":400,"slidesMargin":0,"slidesToShow":5, "responsive":[{"breakpoint":1200, "settings":{ "slidesToShow": 4}},{"breakpoint":992, "settings":{ "slidesToShow": 3, "slidesMargin":20}},{"breakpoint":768, "settings":{ "slidesToShow": 2, "slidesMargin":10}}]}'>
+                    {% for product in related_products %}
                         <li class="product-item">
                             <div class="contain-product layout-default">
                                 <div class="product-thumb">
                                     <a href="#" class="link-to-product">
-                                        <img src="assets/images/products/p-13.jpg" alt="dd" width="270" height="270" class="product-thumnail">
+                                        <img src="media/{{product.img}}" alt="dd" width="270" height="270" class="product-thumnail">
                                     </a>
                                 </div>
                                 <div class="info">
-                                    <b class="categories">Fresh Fruit</b>
-                                    <h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
+                                    <b class="categories">{{ product.category }}</b>
+                                    <h4 class="product-title"><a href="#" class="pr-name">{{ product.title }}</a></h4>
                                     <div class="price ">
-                                        <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                        <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
+                                        <ins><span class="price-amount">Ksh <span class="product-price-{{product.id}}" >{{product.productattribute_set.first.discountprice}}</span></ins></h6>
                                     </div>
                                     <div class="slide-down-box">
                                         <p class="message">All products are carefully selected to ensure food safety.</p>
                                         <div class="buttons">
-                                            <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                            <a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-                                            <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
+                                            {% if in_wishlist %}
+                                            <a href="{% url 'login:wishlist_product_toggle' product.id %}" pid="{{product.id}}" class="plus-wishlist btn">
+                                                <i class="fas fa-heart fa-lg text-success"></i>
+                                            </a>
+                                            
+                                            {% else %}
+                                            <a href="{% url 'login:wishlist_product_toggle' product.id %}" pid="{{product.id}}" class="plus-wishlist btn">
+                                                <i class="fas fa-heart fa-lg text-danger"></i>
+                                            </a>
+                                            {% endif %}
+                                            
+                                            <input type="hidden" value="1" class="form-control product-qty-{{product.id}}" id="productQty" />
+                                            <input type="hidden" class="product-img-{{product.id}}" value="{{product.productattribute_set.first.img}}" />
+                                            <input type="hidden" class="product-id-{{product.id}}" value="{{product.id}}" />
+                                            <input type="hidden" class="product-title-{{product.id}}" value="{{product.title}}" />
+                                            <div class="buttons">
+                                                <a href="#" class="btn add-to-cart-btn add-to-cart" data-index="{{product.id}}">add to cart</a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </li>
-                        <li class="product-item">
-                            <div class="contain-product layout-default">
-                                <div class="product-thumb">
-                                    <a href="#" class="link-to-product">
-                                        <img src="assets/images/products/p-14.jpg" alt="dd" width="270" height="270" class="product-thumnail">
-                                    </a>
-                                </div>
-                                <div class="info">
-                                    <b class="categories">Fresh Fruit</b>
-                                    <h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
-                                    <div class="price">
-                                        <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                        <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-                                    </div>
-                                    <div class="slide-down-box">
-                                        <p class="message">All products are carefully selected to ensure food safety.</p>
-                                        <div class="buttons">
-                                            <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                            <a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-                                            <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="product-item">
-                            <div class="contain-product layout-default">
-                                <div class="product-thumb">
-                                    <a href="#" class="link-to-product">
-                                        <img src="assets/images/products/p-15.jpg" alt="dd" width="270" height="270" class="product-thumnail">
-                                    </a>
-                                </div>
-                                <div class="info">
-                                    <b class="categories">Fresh Fruit</b>
-                                    <h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
-                                    <div class="price">
-                                        <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                        <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-                                    </div>
-                                    <div class="slide-down-box">
-                                        <p class="message">All products are carefully selected to ensure food safety.</p>
-                                        <div class="buttons">
-                                            <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                            <a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-                                            <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="product-item">
-                            <div class="contain-product layout-default">
-                                <div class="product-thumb">
-                                    <a href="#" class="link-to-product">
-                                        <img src="assets/images/products/p-10.jpg" alt="dd" width="270" height="270" class="product-thumnail">
-                                    </a>
-                                </div>
-                                <div class="info">
-                                    <b class="categories">Fresh Fruit</b>
-                                    <h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
-                                    <div class="price">
-                                        <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                        <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-                                    </div>
-                                    <div class="slide-down-box">
-                                        <p class="message">All products are carefully selected to ensure food safety.</p>
-                                        <div class="buttons">
-                                            <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                            <a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-                                            <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="product-item">
-                            <div class="contain-product layout-default">
-                                <div class="product-thumb">
-                                    <a href="#" class="link-to-product">
-                                        <img src="assets/images/products/p-08.jpg" alt="dd" width="270" height="270" class="product-thumnail">
-                                    </a>
-                                </div>
-                                <div class="info">
-                                    <b class="categories">Fresh Fruit</b>
-                                    <h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
-                                    <div class="price">
-                                        <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                        <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-                                    </div>
-                                    <div class="slide-down-box">
-                                        <p class="message">All products are carefully selected to ensure food safety.</p>
-                                        <div class="buttons">
-                                            <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                            <a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-                                            <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="product-item">
-                            <div class="contain-product layout-default">
-                                <div class="product-thumb">
-                                    <a href="#" class="link-to-product">
-                                        <img src="assets/images/products/p-21.jpg" alt="dd" width="270" height="270" class="product-thumnail">
-                                    </a>
-                                </div>
-                                <div class="info">
-                                    <b class="categories">Fresh Fruit</b>
-                                    <h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
-                                    <div class="price">
-                                        <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                        <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-                                    </div>
-                                    <div class="slide-down-box">
-                                        <p class="message">All products are carefully selected to ensure food safety.</p>
-                                        <div class="buttons">
-                                            <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                            <a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-                                            <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="product-item">
-                            <div class="contain-product layout-default">
-                                <div class="product-thumb">
-                                    <a href="#" class="link-to-product">
-                                        <img src="assets/images/products/p-18.jpg" alt="dd" width="270" height="270" class="product-thumnail">
-                                    </a>
-                                </div>
-                                <div class="info">
-                                    <b class="categories">Fresh Fruit</b>
-                                    <h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
-                                    <div class="price">
-                                        <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                        <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-                                    </div>
-                                    <div class="slide-down-box">
-                                        <p class="message">All products are carefully selected to ensure food safety.</p>
-                                        <div class="buttons">
-                                            <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                            <a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-                                            <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
+                        {% endfor %}
+                     </ul>
                 </div>
 
             </div>      <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -391,56 +268,6 @@
 
 
 
-
-
-
-<!DOCTYPE html>
-<main class="container my-4" id="cart_page">
-	<!-- Featured Products -->
-	<h3 class="my-4 border-bottom pb-1">Cart ({{total_items}})</h3>
-	<table class="table table-bordered">
-		<thead>
-			<tr>
-				<th>Product</th>
-				<th>Qty</th>
-				<th>Price</th>
-				<th>Total</th>
-			</tr>
-		</thead>
-		<tbody>
-            {% for product_id,item in cart_data.items %}
-			<p></p>
-			<tr>
-				<td>
-					<img src="/media/{{item.img}}" width="50" />
-					<p><a href="/product/{{item.title|slugify}}/{{product_id}}">{{item.title}}</a></p>
-				</td>
-				<td>
-					<input type="number" class="product-qty-{{product_id}}" value="{{item.qty}}" style="vertical-align: bottom;" />
-					<button class="btn btn-sm btn-primary update-item" data-item="{{product_id}}"><i class="fa fa-sync"></i></button>
-					<button class="btn btn-sm btn-danger delete-item" data-item="{{product_id}}"><i class="fa fa-trash"></i></button>
-				</td>
-				<td>&#36; {{item.price}}</td>
-				<td>&#36; {% widthratio item.price 1 item.qty %}</td>
-			</tr>
-            {% endfor %}
-		</tbody>
-		<tfoot>
-			<tr>
-				<td colspan="2"></td>
-				<th>Total</th>
-				<th>&#36; {{total_price}}</th>
-			</tr>
-            {% if total_items%}
-			<tr>
-				<td colspan="4" align="right">
-					<a href="#" class="btn btn-dark btn-sm">Checkout <i class="fa fa-long-arrow-alt-right"></i></a>
-				</td>
-			</tr>
-            {% endif %}
-		</tfoot>
-	</table>
-</main>
 
 {% endblock %}
 

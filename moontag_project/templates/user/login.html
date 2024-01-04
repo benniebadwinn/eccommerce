@@ -47,14 +47,23 @@
                               <input type="password" name="password" class="input-box" placeholder="Password"  required="" id="password">
                               <label for="password"></label>
                             </p>
-                            <p class="form-row wrap-btn">
-                                <button class="btn btn-submit btn-bold" type="submit">sign in</button>
-                                <!-- <input class="btn btn-submit btn-bold" type="submit" value="sign in"> -->
-                                <a href="{% url 'account:password_reset' %}" class="link-to-help">Forgot your password</a>
-                            </p>
+
+                                
+                                <p class="form-row wrap-btn">
+                                    <p class="form-row wrap-btn">
+                                        <button class="btn btn-submit btn-bold" type="submit">Sign In</button>
+                                        <a href="{% url 'account:password_reset' %}" class="link-to-help">Forgot your password</a>
+                        
+                                        <!-- Gmail login button -->
+                                        <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-submit btn-bold">Sign in with Gmail</a>
+                                        
+
+                                    </p>
+                            
                         </form>
                     </div>
                 </div>
+
 
                 <!--Go to Register form-->
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -81,5 +90,63 @@
     </div>
 
 </div>
+<script src="https://apis.google.com/js/api:client.js"></script>
 
+<script type="text/javascript">
+  gapi.load('auth2', function () {
+    var auth2;
+
+    auth2 = gapi.auth2.init({
+      client_id: "2QvSVG9FS2MtFWfcCfEztbn97QAkTW7d",
+      scope: "<PUT BACKEND SCOPE HERE>"
+    });
+
+    auth2.then(function () {
+      var button = document.getElementById("google-plus-button");
+      console.log("User is signed-in in Google+ platform?", auth2.isSignedIn.get() ? "Yes" : "No");
+
+      auth2.attachClickHandler(button, {}, function (googleUser) {
+        // Send access-token to backend to finish the authenticate
+        // with your application
+
+        var authResponse = googleUser.getAuthResponse();
+        var $form;
+        var $input;
+
+        $form = $("<form>");
+        $form.attr("action", "/complete/google-plus");
+        $form.attr("method", "post");
+        $input = $("<input>");
+        $input.attr("name", "id_token");
+        $input.attr("value", authResponse.id_token);
+        $form.append($input);
+        // Add csrf-token if needed
+        $(document.body).append($form);
+        $form.submit();
+      });
+    });
+  });
+</script>
+<script type="text/javascript">
+    gapi.load('auth2', function () {
+      var auth2;
+  
+      auth2 = gapi.auth2.init({
+        client_id: "2QvSVG9FS2MtFWfcCfEztbn97QAkTW7d",
+        scope: "{{ plus_scope }}"
+      });
+  
+      auth2.then(function () {
+        if (auth2.isSignedIn.get()) {
+          $('#logout').on('click', function (event) {
+            event.preventDefault();
+            auth2.signOut().then(function () {
+              console.log("Logged out from Google+ platform");
+              document.location = "/logout";
+            });
+          });
+        }
+      });
+    });
+  </script>
 {% endblock content %}

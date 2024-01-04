@@ -9,6 +9,7 @@ from . import views
 app_name = "account"
 
 urlpatterns = [
+    path('logout',views.logout_view,name='logout'),
 	path('signup/', signup, name = 'signup'),
 	path('create_profile/', views.create_profile, name='create_profile'),
     path('panel/', views.panel, name ='panel'),
@@ -18,7 +19,7 @@ urlpatterns = [
     # path('profile/', views.profile, name='profile'),
 	# path('login/', LoginView.as_view(template_name = 'user/login.html', redirect_authenticated_user = True), 
  #    	name = 'login'),
-	path('logout/', LogoutView.as_view(next_page = '/'), name = 'logout'),
+	# path('logout/', LogoutView.as_view(next_page = '/'), name = 'logout'),
 
 	path("password-reset/", 
     	PasswordResetView.as_view(template_name='user/password_reset.html'),
@@ -49,6 +50,8 @@ urlpatterns = [
 
 
     path("dashboard/", views.dashboard, name="dashboard"),
+    # subscribe
+    path('subscribe/',views.subscribe, name="subscribe"),
     
 
 	
@@ -59,6 +62,11 @@ urlpatterns = [
     path('delete_user/<int:pk>/', views.DeleteUser.as_view(), name="delete_user"),
     path('ushboardpdate_public_details/', views.UpdatePublicDetails.as_view(), name="user_public_details"),
     path('subscribe/', views.Subscribe, name ='subscribe'),
+    # path('auth/', include('social_django.urls', namespace='social')),
+    path('wallet/', wallet, name='wallet'),
+    path('deposit/', deposit, name='deposit'),
+    path('wallet_balance/', wallet_balance, name='wallet_balance'),
+    path('deposit_success/', deposit_success, name='deposit_success'),
     
     
     

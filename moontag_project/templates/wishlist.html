@@ -45,6 +45,26 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                <!-- Example usage in a template -->
+Wishlist Items Count: {{ request.session.wishlist_item_count }}
+<!-- user_wishlist.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Your Wishlist</h2>
+  {% if wishlist %}
+    <ul>
+      {% for product in wishlist %}
+        <li>{{ product.title }} - {{ product.price }}</li>
+        <!-- Include other product details as needed -->
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Your wishlist is empty.</p>
+  {% endif %}
+{% endblock %}
+
+
             </div>
         </div>
 	</div>

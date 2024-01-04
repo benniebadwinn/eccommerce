@@ -23,31 +23,18 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI/tTQ5IzP96L6/Kz7oj3bHi0w9C2h4o7Ff3pSoA=" crossorigin="anonymous"></script>
     <script src="{% static 'example.js" integrity="sha256-ABC123=' %}" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script> -->
+    <script type="text/javascript" src="{% static 'jquery.min.js' %}"></script>
     <script src="{% static 'your_countdown_script_url' %}"></script>
 
     <link rel="stylesheet" type="text/css" href="{% static 'css/custom.css' %}" />
-	<script type="text/javascript" src="{% static 'custom.js' %}"></script>
-  <script type="text/javascript" src="{% static 'custom2.js' %}"></script>
 
 
+    <link rel="stylesheet" type="text/css" href="{% static 'fontawesome-free/css/all.min.css' %}" />
+    
+    <script type="text/javascript" src="{% static 'custom.js' %}"></script>
+    <script type="text/javascript" src="{% static 'custom2.js' %}"></script>
 
-
-   
-
-
-  <link rel="stylesheet" type="text/css" href="{% static 'fontawesome-free/css/all.min.css' %}" />
-  <!-- Bootstrap 4 CSS -->
-  <!-- <link rel="stylesheet" type="text/css" href="{% static 'bs4/bootstrap.min.css' %}" /> -->
-  <!-- Main Jquery -->
-  <!-- <script type="text/javascript" src="{% static 'jquery.min.js' %}"></script> -->
-  <!-- Bootstrap 4 JS -->
-  <!-- <script type="text/javascript" src="{% static 'bs4/bootstrap.min.js' %}"></script> -->
-<!--Custom JS-->
-<!-- <link rel="stylesheet" type="text/css" href="{% static 'css/custom.css' %}" /> -->
-  <!-- <script type="text/javascript" src="{% static 'custom.js' %}"></script>
-<script type="text/javascript" src="{% static 'custom2.js' %}"></script> -->
-<!-- <link rel="stylesheet" href="{% static 'css/reviews.css' %}"> -->
 </head>
 <!-- <style>
 .blue-link {
@@ -74,7 +61,7 @@
             <div class="container">
                 <div class="top-bar left">
                     <ul class="horizontal-menu">
-                        <li><a href="#"><i class="fa fa-envelope" aria-hidden="true"></i>benniebadwin@hotmail.com</a></li>
+                        <li><a href="mailto:benniebadwin@hotmail.com.com"><i class="fa fa-envelope" aria-hidden="true"></i>benniebadwin@hotmail.com</a></li>
                         <li><a href="#">Free Shipping for all Order of $99</a></li>
                     </ul>
                 </div>
@@ -116,7 +103,7 @@
                                                 <div class="wrap-custom-menu vertical-menu">
                                                     <!-- <h4 class="menu-title">Fresh Berries</h4> -->
                                                     <ul class="menu">
-                                                        <li><a href="{% url "account:login" %}" style="color: blue;">Dashboard</a></li>
+                                                        <li><a href="{% url "account:dashboard" %}" style="color: blue;">Dashboard</a></li>
                                                         <li><a href="{% url 'account:logout' %}" style="color: blue;">Log Out</a></li>
                                                         <!-- <li><a href="#" style="color: blue;">Fruit & Nut Gifts</a></li>
                                                         <li><a href="#" style="color: blue;">Fruit & Nut Gifts</a></li> -->
@@ -163,11 +150,248 @@
         </div>
    
         
+<style>
+#sy-whatshelp {
+  right: 25px;
+  bottom: 25px;
+  position: fixed;
+  z-index: 9999;
+}
 
+#sy-whatshelp a {
+  position: relative;
+}
 
+#sy-whatshelp a.sywh-open-services {
+  background-color: #129bf4;
+  color: #fff;
+  line-height: 55px;
+  margin-top: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 23px;
+  width: 55px;
+  height: 55px;
+  text-align: center;
+  box-shadow: 2px 2px 8px -3px #000;
+  border-radius: 100%;
+  -webkit-border-radius: 100%;
+  -moz-border-radius: 100%;
+  -ms-border-radius: 100%;
+  display: inline-block;
+}
 
+#sy-whatshelp a.sywh-open-services i {
+  line-height: 55px;
+}
 
+#sy-whatshelp a.sywh-open-services i.fa-times {
+  display: none;
+}
 
+#sy-whatshelp .sywh-services {
+  width: 55px;
+  height: auto;
+}
+
+#sy-whatshelp .sywh-services a {
+  display: none;
+}
+
+#sy-whatshelp .sywh-services a i {
+  background-color: #129bf4;
+  color: #fff;
+  line-height: 55px;
+  margin-top: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 23px;
+  width: 55px;
+  height: 55px;
+  text-align: center;
+  box-shadow: 2px 2px 8px -3px #000;
+  border-radius: 100%;
+  -webkit-border-radius: 100%;
+  -moz-border-radius: 100%;
+  -ms-border-radius: 100%;
+}
+
+#sy-whatshelp .sywh-services a.email i {
+  background-color: #b92b27;
+}
+
+#sy-whatshelp .sywh-services a.instagram i {
+  background-color: #e4405f;
+}
+
+#sy-whatshelp .sywh-services a.messenger i {
+  background-color: #0084ff;
+}
+
+#sy-whatshelp .sywh-services a.whatsapp i {
+  background-color: #25d366;
+}
+
+#sy-whatshelp .sywh-services a.call i {
+  background-color: #ff6600;
+}
+
+a[data-tooltip] {
+  position: relative;
+}
+
+a[data-tooltip]::before,
+a[data-tooltip]::after {
+  position: absolute;
+  display: none;
+  opacity: 0.85;
+  transition: all 0.3s ease-in-out;
+}
+
+a[data-tooltip]::before {
+  content: attr(data-tooltip);
+  background: #000;
+  color: #fff;
+  font-size: 13px;
+  padding: 7px 11px;
+  border-radius: 5px;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+a[data-tooltip]::after {
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+  content: "";
+}
+
+a[data-tooltip]:hover::before,
+a[data-tooltip]:hover::after {
+  display: block;
+}
+
+a.sywh-open-services[data-tooltip]::before,
+a.sywh-open-services[data-tooltip]::after {
+  display: block;
+}
+
+a.data-tooltip-hide[data-tooltip]::before,
+a.data-tooltip-hide[data-tooltip]::after {
+  display: none !important;
+}
+
+a.sywh-open-services[data-tooltip][data-placement="left"]::before {
+  top: 11px;
+}
+
+a[data-tooltip][data-placement="left"]::before {
+  top: -7px;
+  right: 100%;
+  line-height: normal;
+  margin-right: 10px;
+}
+
+a[data-tooltip][data-placement="left"]::after {
+  border-left-color: #000;
+  border-right: none;
+  top: 50%;
+  right: 100%;
+  margin-top: -6px;
+  margin-right: 4px;
+}
+
+a[data-tooltip][data-placement="right"]::before {
+  top: -7px;
+  left: 100%;
+  line-height: normal;
+  margin-left: 10px;
+}
+
+a[data-tooltip][data-placement="right"]::after {
+  border-right-color: #000;
+  border-left: none;
+  top: 50%;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: 4px;
+}
+
+a[data-tooltip][data-placement="top"]::before {
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 10px;
+}
+
+a[data-tooltip][data-placement="top"]::after {
+  border-top-color: #000;
+  border-bottom: none;
+  bottom: 100%;
+  left: 10px;
+  margin-bottom: 4px;
+}
+
+a[data-tooltip][data-placement="bottom"]::before {
+  top: 100%;
+  left: 0;
+  margin-top: 10px;
+}
+
+a[data-tooltip][data-placement="bottom"]::after {
+  border-bottom-color: #000;
+  border-top: none;
+  top: 100%;
+  left: 10px;
+  margin-top: 4px;
+}
+
+</style>
+
+<div id="sy-whatshelp">
+    <div class="sywh-services">
+      <a href="{% url 'shop:home' %}" class="messenger" data-tooltip="Livechat" data-placement="left" target="_blank">
+        <i class="fa fa-comments"></i>
+      </a>
+      <a href="https://wa.me/254728581045" class="whatsapp" data-tooltip="WhatsApp" data-placement="left" target="_blank">
+        <i class="fa fa-whatsapp" aria-hidden="true"></i>
+       
+      </a>
+      <a href="254728581045" class="call" data-tooltip="Call" data-placement="left">
+        <i class="fa fa-phone"></i>
+      </a>
+    </div>
+    <a class="sywh-open-services" data-tooltip="Contact Us" data-placement="left">
+                  <i class="fa fa-comments"></i>
+      <i class="fa fa-times"></i>
+    </a>
+  </div>  
+<script>
+jQuery(function ($) {
+  $('a.sywh-open-services').click(function () {
+    if ($('.sywh-services').hasClass('active')) {
+      $('.sywh-services').removeClass('active');
+      $('a.sywh-open-services i.fa-times').hide();
+      $('a.sywh-open-services i.fa-comments').show();
+      $('a.sywh-open-services').removeClass('data-tooltip-hide');
+      $('.sywh-services a:nth-child(1)').delay(0).fadeOut();
+      $('.sywh-services a:nth-child(2)').delay(100).fadeOut();
+      $('.sywh-services a:nth-child(3)').delay(200).fadeOut();
+      $('.sywh-services a:nth-child(4)').delay(300).fadeOut();
+      $('.sywh-services a:nth-child(5)').delay(400).fadeOut();
+    } else {
+      $('.sywh-services').addClass('active');
+      $('a.sywh-open-services i.fa-comments').hide();
+      $('a.sywh-open-services i.fa-times').show();
+      $('a.sywh-open-services').addClass('data-tooltip-hide');
+      $('.sywh-services a:nth-child(5)').delay(0).fadeIn();
+      $('.sywh-services a:nth-child(4)').delay(100).fadeIn();
+      $('.sywh-services a:nth-child(3)').delay(200).fadeIn();
+      $('.sywh-services a:nth-child(2)').delay(300).fadeIn();
+      $('.sywh-services a:nth-child(1)').delay(400).fadeIn();
+    }
+  });
+});
+</script>
 
         <div class="header-middle biolife-sticky-object ">
             <div class="container">
@@ -178,6 +402,7 @@
                     <div class="col-lg-6 col-md-7 hidden-sm hidden-xs">
                         <div class="primary-menu">
                         Hello <strong>{{ user.first_name }}</strong> Welcome to Badwin
+                        
                          
                     </div>
                     </div>
@@ -186,9 +411,9 @@
                             <div class="mobile-search">
                                 <a href="javascript:void(0)" class="open-searchbox"><i class="biolife-icon icon-search"></i></a>
                                 <div class="mobile-search-content">
-                                    <form action="#" class="form-search" name="mobile-seacrh" method="get">
+                                    <form action="{% url 'shop:search_result' %}" class="form-search" name="mobile-seacrh" method="get">
                                         <a href="#" class="btn-close"><span class="biolife-icon icon-close-menu"></span></a>
-                                        <input type="text" name="s" class="input-text" value="" placeholder="Search here...">
+                                        <input type="text" name="q" class="input-text" value="" placeholder="Search here...">
                                         <select name="category">
                                             <option value="-1" selected>All Categories</option>
                                             <option value="vegetables">Vegetables</option>
@@ -196,30 +421,32 @@
                                             <option value="ocean_foods">Ocean Foods</option>
                                                
                                         </select>
-                                        <button type="submit" class="btn-submit">go</button>
+                                        <!-- <button type="submit" class="btn-submit">go</button> -->
+                                        <button type="submit" class="btn-submit"><i class="biolife-icon icon-search"></i></button>
                                     </form>
+
                                 </div>
                             </div>
                             <div class="wishlist-block hidden-sm hidden-xs">
                                 <a href="{% url 'account:wishlist' %}" class="link-to">
                                     <span class="icon-qty-combine">
                                         <i class="icon-heart-bold biolife-icon"></i>
-                                        <span class="qty">4</span>
+                                        <span class="qty">{{ wishlist_count }}</span>
                                     </span>
                                 </a>
                             </div>
                 
-                            <div class="minicart-block">
-                                <div class="{% url 'shop:cart' %}">
-                                    <a href="{% url 'shop:cart' %}" class="link-to">
-                                        <span class="icon-qty-combine">
-                                            <i class="icon-cart-mini biolife-icon"></i>
-                                            <span class="qty">{{request.session.cartdata|length}}</span>
-                                        </span>
-                                   <span class="title">My Cart -</span>
-                                    <span class="sub-total">Ksh {{ total_price }}</span>
-                                </a>
-                               
+
+                                <div class="minicart-block">
+                                    <div class="minicart-contain">
+                                        <a href="{% url 'shop:cart' %}" class="link-to">
+                                                <span class="icon-qty-combine">
+                                                    <i class="icon-cart-mini biolife-icon"></i>
+                                                    <span class="qty"><span class="cart-list">{{request.session.cartdata|length}}</span></span>
+                                                </span>
+                                            <span class="title">My Cart -</span>
+                                            <span class="sub-total">>Ksh {{ total_price }}</span>
+                                        </a>
                                     <div class="cart-content">
                                         <div class="cart-inner">
                                             <ul class="products">
@@ -237,12 +464,12 @@
                                                                 <a href="{% url 'shop:cart' %}" class="product-name">{{ item.title }}</a>
                                                             </div>
                                                             <div class="price">
-                                                                <ins><span class="price-amount"><span class="currencySymbol">Ksh</span> {{ item.price }} x {{ item.qty }} mini_total: Ksh {{ total_price }}</span></ins>
+                                                                <ins><span class="price-amount"><span class="currencySymbol">Ksh</span> {{ item.price }} x {{ item.qty }}</span></ins>
                                                             </div>
-                                                            <div class="qty">
+                                                            <!-- <div class="qty">
                                                                 <label for="cart[id123][qty]">Qty:</label>
                                                                 <input type="number" class="input-qty" name="cart[id123][qty]" id="cart[id123][qty]" value="{{ item.qty }}" disabled>
-                                                            </div>
+                                                            </div> -->
                                                         </div>
                                                         <!-- <div class="action">
                                                             <a href="#" class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
@@ -262,7 +489,7 @@
                                                     <a href="{% url 'shop:home' %}" class="btn">Continue shopping</a>
                                                 </p>
                                             {% endif %}
-                                                                                        </ul>
+                                         </ul>
         
                                             </p>
                                         </div>
@@ -356,8 +583,57 @@
 
 
 
- 
+             
+    {% for product in data %}
+    <li class="product-item">
+        
+        <div class="contain-product layout-default">
+           
+            <div class="product-thumb">
+                <a href="/product/{{product.slug}}/{{product.id}}" class="link-to-product">
+                    <img src="media/{{product.productattribute_set.first.img}}" alt="Vegetables" width="270" height="270" class="product-thumnail">
+                </a>
+                <a class="lookup btn_call_quickview" href="#"><i class="biolife-icon icon-search"></i></a>
+            </div>
+            <div class="info">
+                <b class="categories">{{ product.category }}</b>
+                <h4 class="product-title"><a href="{{ product.get_absolute_url }}" class="pr-name">{{product.title}}</a></h4>
+                <div class="price">
+                    
 
+                    <h6>&#36; <ins><span class="price-amount">Ksh <span class="product-price-{{product.id}}" >{{product.productattribute_set.first.discountprice}}</span></ins></h6>
+                    
+
+                    
+                </div>
+                <div class="slide-down-box">
+                    <p class="message">{{product.specs}}.</p>
+                    <div class="buttons">
+                        {% if in_wishlist %}
+                        <a href="{% url 'login:wishlist_product_toggle' product.id %}" pid="{{product.id}}" class="plus-wishlist btn">
+                            <i class="fas fa-heart fa-lg text-success"></i>
+                        </a>
+                        
+                        {% else %}
+                        <a href="{% url 'login:wishlist_product_toggle' product.id %}" pid="{{product.id}}" class="plus-wishlist btn">
+                            <i class="fas fa-heart fa-lg text-danger"></i>
+                        </a>
+                        {% endif %}
+                        <input type="hidden" value="1" class="form-control product-qty-{{product.id}}" id="productQty" />
+                        <input type="hidden" class="product-img-{{product.id}}" value="{{product.productattribute_set.first.img}}" />
+                        <input type="hidden" class="product-id-{{product.id}}" value="{{product.id}}" />
+                        <input type="hidden" class="product-title-{{product.id}}" value="{{product.title}}" />
+                        <div class="buttons">
+                            <a href="#" class="btn add-to-cart-btn add-to-cart" data-index="{{product.id}}">add to cart</a>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+            </div>
+            
+        </li>
+        {% endfor %}
 
 
 
@@ -459,10 +735,15 @@
                     <div class="newsletter-block layout-01">
                         <h4 class="title">Newsletter Signup</h4>
                         <div class="form-content">
-                            <form action="#" name="new-letter-foter">
-                                <input type="email" class="input-text email" value="" placeholder="Your email here...">
+                            <form action = "{% url 'account:subscribe' %}" method = 'POST'>
+                                {% csrf_token %}
+                                <label>
+                                <input type="text"name="email" class="input-text email" value="" placeholder="Your email here...">
+                            </label>
                                 <button type="submit" class="bnt-submit" name="ok">Sign up</button>
+                                
                             </form>
+
                         </div>
                     </div>
                 </section>
@@ -722,14 +1003,6 @@
 <!-- Scroll Top Button -->
 <a class="btn-scroll-top"><i class="biolife-icon icon-left-arrow"></i></a>
 
-<!-- <script src="assets/js/jquery-3.4.1.min.js"></script>
-<script src="assets/js/bootstrap.min.js"></script>
-<script src="assets/js/jquery.countdown.min.js"></script>
-<script src="assets/js/jquery.nice-select.min.js"></script>
-<script src="assets/js/jquery.nicescroll.min.js"></script>
-<script src="assets/js/slick.min.js"></script>
-<script src="assets/js/biolife.framework.js"></script>
-<script src="assets/js/functions.js"></script> -->
 
 <!-- Include jQuery -->
 <script src="{% static 'assets/js/jquery-3.4.1.min.js' %}"></script>
@@ -747,372 +1020,3 @@
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
 
-
-
-<!-- <script>
-    // Function to initialize and update a countdown
-    function initializeCountdown(countDownDate, elementId, offerId, productId) {
-        console.log("Initializing countdown for element ID:", elementId);
-    
-        var x = setInterval(function() {
-            // Get today's date and time
-            var now = new Date().getTime();
-    
-            // Find the distance between now and the count down date
-            var distance = countDownDate - now;
-    
-            // Time calculations for days, hours, minutes, and seconds
-            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    
-            // Display the result in the element with id=elementId
-            var element = document.getElementById(elementId);
-            if (element) {
-                element.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
-            } else {
-                console.error("Element with ID", elementId, "not found!");
-                clearInterval(x); // Stop the interval if the element is not found
-            }
-    
-            // If the count down is finished, make an AJAX request to update is_valid
-            if (distance < 0) {
-                clearInterval(x);
-                console.log("Countdown for element ID", elementId, "expired");
-                element.innerHTML = "EXPIRED";
-    
-                // Make an AJAX request to update is_valid to False
-                $.ajax({
-                    url: "{% url 'shop:update_offer_status' 0 %}".replace('0', offerId),
-                    method: "GET",
-                    success: function(response) {
-                        console.log("Offer status updated successfully");
-                    },
-                    error: function(error) {
-                        console.error("Error updating offer status");
-                    }
-                });
-            }
-        }, 1000);
-    
-        // Check every minute if the remaining time is less than 1 minute and remove the product
-        setTimeout(function() {
-            if (minutes < 1) {
-                console.log("Removing product for element ID", elementId);
-                removeProduct(productId);
-            }
-        }, 60000); // 60000 milliseconds = 1 minute
-    }
-    
-    // Function to remove the product
-    function removeProduct(productId) {
-        // Remove the product from the DOM or perform any other desired action
-        var productElement = document.getElementById("product_" + productId);
-        if (productElement) {
-            productElement.remove();
-            console.log("Product removed successfully");
-        } else {
-            console.error("Product element with ID", "product_" + productId, "not found!");
-        }
-    }
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <!-- <script>
-        // Function to initialize and update a countdown
-        function initializeCountdown(countDownDate, elementId, offerId, productId) {
-            console.log("Initializing countdown for element ID:", elementId);
-        
-            // Declare minutes outside the setInterval function
-            var minutes;
-        
-            var x = setInterval(function() {
-                // Get today's date and time
-                var now = new Date().getTime();
-        
-                // Find the distance between now and the count down date
-                var distance = countDownDate - now;
-        
-                // Time calculations for days, hours, minutes, and seconds
-                var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        
-                // Display the result in the element with id=elementId
-                var element = document.getElementById(elementId);
-                if (element) {
-                    element.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
-                } else {
-                    console.error("Element with ID", elementId, "not found!");
-                    clearInterval(x); // Stop the interval if the element is not found
-                }
-        
-                // If the count down is finished, make an AJAX request to update is_valid
-                if (distance < 0) {
-                    clearInterval(x);
-                    console.log("Countdown for element ID", elementId, "expired");
-                    element.innerHTML = "EXPIRED";
-        
-                    // Make an AJAX request to update is_valid to False
-                    $.ajax({
-                        url: "{% url 'shop:update_offer_status' 0 %}".replace('0', offerId),
-                        method: "GET",
-                        success: function(response) {
-                            console.log("Offer status updated successfully");
-                        },
-                        error: function(error) {
-                            console.error("Error updating offer status");
-                        }
-                    });
-                }
-            }, 1000);
-        
-            // Check every minute if the remaining time is less than 1 minute and remove the product
-            setTimeout(function() {
-                if (minutes < 1) {
-                    console.log("Removing product for element ID", elementId);
-                    removeProduct(productId);
-                }
-            }, 60000); // 60000 milliseconds = 1 minute
-        }
-        
-        // Function to remove the product
-        function removeProduct(productId) {
-            // Remove the product from the DOM or perform any other desired action
-            var productElement = document.getElementById("product_" + productId);
-            if (productElement) {
-                productElement.remove();
-                console.log("Product removed successfully");
-            } else {
-                console.error("Product element with ID", "product_" + productId, "not found!");
-            }
-        
-        }
-        
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-<script>
-    // Function to initialize and update a countdown
-    function initializeCountdown(countDownDate, elementId, offerId, productId) {
-        console.log("Initializing countdown for element ID:", elementId);
-    
-        // Declare minutes outside the setInterval function
-        var minutes;
-    
-        var x = setInterval(function() {
-            // Get today's date and time
-            var now = new Date().getTime();
-    
-            // Find the distance between now and the count down date
-            var distance = countDownDate - now;
-    
-            // Time calculations for days, hours, minutes, and seconds
-            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    
-            // Display the result in the element with id=elementId
-            var element = document.getElementById(elementId);
-            if (element) {
-                element.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
-            } else {
-                console.error("Element with ID", elementId, "not found!");
-                clearInterval(x); // Stop the interval if the element is not found
-            }
-    
-            // If the count down is finished, make an AJAX request to update is_valid
-            if (distance <= 0) {
-                clearInterval(x);
-                console.log("Countdown for element ID", elementId, "expired");
-                element.innerHTML = "EXPIRED";
-    
-                // Make an AJAX request to update is_valid to False
-                $.ajax({
-                    url: "{% url 'shop:update_offer_status' 0 %}".replace('0', offerId),
-                    method: "GET",
-                    success: function(response) {
-                        console.log("Offer status updated successfully");
-    
-                        // Remove the product from the DOM
-                        removeProduct(productId);
-                    },
-                    error: function(error) {
-                        console.error("Error updating offer status");
-                    }
-                });
-            }
-        }, 1000);
-    }
-    
-    // Function to remove the product
-    function removeProduct(productId) {
-        console.log("Removing product with ID:", productId);
-        // Remove the product from the DOM or perform any other desired action
-        var productElement = document.getElementById("product_" + productId);
-        if (productElement) {
-            productElement.remove();
-            console.log("Product removed successfully");
-        } else {
-            console.error("Product element with ID", "product_" + productId, "not found!");
-        }
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
-    <script>
-        // Function to initialize and update a countdown
-        function initializeCountdown(countDownDate, elementId, offerId, productId) {
-            console.log("Initializing countdown for element ID:", elementId);
-        
-            var x = setInterval(function() {
-                // Get today's date and time
-                var now = new Date().getTime();
-        
-                // Find the distance between now and the count down date
-                var distance = countDownDate - now;
-        
-                // Time calculations for days, hours, minutes, and seconds
-                var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        
-                // Display the result in the element with id=elementId
-                var element = document.getElementById(elementId);
-                if (element !== undefined && element !== null) {
-                    element.innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
-                } else {
-                    console.error("Element with ID", elementId, "not found or is null/undefined!");
-                    clearInterval(x); // Stop the interval if the element is not found
-                }
-        
-                // If the count down is finished, make an AJAX request to update is_valid
-                if (distance <= 0) {
-                    clearInterval(x);
-                    console.log("Countdown for element ID", elementId, "expired");
-                    if (element !== undefined && element !== null) {
-                        element.innerHTML = "EXPIRED";
-        
-                        // Make an AJAX request to update is_valid to False
-                        $.ajax({
-                            url: "{% url 'shop:update_offer_status' 0 %}".replace('0', offerId),
-                            method: "GET",
-                            success: function(response) {
-                                console.log("Offer status updated successfully");
-        
-                                // Remove the product from the DOM
-                                removeProduct(productId);
-                            },
-                            error: function(error) {
-                                console.error("Error updating offer status");
-                            }
-                        });
-                    }
-                }
-            }, 1000);
-        }
-        
-        // Function to remove the product
-        function removeProduct(productId) {
-            // Remove the product from the DOM or perform any other desired action
-            var productElement = document.getElementById("product_" + productId);
-            if (productElement !== undefined && productElement !== null) {
-                productElement.remove();
-                console.log("Product removed successfully");
-            } else {
-                console.error("Product element with ID", "product_" + productId, "not found or is null/undefined!");
-            }
-
-
-</body>
-
-</html>

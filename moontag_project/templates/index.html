@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
+
+
+
+
   <!-- Page Contain -->
   <div class="page-contain">
 
@@ -8,156 +12,194 @@
     <div id="main-content" class="main-content">
 
 <div class="main-slide block-slider">
-<ul class="biolife-carousel nav-none-on-mobile" data-slick='{"arrows": true, "dots": false, "slidesMargin": 0, "slidesToShow": 1, "infinite": true, "speed": 800}' >
+<ul class="biolife-carousel nav-none-on-mobile" data-slick='{"arrows": true, "dots": false,"autoplay": true, "slidesMargin": 0, "slidesToShow": 1, "infinite": true, "speed": 800}' >
+    {% for product in data1 %}
     <li>
         <div class="slide-contain slider-opt03__layout01">
             <div class="media">
                 <div class="child-elememt">
-                    <a href="#" class="link-to">
-                        <img src="{% static 'assets/images/home-03/slide-01-child-01.png' %}" width="604" height="580" alt="">
+                    <a href="{{ product.get_absolute_url }}" class="link-to">
+                        <img src="media/{{product.productattribute_set.first.img}}" width="604" height="580" alt="">
                     </a>
                 </div>
             </div>
             <div class="text-content">
-                <i class="first-line">Pomegranate</i>
-                <h3 class="second-line">Vegetables 100% Organic</h3>
-                <p class="third-line">A blend of freshly squeezed green apple & fruits</p>
+                <i class="first-line">{{ product.title }}</i>
+                <h3 class="second-line">{{ product.brand }}</h3>
+                <p class="third-line">{{ product.specs }}</p>
                 <p class="buttons">
-                    <a href="#" class="btn btn-bold">Shop now</a>
-                    <a href="#" class="btn btn-thin">View lookbook</a>
+                    <a href="{% url 'shop:product-list' %}" class="btn btn-bold">Shop now</a>
+                    <!-- <a href="#" class="btn btn-thin">View lookbook</a> -->
                 </p>
             </div>
         </div>
     </li>
-    <li>
-        <div class="slide-contain slider-opt03__layout01">
-            <div class="media">
-                <div class="child-elememt"><a href="#" class="link-to"><img src="{% static 'assets/images/home-03/slide-01-child-01.png' %}" width="604" height="580" alt=""></a></div>
-            </div>
-            <div class="text-content">
-                <i class="first-line">Pomegranate</i>
-                <h3 class="second-line">Vegetables 100% Organic</h3>
-                <p class="third-line">A blend of freshly squeezed green apple & fruits</p>
-                <p class="buttons">
-                    <a href="#" class="btn btn-bold">Shop now</a>
-                    <a href="#" class="btn btn-thin">View lookbook</a>
-                </p>
-            </div>
-        </div>
-    </li>
+    {% endfor %}
+
 </ul>
 </div>
 
+<div class="special-slide">
+    <div class="container">
 
-
-<!--Block 03: Product Tab-->
-<div class="product-tab z-index-20 sm-margin-top-193px xs-margin-top-30px">
-<div class="container">
-    <div class="biolife-title-box">
-        <span class="subtitle">All the best item for You</span>
-        <h3 class="main-title">Categories</h3>
-    </div>
-    <div class="biolife-tab biolife-tab-contain sm-margin-top-34px">
-        <div class="tab-head tab-head__icon-top-layout icon-top-layout">
-            <ul class="tabs md-margin-bottom-35-im xs-margin-bottom-40-im">
-                <li class="tab-element active">
-                    {% if data2 %}
-                    {% for c in data2 %}
-                    <div class="col-md-3 mb-4">
-                        <div class="card shadow">
-                        <a href="category-product-list/{{c.id}}"><img src="media/{{c.img}}" class="card-img-top" alt="{{c.title}}"></a>
-                        <div class="card-body">
-                            <h6 class="card-text"><a href="category-product-list/{{c.id}}">{{c.title}}</a></h6>
+        <ul class="biolife-carousel dots_ring_style" data-slick='{"arrows": false, "dots": true, "slidesMargin": 30, "slidesToShow": 1, "infinite": true, "speed": 800,"autoplay": true, "responsive":[{"breakpoint":1200, "settings":{ "slidesToShow": 1}},{"breakpoint":768, "settings":{ "slidesToShow": 2, "slidesMargin":20, "dots": false}},{"breakpoint":480, "settings":{ "slidesToShow": 1}}]}' >
+        {% for product in data3 %}
+            <li>
+                <div class="slide-contain biolife-banner__special">
+                    <div class="banner-contain">
+                        <div class="media">
+                            <a href="{{ product.get_absolute_url }}" class="bn-link">
+                                <figure><img src="media/{{product.productattribute_set.first.img}}" width="616" height="483" alt=""></figure>
+                            </a>
                         </div>
+                        <div class="text-content">
+                            <b class="first-line">Crazy Offer</b>
+                            <span class="second-line">Buy One Get One Free</span>
+                            <span class="third-line"><i>{{ product.category }}</i></span>
+                            <div class="product-detail">
+                                <h4 class="product-name">{{ product.title }}</h4>
+                                <!-- <div class="price price-contain">
+                                    <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
+                                    <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
+                                </div> -->
+                                <div class="price price-contain">
+                                    <ins><span class="price-amount">Ksh <span class="product-price-{{product.id}}" >{{product.productattribute_set.first.discountprice}}</span></ins></h6>
+                                    <!-- <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del> -->
+                                </div>
+                                <div class="buttons">
+                                    {% if in_wishlist %}
+                                    <a href="{% url 'login:wishlist_product_toggle' product.id %}" pid="{{product.id}}" class="plus-wishlist btn">
+                                        <i class="fas fa-heart fa-lg text-success"></i>
+                                    </a>
+                                    
+                                    {% else %}
+                                    <a href="{% url 'login:wishlist_product_toggle' product.id %}" pid="{{product.id}}" class="plus-wishlist btn">
+                                        <i class="fas fa-heart fa-lg text-danger"></i>
+                                    </a>
+                                    {% endif %}
+                                    
+                                    <input type="hidden" value="1" class="form-control product-qty-{{product.id}}" id="productQty" />
+                                    <input type="hidden" class="product-img-{{product.id}}" value="{{product.productattribute_set.first.img}}" />
+                                    <input type="hidden" class="product-id-{{product.id}}" value="{{product.id}}" />
+                                    <input type="hidden" class="product-title-{{product.id}}" value="{{product.title}}" />
+                                    <div class="buttons">
+                                        <a href="#" class="btn add-to-cart-btn add-to-cart" data-index="{{product.id}}">add to cart</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    {% endfor %}
-                {% endif %}
-                
-                </li>
-               
-       
-
-            </ul>
-        </div>
-        <div class="tab-content">
-            <div id="tab01_1st" class="tab-contain active">
-                <ul class="products-list biolife-carousel nav-center-02 nav-none-on-mobile eq-height-contain" data-slick='{"rows":2 ,"arrows":true,"dots":false,"infinite":true,"speed":400,"slidesMargin":10,"slidesToShow":4, "responsive":[{"breakpoint":1200, "settings":{ "slidesToShow": 4}},{"breakpoint":992, "settings":{ "slidesToShow": 3, "slidesMargin":25 }},{"breakpoint":768, "settings":{ "slidesToShow": 2, "slidesMargin":15}}]}'>
-            {% for product in data %}
-                    <li class="product-item">
-                        <div class="contain-product layout-default">
-                            <div class="product-thumb">
-                                <a href="/product/{{product.slug}}/{{product.id}}" class="link-to-product">
-                                    <img src="media/{{product.productattribute_set.first.img}}" alt="Vegetables" width="270" height="270" class="product-thumnail">
-                                </a>
-                                <a class="lookup btn_call_quickview" href="#"><i class="biolife-icon icon-search"></i></a>
-                            </div>
-                            <div class="info">
-                                <b class="categories">{{ product.category }}</b>
-                                <h4 class="product-title"><a href="{{ product.get_absolute_url }}" class="pr-name">{{product.title}}</a></h4>
-                                <div class="price">
-                                    
-   
-                                    <h6>&#36; <ins><span class="price-amount">Ksh <span class="product-price-{{product.id}}" >{{product.productattribute_set.first.discountprice}}</span></ins></h6>
-                                    
-
-                                    
-                                </div>
-                                <div class="slide-down-box">
-                                    <p class="message">{{product.specs}}.</p>
-                                    <div class="buttons">
-                                        {% if in_wishlist %}
-                                        <a href="{% url 'login:wishlist_product_toggle' product.id %}" pid="{{product.id}}" class="plus-wishlist btn">
-                                            <i class="fas fa-heart fa-lg text-success"></i>
-                                        </a>
-                                        
-                                        {% else %}
-                                        <a href="{% url 'login:wishlist_product_toggle' product.id %}" pid="{{product.id}}" class="plus-wishlist btn">
-                                            <i class="fas fa-heart fa-lg text-danger"></i>
-                                        </a>
-                                        {% endif %}
-                                        <input type="hidden" value="1" class="form-control product-qty-{{product.id}}" id="productQty" />
-                                        <input type="hidden" class="product-img-{{product.id}}" value="{{product.productattribute_set.first.img}}" />
-                                        <input type="hidden" class="product-id-{{product.id}}" value="{{product.id}}" />
-                                        <input type="hidden" class="product-title-{{product.id}}" value="{{product.title}}" />
-                                        <!-- <button class="btn btn-sm btn-primary add-to-cart" data-index="{{product.id}}"><i class="fa fa-shopping-cart"></i></button> -->
-                                        <style>
-                                            .larger-cart-button {
-                                                font-size: 20px; /* Adjust the font size as needed */
-                                                padding: 10px 80px; /* Adjust the padding as needed */
-                                            }
-                                        </style>
-                                        
-                                        <button class="btn btn-primary larger-cart-button add-to-cart" data-index="{{product.id}}">
-                                            <i class="fa fa-shopping-cart"></i>
-                                        </button>
-                      
-                                        
-                                        <!-- <a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a> -->
-                                        <!-- <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a> -->
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
+                </div>
+            </li>
             {% endfor %}
+        </ul>
+</ul>
 
+                    <div class="biolife-service type01 biolife-service__type01 sm-margin-top-0 xs-margin-top-45px">
+                        <b class="txt-show-01">100%Nature</b>
+                        <i class="txt-show-02">Quality Products</i>
+                        <ul class="services-list">
+                            <li>
+                                <div class="service-inner">
+                                    <span class="number">1</span>
+                                    <span class="biolife-icon icon-beer"></span>
+                                    <a class="srv-name" href="#">full stamped product</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="service-inner">
+                                    <span class="number">2</span>
+                                    <span class="biolife-icon icon-schedule"></span>
+                                    <a class="srv-name" href="#">place and delivery on time</a>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="service-inner">
+                                    <span class="number">3</span>
+                                    <span class="biolife-icon icon-car"></span>
+                                    <a class="srv-name" href="#">Free shipping in the city</a>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!--Block 03: Product Tab-->
+            <div class="product-tab z-index-20 sm-margin-top-193px xs-margin-top-30px">
+                <div class="container">
+                    <div class="biolife-title-box">
+                        <span class="subtitle">All the best item for You</span>
+                        <h3 class="main-title">Related Products</h3>
+                    </div>
+                    <div class="biolife-tab biolife-tab-contain sm-margin-top-34px">
+                        <div class="tab-head tab-head__icon-top-layout icon-top-layout">
+                            <ul class="tabs md-margin-bottom-35-im xs-margin-bottom-40-im">
+                            {% if data2 %}
+                                {% for c in data2 %}
+                                <li class="tab-element active">
+                                    <div class="col-md-3 mb-4">                   
+                                        <a class="tab-link" href="category-product-list/{{c.id}}"><span><img src="media/{{c.img}}"></span></a>
+                                        
+                                        <h6 class="card-text"><a href="category-product-list/{{c.id}}">{{c.title}}</a></h6> 
+                                        <!-- <a href="#tab01_1st" class="tab-link"><span class="biolife-icon icon-lemon"></span>Oranges</a>                                      -->
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            {% endif %}
+                            </ul>
                         </div>
-                    </li>
-       
-                </ul>
+                        <div class="tab-content">
+                            <div id="tab01_1st" class="tab-contain active">
+                                <ul class="products-list biolife-carousel nav-center-02 nav-none-on-mobile eq-height-contain" data-slick='{"rows":2 ,"arrows":true,"dots":false,"infinite":true,"speed":400,"slidesMargin":10,"slidesToShow":4, "responsive":[{"breakpoint":1200, "settings":{ "slidesToShow": 4}},{"breakpoint":992, "settings":{ "slidesToShow": 3, "slidesMargin":25 }},{"breakpoint":768, "settings":{ "slidesToShow": 2, "slidesMargin":15}}]}'>
+                                {% for product in data %}
+                                    <li class="product-item">
+                                        <div class="contain-product layout-default">
+                                            <div class="product-thumb">
+                                                <a href="/product/{{product.slug}}/{{product.id}}" class="link-to-product">
+                                                    <img src="media/{{product.productattribute_set.first.img}}" alt="Vegetables" width="270" height="270" class="product-thumnail">
+                                                </a>
+                                                <a class="lookup btn_call_quickview" href="#"><i class="biolife-icon icon-search"></i></a>
+                                            </div>
+                                            <div class="info">
+                                                <b class="categories">{{ product.category }}</b>
+                                                <h4 class="product-title"><a href="{{ product.get_absolute_url }}" class="pr-name">{{product.title}}</a></h4>
+                                                <div class="price ">
+                                                    <h6>&#36; <ins><span class="price-amount">Ksh <span class="product-price-{{product.id}}" >{{product.productattribute_set.first.discountprice}}</span></ins></h6>
+                                                    <!-- <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del> -->
+                                                </div>
+                                                <div class="slide-down-box">
+                                                    <p class="message">{{product.specs}}.</p>
+                                                    <div class="buttons">
+                                                        {% if in_wishlist %}
+                                                        <a href="{% url 'login:wishlist_product_toggle' product.id %}" pid="{{product.id}}" class="plus-wishlist btn">
+                                                            <i class="fas fa-heart fa-lg text-success"></i>
+                                                        </a>
+                                                        
+                                                        {% else %}
+                                                        <a href="{% url 'login:wishlist_product_toggle' product.id %}" pid="{{product.id}}" class="plus-wishlist btn">
+                                                            <i class="fas fa-heart fa-lg text-danger"></i>
+                                                        </a>
+                                                        {% endif %}
+                                                        
+                                                        <input type="hidden" value="1" class="form-control product-qty-{{product.id}}" id="productQty" />
+                                                        <input type="hidden" class="product-img-{{product.id}}" value="{{product.productattribute_set.first.img}}" />
+                                                        <input type="hidden" class="product-id-{{product.id}}" value="{{product.id}}" />
+                                                        <input type="hidden" class="product-title-{{product.id}}" value="{{product.title}}" />
+                                                        <div class="buttons">
+                                                            <a href="#" class="btn add-to-cart-btn add-to-cart" data-index="{{product.id}}">add to cart</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    {% endfor %}
+                                    
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div id="tab01_2nd" class="tab-contain ">
-                <ul class="products-list biolife-carousel nav-center-02 nav-none-on-mobile eq-height-contain" data-slick='{"rows":2 ,"arrows":true,"dots":false,"infinite":true,"speed":400,"slidesMargin":10,"slidesToShow":4, "responsive":[{"breakpoint":1200, "settings":{ "slidesToShow": 4}},{"breakpoint":992, "settings":{ "slidesToShow": 3, "slidesMargin":25 }},{"breakpoint":768, "settings":{ "slidesToShow": 2, "slidesMargin":15}}]}'>
-
-                   
-
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-</div>
 
 <!--Block 04: Banner Promotion 01 -->
 <div class="banner-promotion-01 xs-margin-top-50px sm-margin-top-11px">
@@ -224,7 +266,7 @@
                                             {% load tz %}
                                             <div class="biolife-countdown" data-datetime="{{ product.offer.end_time|date:'Y/m/d H:i:s' }}"></div>
                                             <b class="categories">{{product.category}}</b>
-                                            <h4 class="product-title"><a href="/product/{{product.slug}}/{{product.id}}" class="pr-name">{{product.name}}</a></h4>
+                                            <h4 class="product-title"><a href="/product/{{product.slug}}/{{product.id}}" class="pr-name">{{product.title}}</a></h4>
                                             <div class="price ">
                                                 <ins><span class="price-amount"><span class="currencySymbol">Ksh </span>{{product.productattribute_set.first.discountprice}}</span></ins>
                                                 <del><span class="price-amount"><span class="currencySymbol">Ksh </span>{{product.productattribute_set.first.price}}</span></del>
@@ -247,17 +289,11 @@
                                                 <input type="hidden" class="product-id-{{product.id}}" value="{{product.id}}" />
                                                 <input type="hidden" class="product-title-{{product.id}}" value="{{product.title}}" />
                                                 <!-- <button class="btn btn-sm btn-primary add-to-cart" data-index="{{product.id}}"><i class="fa fa-shopping-cart"></i></button> -->
-                                                <style>
-                                                    .larger-cart-button {
-                                                        font-size: 20px; /* Adjust the font size as needed */
-                                                        padding: 10px 80px; /* Adjust the padding as needed */
-                                                    }
-                                                </style>
-                                                
-                                                <button class="btn btn-primary larger-cart-button add-to-cart" data-index="{{product.id}}">
-                                                    <i class="fa fa-shopping-cart"></i>
-                                                </button>
-                                                    <!-- <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a> -->
+       
+                                                <div class="buttons">
+                                                    
+                                                    <a href="#" class="btn add-to-cart-btn add-to-cart" data-index="{{product.id}}">add to cart</a>
+                                                </div>
                                                 </div>
                                             </div>
                                         </div>

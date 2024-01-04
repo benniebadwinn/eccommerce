@@ -47,127 +47,104 @@
 						<li><img src="/media/{{data.productattribute_set.first.img}}" alt="" width="88" height="88"></li>
 					</ul>
 				</div>
-				<div class="product-attribute">
-					
-					<h3 class="title">{{data.title}}</h3>
-					<div class="rating">
-						<p class="star-rating"><span class="width-80percent"></span></p>
-						<span class="review-count">(04 Reviews)</span>
-						<span class="qa-text">Q&A</span>
-						<b class="category">By: Natural food</b>
-					</div>
-					<span class="sku">Sku: #76584HH</span>
-					<p class="excerpt">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris vel maximus lacus. Duis ut mauris eget justo dictum tempus sed vel tellus.</p>
-                   <div class="price">
 
-						<ins>
-							<span class="price-amount">
-								Ksh <span class="product-Price-{{data.id}} product-price  product-discount-price"></span>
-							</span>
-						</ins>
-						<!-- <del>
+					<div class="product-attribute">
+                        <h3 class="title">{{data.title}}</h3>
+                        <div class="rating">
+                            <p class="star-rating"><span class="width-80percent"></span></p>
+                            <span class="review-count">(04 Reviews)</span>
+                            <span class="qa-text">Q&A</span>
+                            <b class="category">{{ data.category }}</b>
+                        </div>
+                        <span class="sku">Sku: {{ data.sku }}</span>
+                        <p class="excerpt">{{ data.specs }}.</p>
+                        <div class="price">
+							<ins>
+								<span class="price-amount">
+									Ksh <span class="product-Price-{{data.id}} product-price  product-discount-price"></span>
+								</span>
+							</ins>
+                            <!-- <del><span class="price-amount">Ksh <span class="product-Price-{{data.id}} product-price  product-discount-price"></span></del> -->
 
-
-								<span class="price-amount"><span class="currencySymbol">Ksh</span>{{data.productattribute_set.first.price}}</span>
-						</del> -->
-					</div>
-
-
-
-					<style>
-						.borderless-table {
-							border-collapse: collapse;
-							width: 70%;  /* Set the width as needed, in this example, it's set to 50% */
-						}
-
-						.borderless-table th, .borderless-table td {
-							border: none;
-							padding: 8px;  /* Add padding for better spacing if needed */
-							text-align: left;  /* Adjust text alignment as needed */
-						}
-					</style>
-
-					<table class="borderless-table">
-						<tr class="hidden-column">
-							<th>Colors:</th>
-							<td>
-								<!--  -->
+                        </div>
+                        <div class="product-atts">
+                            <div class="atts-item">
+                                <span class="title">Color:</span>
+                            <ul class="color-list">
 								{% for color in colors %}
-								<button class="btn btn-lg choose-color" data-color="{{color.color__id}}" style="background-color: {{color.color__color_code}}"></button>
-
+                                    <li class="color-item"><button class="btn btn-lg choose-color" data-color="{{color.color__id}}" style="background-color: {{color.color__color_code}}"></span>{{color.title}}</button></li>
 								{% endfor %}
-							</td>
-						</tr>
-						<tr class="hidden-column">
-							<th>Sizes:</th>
-							<td>
-								{% for size in sizes %}
+
+                            </ul>
+
+                            </div>
+
+                            <div class="atts-item">
+                                <span class="title">Sizes:</span>
+                            <ul class="color-list">
+							{% for size in sizes %}
 								{% if size.discountprice %}
-									<button data-size="{{ size.size__title }}" data-price="{{ size.discountprice }}" data-discounted-price="{{ size.discountprice }}" class="btn btn-outline-secondary btn-sm choose-size color{{ size.color__id }}">{{ size.size__title }}</button>
+								<li class="color-item"><button data-size="{{ size.size__title }}" data-price="{{ size.discountprice }}" data-discounted-price="{{ size.discountprice }}" class="btn btn-outline-secondary btn-sm choose-size color{{ size.color__id }}"></span>{{ size.size__title }}</a></li>
 								{% else %}
-									<button data-size="{{ size.size__title }}" data-price="{{ size.price }}" class="btn btn-outline-secondary btn-sm choose-size color{{ size.color__id }}">{{ size.size__title }}</button>
+								<li class="color-item"><button data-size="{{ size.size__title }}" data-price="{{ size.price }}" class="btn btn-outline-secondary btn-sm choose-size color{{ size.color__id }}"></span>{{ size.size__title }}</a></li>
 								{% endif %}
 							{% endfor %}
-							</td>
-						</tr>
-
-					</table>
-					{% if in_wishlist %}
-					<a href="{% url 'account:wishlist_product_toggle' data.id %}" pid="{{product.id}}" class="plus-wishlist btn">
-						<i class="fas fa-heart fa-lg text-success"></i>
-					</a>
-					
-					{% else %}
-					<a href="{% url 'account:wishlist_product_toggle' data.id %}" pid="{{product.id}}" class="plus-wishlist btn">
-						<i class="fas fa-heart fa-lg text-danger"></i>
-					</a>
-					{% endif %}
-					<div class="shipping-info">
-						<p class="shipping-day">3-Day Shipping</p>
-						<p class="for-today">Pree Pickup Today</p>
-					</div>
-				</div>
-				<div class="action-form">
-					<div class="quantity-box">
-						<span class="title">Quantity:</span>
-
-							<a href="#"><i class="fas fa-minus-square mr-4"></i></a>
-							{{ order_item.quantity }}
-						  <a href="#"><i class="fas fa-plus-square ml-4"></i></a>
-
-					</div>
-
-					<div class="total-price-contain">
-						<span class="title">Total Price:</span>
-						{% if data.productattribute_set.first.discountprice %}
-
-						<!-- <p class="price">Ksh {{product.productattribute_set.first.discount_price}}</p> -->
-						<span class="price">
-							Ksh <span class="product-Price-{{data.id}} product-price  product-discount-price"></span>
-						</span>
+                            </ul>
+                            </div>
+                        </div>
+						<br>
+						{% if in_wishlist %}
+						<a href="{% url 'account:wishlist_product_toggle' data.id %}" pid="{{product.id}}" class="plus-wishlist btn">
+							<i class="fas fa-heart fa-lg text-success"></i>
+						</a>
+						
 						{% else %}
-						<p class="product-Price-{{data.id}} product-price  product-discount-price">Ksh {{data.productattribute_set.first.price}}</p>
-
+						<a href="{% url 'account:wishlist_product_toggle' data.id %}" pid="{{product.id}}" class="plus-wishlist btn">
+							<i class="fas fa-heart fa-lg text-danger"></i>
+						</a>
 						{% endif %}
-					</div>
-
-					<div class="buttons">
-						<div class="input-group my-3" style="width:30%;">
-							<input type="number" value="1" class="form-control product-qty-{{data.id}}" id="productQty" />
-							<div class="input-group-append">
-							  <input type="hidden" class="product-img-{{data.id}}" value="{{data.productattribute_set.first.img}}" />
-								 <input type="hidden" class="product-id-{{data.id}}" value="{{data.id}}" />
-								 <input type="hidden" class="product-title-{{data.id}}" value="{{data.title}}" />
-							  <button class="btn btn-primary btn-sm add-to-cart" data-index="{{data.id}}" type="button" id="addToCartBtn"><i class="fa fa-shopping-cart"></i> Add to Cart</button>
-							</div>
-
-						<p class="pull-row">
-
+                        <div class="shipping-info">
+                            <p class="shipping-day">3-Day Shipping</p>
+                            <p class="for-today">Pree Pickup Today</p>
+                        </div>
+                    </div>
+                    <div class="action-form">
+                        <div class="quantity-box">
+                            <span class="title">Quantity:</span>
+                            <div class="qty-input">
+                                <input type="text" name="qty12554" value="1" class="form-control product-qty-{{data.id}}" id="productQty" data-max_value="20" data-min_value="1" data-step="1">
+								<input type="hidden" class="product-img-{{data.id}}" value="{{data.productattribute_set.first.img}}" />
+								<input type="hidden" class="product-id-{{data.id}}" value="{{data.id}}" />
+								<input type="hidden" class="product-title-{{data.id}}" value="{{data.title}}" />
+                                <a href="#" class="qty-btn btn-up"><i class="fa fa-caret-up" aria-hidden="true"></i></a>
+                                
+                            </div>
+                        </div>
+                        <div class="total-price-contain">
+                            <span class="title">Total Price:</span>
+							{% if data.productattribute_set.first.discountprice %}
+							<span class="price">
+								<tr>
+									<th>Price</th>
+									Ksh <span class="product-price-{{data.id}} product-price">{{data.productattribute_set.first.price}}</span>
+								</tr>
+							</span>
+							{% else %}
+							<tr>
+								<th>Price</th>
+								Ksh <span class="product-price-{{data.id}} product-price">{{data.productattribute_set.first.price}}</span>
+							</tr>
+							{% endif %}
+                        </div>
+                        <div class="buttons">
+							<!-- <input type="text" name="qty12554" value="1" class="form-control product-qty-{{data.id}}" id="productQty" data-max_value="20" data-min_value="1" data-step="1"> -->
+							<input type="hidden" class="product-img-{{data.id}}" value="{{data.productattribute_set.first.img}}" />
+							<input type="hidden" class="product-id-{{data.id}}" value="{{data.id}}" />
+							<input type="hidden" class="product-title-{{data.id}}" value="{{data.title}}" />
+                            <a href="#" class="btn add-to-cart-btn add-to-cart" data-index="{{data.id}}">add to cart</a>
 							
-						</p>
-					</div>
+						</div>
 
-				
 					<div class="social-media">
 						<ul class="social-list">
 							<li><a href="#" class="social-link"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
@@ -401,22 +378,6 @@
 								</div>
 							</div>
 
-<!--
-							{% if user.is_authenticated %}
-							{% if orderproduct %}
-								<input type="submit" value="Submit Review" class="btn btn-primary">
-							{% else %}
-								<p>You must purchase this product to post a review.</p>
-							{% endif %}
-						{% else %}
-						<p>You must be logged in to post a review. <span><a href="#">Login now</a></span></p>
-						{% endif %} -->
-
-
-
-
-
-
 
 							<header class="section-heading">
 								<h3>Customer Reviews </h3>
@@ -470,22 +431,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 							<h3 class="mt-4 mb-3 border-bottom pb-1">Related products from the same category</h3>
 							<div class="row">
 								{% for product in related_products %}
@@ -507,17 +452,6 @@
 						<script>
 							$('#zoom_01').ezPlus();
 						</script>
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -574,7 +508,7 @@
 					</div>
 				</div>
 			</div>
-
+	
 			<!-- related products -->
 			<div class="product-related-box single-layout">
 				<div class="biolife-title-box lg-margin-bottom-26px-im">
@@ -583,182 +517,46 @@
 					<h3 class="main-title">Related Products</h3>
 				</div>
 				<ul class="products-list biolife-carousel nav-center-02 nav-none-on-mobile" data-slick='{"rows":1,"arrows":true,"dots":false,"infinite":false,"speed":400,"slidesMargin":0,"slidesToShow":5, "responsive":[{"breakpoint":1200, "settings":{ "slidesToShow": 4}},{"breakpoint":992, "settings":{ "slidesToShow": 3, "slidesMargin":20 }},{"breakpoint":768, "settings":{ "slidesToShow": 2, "slidesMargin":10}}]}'>
-
+					{% for product in related_products %}
 					<li class="product-item">
 						<div class="contain-product layout-default">
 							<div class="product-thumb">
 								<a href="#" class="link-to-product">
-									<img src="assets/images/products/p-13.jpg" alt="dd" width="270" height="270" class="product-thumnail">
+									<img src="media/{{product.img}}" alt="dd" width="270" height="270" class="product-thumnail">
 								</a>
 							</div>
 							<div class="info">
-								<b class="categories">Fresh Fruit</b>
-								<h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
+								<b class="categories">{{ product.category }}</b>
+								<h4 class="product-title"><a href="#" class="pr-name">{{ product.title }}</a></h4>
 								<div class="price">
-									<ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-									<del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
+									<ins><span class="price-amount">Ksh <span class="product-price-{{product.id}}" >{{product.productattribute_set.first.discountprice}}</span></ins></h6>
 								</div>
 								<div class="slide-down-box">
 									<p class="message">All products are carefully selected to ensure food safety.</p>
 									<div class="buttons">
-										<a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-										<a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-										<a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
+										{% if in_wishlist %}
+										<a href="{% url 'login:wishlist_product_toggle' product.id %}" pid="{{product.id}}" class="plus-wishlist btn">
+											<i class="fas fa-heart fa-lg text-success"></i>
+										</a>
+										
+										{% else %}
+										<a href="{% url 'login:wishlist_product_toggle' product.id %}" pid="{{product.id}}" class="plus-wishlist btn">
+											<i class="fas fa-heart fa-lg text-danger"></i>
+										</a>
+										{% endif %}
+										
+										<input type="hidden" value="1" class="form-control product-qty-{{product.id}}" id="productQty" />
+										<input type="hidden" class="product-img-{{product.id}}" value="{{product.productattribute_set.first.img}}" />
+										<input type="hidden" class="product-id-{{product.id}}" value="{{product.id}}" />
+										<input type="hidden" class="product-title-{{product.id}}" value="{{product.title}}" />
+										<div class="buttons">
+											<a href="#" class="btn add-to-cart-btn add-to-cart" data-index="{{product.id}}">add to cart</a>
 									</div>
 								</div>
 							</div>
 						</div>
 					</li>
-					<li class="product-item">
-						<div class="contain-product layout-default">
-							<div class="product-thumb">
-								<a href="#" class="link-to-product">
-									<img src="assets/images/products/p-14.jpg" alt="dd" width="270" height="270" class="product-thumnail">
-								</a>
-							</div>
-							<div class="info">
-								<b class="categories">Fresh Fruit</b>
-								<h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
-								<div class="price">
-									<ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-									<del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-								</div>
-								<div class="slide-down-box">
-									<p class="message">All products are carefully selected to ensure food safety.</p>
-									<div class="buttons">
-										<a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-										<a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-										<a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-									</div>
-								</div>
-							</div>
-						</div>
-					</li>
-					<li class="product-item">
-						<div class="contain-product layout-default">
-							<div class="product-thumb">
-								<a href="#" class="link-to-product">
-									<img src="assets/images/products/p-15.jpg" alt="dd" width="270" height="270" class="product-thumnail">
-								</a>
-							</div>
-							<div class="info">
-								<b class="categories">Fresh Fruit</b>
-								<h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
-								<div class="price">
-									<ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-									<del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-								</div>
-								<div class="slide-down-box">
-									<p class="message">All products are carefully selected to ensure food safety.</p>
-									<div class="buttons">
-										<a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-										<a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-										<a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-									</div>
-								</div>
-							</div>
-						</div>
-					</li>
-					<li class="product-item">
-						<div class="contain-product layout-default">
-							<div class="product-thumb">
-								<a href="#" class="link-to-product">
-									<img src="assets/images/products/p-10.jpg" alt="dd" width="270" height="270" class="product-thumnail">
-								</a>
-							</div>
-							<div class="info">
-								<b class="categories">Fresh Fruit</b>
-								<h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
-								<div class="price">
-									<ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-									<del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-								</div>
-								<div class="slide-down-box">
-									<p class="message">All products are carefully selected to ensure food safety.</p>
-									<div class="buttons">
-										<a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-										<a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-										<a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-									</div>
-								</div>
-							</div>
-						</div>
-					</li>
-					<li class="product-item">
-						<div class="contain-product layout-default">
-							<div class="product-thumb">
-								<a href="#" class="link-to-product">
-									<img src="assets/images/products/p-08.jpg" alt="dd" width="270" height="270" class="product-thumnail">
-								</a>
-							</div>
-							<div class="info">
-								<b class="categories">Fresh Fruit</b>
-								<h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
-								<div class="price">
-									<ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-									<del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-								</div>
-								<div class="slide-down-box">
-									<p class="message">All products are carefully selected to ensure food safety.</p>
-									<div class="buttons">
-										<a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-										<a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-										<a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-									</div>
-								</div>
-							</div>
-						</div>
-					</li>
-					<li class="product-item">
-						<div class="contain-product layout-default">
-							<div class="product-thumb">
-								<a href="#" class="link-to-product">
-									<img src="assets/images/products/p-21.jpg" alt="dd" width="270" height="270" class="product-thumnail">
-								</a>
-							</div>
-							<div class="info">
-								<b class="categories">Fresh Fruit</b>
-								<h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
-								<div class="price">
-									<ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-									<del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-								</div>
-								<div class="slide-down-box">
-									<p class="message">All products are carefully selected to ensure food safety.</p>
-									<div class="buttons">
-										<a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-										<a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-										<a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-									</div>
-								</div>
-							</div>
-						</div>
-					</li>
-					<li class="product-item">
-						<div class="contain-product layout-default">
-							<div class="product-thumb">
-								<a href="#" class="link-to-product">
-									<img src="assets/images/products/p-18.jpg" alt="dd" width="270" height="270" class="product-thumnail">
-								</a>
-							</div>
-							<div class="info">
-								<b class="categories">Fresh Fruit</b>
-								<h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
-								<div class="price">
-									<ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-									<del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-								</div>
-								<div class="slide-down-box">
-									<p class="message">All products are carefully selected to ensure food safety.</p>
-									<div class="buttons">
-										<a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-										<a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-										<a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-									</div>
-								</div>
-							</div>
-						</div>
-					</li>
+					{% endfor %}
 
 				</ul>
 			</div>
@@ -767,369 +565,6 @@
 	</div>
 </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!--Main layout-->
-<main class="mt-5 pt-4">
-    <div class="container">
-      <!-- Table of order summary -->
-
-      <div class="table-responsive text-nowrap">
-        <h2>Order Summary</h2>
-        <table class="table">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Item title</th>
-              <th scope="col">Price</th>
-              <th scope="col">Quantity</th>
-              <th scope="col">Total Item Price</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {% for order_item in object.items.all %}
-            <!--for each item that is present in the Order class (the items feature line 56). all is used because it's a many to many field-->
-
-            <tr>
-              <th scope="row">{{ forloop.counter }}</th>
-              <!-- this is used for counting from 1 onwards. The current iteration of the loop (1-indexed) ref https://docs.djangoproject.com/en/3.2/ref/templates/builtins/-->
-              <td>{{ order_item.item.title }}</td>
-              <!-- .item.title is from models.py OrderItem class and the Item class-->
-              <td>€ {{ order_item.item.price }}</td>
-              <!-- .item.price is from models.py OrderItem class and the Item class-->
-              <td>
-                <a
-                  href="{% url 'core:remove-one-item-from-cart' order_item.item.slug %}"
-                  ><i class="fas fa-minus-square mr-4"></i></a
-                >{{ order_item.quantity }}<a
-                  href="{% url 'core:add-to-cart' order_item.item.slug %}"
-                  ><i class="fas fa-plus-square ml-4"></i
-                ></a>
-              </td>
-              <!-- .quantity is from models.py OrderItem class. The 'item" is not required here since we're taking quantity directly from the OrderItem class. the minus and addition buttons have their own links. The item.slug is from the Item class in models.py The name of the url is from the urls.py. The add-to-cart link is for the add button so that you can add more in quantity, this is from urls.py line 22-->
-              <td>
-                {% if order_item.item.discount_price %}
-                <!-- item is from the OrderItem class  and discount_price is from the Item class all in models.py. if there is a discount price-->
-
-                € {{ order_item.get_total_discount_item_price }}
-                <!--get_total_discount_item_price is from the OrderItem class. then show the discount price else-->
-                <span class="badge bg-success"
-                  >You save € {{ order_item.get_amount_saved }}</span
-                >
-                <!-- from OrderItem class from models.py line 58-->
-
-                {% else %} € {{ order_item.get_total_item_price }}
-                <!-- else show the normal price-->
-
-                {% endif %}
-
-                <a
-                  style="color: red"
-                  href="{% url 'core:remove-from-cart' order_item.item.slug %}"
-                >
-                  <i class="far fa-trash-alt float-right"></i>
-                </a>
-              </td>
-            </tr>
-
-            {% empty %}
-            <!--if the cart is empty-->
-
-            <tr>
-              <td colspan="5">There's nothing in your cart!</td>
-            </tr>
-
-            <tr>
-              <td colspan="4">
-                <a class="btn btn-dark" href="/">Continue Shopping</a>
-              </td>
-              <!--To take you back home to continue shopping-->
-            </tr>
-
-            {% endfor %} {% if object.coupon %}
-            <!-- if there is a coupon, then show the following row below -->
-            <tr>
-              <td colspan="4"><b>Coupon</b></td>
-              <td>
-                <b>- €{{ object.coupon.amount }}</b>
-                <a style="color: red" href="{% url 'core:remove-coupon' %}">
-                  <i class="far fa-trash-alt float-right"></i>
-                </a>
-              </td>
-              <!--from models.py line 78 to get the ultimate total either discounted price if it exists or normal price if no discount-->
-            </tr>
-
-            {% else %}
-
-            <tr>
-              <td colspan="5">There are no active coupons to your order!</td>
-            </tr>
-
-            {% endif %} {% if object.get_total %}<!--If there is an order total, then we display the below code otherwise we do not-->
-            <tr>
-              <td colspan="4"><b>Final Total</b></td>
-              <td><b>€ {{ object.get_total }}</b></td>
-              <!--from models.py line 78 to get the ultimate total either discounted price if it exists or normal price if no discount-->
-            </tr>
-
-            <tr>
-              <td colspan="4">
-                <a class="btn btn-dark" href="/checkout-page/">Checkout Now</a>
-              </td>
-              <!--To checkout button-->
-              <td colspan="4">
-                <a class="btn btn-dark" href="/">Continue Shopping</a>
-              </td>
-              <!--To take you back home to continue shopping-->
-            </tr>
-
-            {% endif %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </main>
   <!--Main layout-->
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<main class="container my-4">
-	<!-- Featured Products -->
-	<h3 class="my-4 border-bottom pb-1">{{data.title}}</h3>
-	<div class="row">
-		<!-- Images -->
-		<div class="col-md-4">
-			<img id="zoom_01" data-zoom-image="/media/{{data.productattribute_set.first.img}}" src="/media/{{data.productattribute_set.first.img}}" class="card-img-top" alt="{{data.title}}">
-		</div>
-		<div class="col-md-8">
-			<p>{{data.detail}}</p>
-			<hr/>
-			<table class="table table-bordered">
-				<tr>
-					<th>Colors</th>
-					<td>
-						{% for color in colors %}
-						<button class="btn btn-lg choose-color" data-color="{{color.color__id}}" style="background-color: {{color.color__color_code}}"></button>
-                        {% endfor %}
-					</td>
-				</tr>
-				<tr>
-					<th>Sizes</th>
-					<td>
-                        {% for size in sizes %}
-						<button data-price="{{size.price}}" class="btn btn-outline-secondary btn-sm choose-size color{{size.color__id}}">{{size.size__title}}</button>
-                        {% endfor %}
-					</td>
-				</tr>
-				<tr>
-					<th>Price</th>
-					<th>&#36; <span class="product-price-{{data.id}} product-price">{{data.productattribute_set.first.price}}</span></th>
-				</tr>
-			</table>
-			<hr/>
-			<div class="input-group my-3" style="width:30%;">
-			  <input type="number" value="1" class="form-control product-qty-{{data.id}}" id="productQty" />
-			  <div class="input-group-append">
-				<input type="hidden" class="product-img-{{data.id}}" value="{{data.productattribute_set.first.img}}" />
-				   <input type="hidden" class="product-id-{{data.id}}" value="{{data.id}}" />
-				   <input type="hidden" class="product-title-{{data.id}}" value="{{data.title}}" />
-				<button class="btn btn-primary btn-sm add-to-cart" data-index="{{data.id}}" type="button" id="addToCartBtn"><i class="fa fa-shopping-cart"></i> Add to Cart</button>
-			  </div>
-			</div>
-		</div>
-	</div>
-	<hr />
-	<div class="row">
-		<div class="col-md-6">
-			<h3 class="my-3">Detail</h3>
-			<!-- Detail -->
-			<table class="table table-bordered">
-				<tr>
-					<th>Brand</th>
-					<td><a href="#">{{data.brand.title}}</a></td>
-				</tr>
-				<tr>
-					<th>Category</th>
-					<td><a href="#">{{data.category.title}}</a></td>
-				</tr>
-				<tr>
-					<th>Specification</th>
-					<td>{{data.specs}}</td>
-				</tr>
-			</table>
-		</div>
-		<!-- Reviews -->
-		<div class="col-md-6">
-			<h3 class="my-3">Reviews - <span>{{avg}}</span> <i class="fa fa-star text-warning"></i>
-				{% if user.is_authenticated %}
-				<button type="button" class="btn rewiewButton"data-toggle="modal" data-target="#exampleModal">Add Review</button></h3>
-				{% else %}
-				<a href="/login1" >Login To Add Rewiew</a>
-				{% endif %}
-				<!--Modal-->
-				<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-					<div class="modal-dialog">
-					  <div class="modal-content">
-						<div class="modal-header">
-						  <h5 class="modal-title" id="exampleModalLabel">Product Rewiew</h5>
-						  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						  </button>
-						</div>
-						<div class="modal-body">
-							<form method="POST">
-								{% csrf_token %}							
-								<table class="table table-bordered">
-									<form method="post" action="/save-rewiew" id="rewiewForm">
-										<input name="comment" class="comment" type="text"></input>
-										<br>
-										<select name="stars" class="stars">
-											<option value="1">1</option>
-											<option value="2">2</option>
-											<option value="3">3</option>
-											<option value="4">4</option>
-											<option value="5">5</option>
-										</select>
-										<br>
-										<input type="hidden" name="username" value="{{user}}">
-										<input type="hidden" name="product" value="{{data}}">
-										<button class="reviewButton" type="submit">Add Rewiew</button>
-									</form>
-								</table>
-							</form>
-						</div>
-					  </div>
-					</div>
-				  </div>
-				<!--Modal End-->
-			<div class="card">
-				<div class="card-body" style="max-height: 400px; overflow: auto;">
-					<!-- Detail -->
-					{% for review in rewiews %}
-					<blockquote class="blockquote text-right">
-					  <small>{{review.review_text}}</small>
-					  <footer class="blockquote-footer">{{review.user}} 
-					  	<cite title="Source Title">
-							<!---->
-							{% for star in review.review_rating|ljust:review.review_rating %}
-							<i class="fa fa-star text-warning"></i>
-						  	{% endfor %}
-					  	</cite>
-					  </footer>
-					</blockquote>
-					{% endfor %}
-					<hr />
-				</div>
-			</div>
-		</div>
-	</div>
-	<h3 class="mt-4 mb-3 border-bottom pb-1">Related products from the same category</h3>
-	<div class="row">
-		{% for product in related_products %}
-		<div class="col-md-3 mb-4">
-			<div class="card shadow">
-				<a href="/product/{{product.slug}}/{{product.id}}"><img src="/media/{{product.productattribute_set.first.img}}" class="card-img-top" alt="{{product.title}}"></a>
-				<div class="card-body">
-					<h6 class="card-text"><a href="/product/{{product.slug}}/{{product.id}}">{{product.title}}</a></h6>
-				</div>
-				<div class="card-footer">
-
-				</div>
-			</div>
-		</div>
-		{% endfor %}
-	</div>
-</main>
-<script src="https://cdn.jsdelivr.net/gh/igorlino/elevatezoom-plus@1.2.3/src/jquery.ez-plus.js"></script>
-<script>
-    $('#zoom_01').ezPlus();
-</script>
 {% endblock %}

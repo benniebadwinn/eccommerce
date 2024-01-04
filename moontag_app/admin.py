@@ -103,7 +103,7 @@ admin.site.register(Category, CategoryAdmin)
 
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('id','title','category','brand','status','is_featured') # its a tuple but i will remember the name list better
+    list_display = ('id','title','category','brand','status','is_featured','is_data3') # its a tuple but i will remember the name list better
     list_editable = ('status','is_featured')
 admin.site.register(Product, ProductAdmin)
 

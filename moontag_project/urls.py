@@ -17,7 +17,8 @@ from django.contrib import admin
 from django.urls import path , include
 
 from django.views.generic import TemplateView
-# from moontag_app.views import ContactView,ReturnPolicyView
+from moontag_app.views import ContactView,ReturnPolicyView
+from django.views.generic import RedirectView
 
 
 
@@ -29,7 +30,13 @@ urlpatterns = [
     path('accounts/profile/', TemplateView.as_view(template_name='support.html'),name='support'),
     path('help',TemplateView.as_view(template_name='help.html'),name='help'),
     path('faqs/',TemplateView.as_view(template_name='faqs.html'),name='faqs'),
-    # path('contact',ContactView.as_view(),name='contact'),
-    # path('return-policy',ReturnPolicyView.as_view(),name='return_policy'),
+    path('contact',ContactView.as_view(),name='contact'),
+    path('return-policy',ReturnPolicyView.as_view(),name='return_policy'),
     path('payment/', include('payment.urls', namespace='payment')),
+    path('auth/', include('social_django.urls', namespace='social')),
+    path('', RedirectView.as_view(url='/chat/')),
+    
+    
+    
+
 ]

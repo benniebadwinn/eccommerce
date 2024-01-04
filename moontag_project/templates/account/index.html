@@ -1,0 +1,54 @@
+{% extends 'base9.html' %}
+
+{% block content %}
+    <h3>Welcome, {{ user.username }}!</h3>
+
+    <h5>Available Live Chats</h5>
+
+    <div class="d-flex flex-column">
+      <div class="border border-20 p-3" style="overflow-y: scroll;height: 45vh;">
+        <!-- <div class="row"></div> -->
+        {% for room in chat_rooms %}
+        <div class="card mb-3" >
+          <div class="card-body">
+            <div class="row">
+              <div class="col-9">
+                <h5 class="card-title">{{ room.room_name }}</h5>
+                <p class="card-text">{{ room.last_message.message }}</p>
+                <small>{{ room.last_message.sender }} {{ room.last_message.timestamp }}</small>
+              </div>
+              <div class="col-3 text-center my-auto">
+                <a href="{% url 'shop:room' room.room_name %}" class="btn btn-primary align-middle">Enter Chat</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>        
+    </div>
+
+    <div class="card mt-5">
+        <div class="card-body" style="background-color: #FDF5E6;">
+          
+          <div class="input-group input-group-sm mb-2">
+            <input type="text" class="form-control" id="roomName" name="roomName" placeholder="Room Name" required value="{{ user }}" style="display: none;" />
+            <div class="input-group-append">
+              <button type="button" class="btn btn-primary" onclick="createRoom(event)">
+                <span class="d-none d-sm-inline">Start Live Chat</span>
+              </button>
+            </div>
+          </div>          
+          
+        </div>
+    </div>
+
+    <script>
+        function createRoom(event) {
+          event.preventDefault();
+          let words = document.getElementById('roomName').value
+            .replace(/[^a-zA-Z0-9 ]/g, '').split(' ');
+          let roomName = words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
+          window.location.href = '/chat/' + encodeURIComponent(roomName);
+        }
+    </script>
+{% endblock %}
