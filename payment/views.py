@@ -7,10 +7,9 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from . import pesapal_ops3
 from django.shortcuts import render, get_object_or_404, redirect
-
 from . import forms
 from moontag_app.models import Address, OrderItem, Order
-from account.models import WalletTransaction
+
 from django.contrib.auth.decorators import login_required
 from .utils import get_user_wallet_balance  # Assuming you have a function to get wallet balance
 from django.contrib import messages
@@ -18,10 +17,13 @@ from django.http import HttpResponseRedirect
 from django.db.models import Sum
 from django.conf import settings
 from django.core.mail import send_mail
-
-
-def home(request):
-    return redirect(reverse('payment:pay'))
+from django.http import HttpResponse
+from django.db import connection
+from django.db.models import F
+from django.db import transaction, models
+from django.views.generic.base import View
+from decimal import Decimal
+from account.models import Wallet, Transaction
 
 
 
@@ -37,7 +39,7 @@ def payment(request):
             payment = form.save(commit=False)
             payment.reference = account_reference
             payment.type = 'MERCHANT'
-            payment.description = 'product purchased'
+            payment.description = 'product purch'
             Reference = payment.reference
             FirstName = payment.first_name
             LastName = payment.last_name
@@ -71,6 +73,54 @@ def payment(request):
 
 
 
+
+class PaymentView2(View):
+    template_name = 'payment/index1.html'
+    model = Wallet
+
+    def get(self, request, deposited_amount):
+        # Convert the string to Decimal
+        deposited_amount = Decimal(deposited_amount)
+
+        # Use the deposited amount in your context as needed
+        context = {'amount': deposited_amount, 'form': DepositForm()}  # Use your actual form
+
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+        # Handle the payment logic here
+
+        account_reference = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+        total_cost = 0
+
+        form = DepositForm(request.POST)
+
+        if form.is_valid():
+            # Your payment logic goes here
+            payment = form.save(commit=False)
+            payment.user = request.user
+            Wallet.reference = account_reference
+            Wallet.type = 'MERCHANT'
+            Wallet.description = 'product purcha'
+            Reference = Wallet.reference
+            Description = Wallet.description
+            Amount = Wallet.deposited_amount
+            Type = Wallet.type
+            payment.save()
+
+            # Use pesapal_ops3 to post the transaction and get iframe_src
+            iframe_src = pesapal_ops3.post_transaction(Reference, Description, Amount, Type)
+
+            print(iframe_src)
+
+
+                # Redirect to a success page
+            return render(request, 'payment/paynow.html', {'iframe_src': iframe_src})
+
+        context = {'amount': total_cost, 'form': form}
+        return render(request, self.template_name, context)
+
+
 @csrf_exempt
 def callback(request):
     if request.method == 'POST':
@@ -83,12 +133,43 @@ def callback(request):
     transaction_tracking_id = params['pesapal_transaction_tracking_id']
     print(merchant_reference)
     print(transaction_tracking_id)
+
     # status = pesapal_ops3.get_detailed_order_status(merchant_reference, transaction_tracking_id)
     status = pesapal_ops3.get_payment_status(merchant_reference, transaction_tracking_id).decode('utf-8')
     p_status = str(status).split('=')[1]
 
-    # return render(request, 'payment/status.html', {'status': p_status})
-    return redirect(reverse('shop:payment_completed', {'status': p_status}))
+    # Check if pesapal status is COMPLETED
+    if p_status == 'COMPLETED':
+        # Check if the user has a Wallet
+        try:
+            wallet = Wallet.objects.get(user=request.user)
+        except Wallet.DoesNotExist:
+            # If Wallet does not exist, create it
+            wallet = Wallet.objects.create(user=request.user)
+
+        # Set payment_done status to True
+        wallet.payment_done = True
+        wallet.save()
+
+        # Update the balance in the database
+        # Assuming the deposited amount is available in the Deposit model
+        deposit = Transaction.objects.get(reference=merchant_reference)
+        wallet.balance += deposit.deposited_amount
+        wallet.save()
+
+        # Add a success message
+        messages.success(request, 'Deposit confirmed successfully!')
+        
+        # Redirect to a success page or return a success response
+        return redirect('shop:home')  # Replace 'payment:completed_status' with your actual URL name
+    
+    # Add a failure message or return a failure response if needed
+    messages.error(request, 'Deposit confirmation failed.')
+    return HttpResponse(status=400)  # Bad Request
+
+
+
+
 
 logger = logging.getLogger(__name__)
 @login_required

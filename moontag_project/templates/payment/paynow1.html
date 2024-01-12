@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+{% block content %}
+
+<div class="flex-center position-ref full-height">
+            <div class="content">
+                <div class="title m-b-md">
+                    Pay Now
+                </div>
+                <div class="links">
+                    <iframe src={{iframe_src}} width="100%" height="720px"  scrolling="auto" frameBorder="0">
+                        <p>Browser unable to load iFrame</p>
+                    </iframe>
+                </div>
+            </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- payment/paynow1.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Confirmation</title>
+</head>
+<body>
+
+<!-- Your existing HTML content -->
+
+<!-- Include this script to listen for messages from the iframe -->
+<script>
+    // Event listener to handle messages from the iframe
+    window.addEventListener('message', function(event) {
+        // Check the origin to ensure it's a trusted source
+        if (event.origin === 'https://trusted-source.com') {
+            // Parse the received data
+            var data = JSON.parse(event.data);
+
+            // Handle the received data as needed
+            console.log('Received data from iframe:', data);
+
+            // Add your logic to update the payment_done status and balance here
+            // Example:
+            // if (data.paymentStatus === 'COMPLETED') {
+            //     // Update payment_done status in the backend
+            //     // Update balance if needed
+            // }
+        }
+    });
+</script>
+
+</body>
+</html>
+
+{% endblock %}

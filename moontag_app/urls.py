@@ -4,7 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from moontag_app.views import (ManageCartView,MpesaStkPushCallbackView,MpesaNumberView,
     PayviaMpesaonDeliveryView,PaymentCompletedView,
-     PaymentCancelledView,AddressCreateView,AddressListView,AddressUpdateView, AddressDeleteView,CouponAddView,remove_coupon,CouponAddView,OrderListView,OrderSummaryView,)
+     PaymentCancelledView,AddressCreateView,SendNewsletterView,AddressListView,AddressUpdateView, AddressDeleteView,CouponAddView,remove_coupon,CouponAddView,OrderListView,OrderSummaryView,)
 # from moontag_app.consumers import ChatConsumer
 
 
@@ -166,8 +166,11 @@ urlpatterns = [
     path('custom_404_page/', views.custom_404_page , name='custom_404_page'),
     
     
-    path('home/', views.index, name='home'),
+    path('livechat/', views.index, name='index'),
+    path('adminpanel/', views.adminpanel, name='adminpanel'),
     path('chat/<str:room_name>/', views.room, name='room'),
+    path('send/', SendNewsletterView.as_view(), name='send_newsletter'),
+   
 ]
 
 

@@ -18,6 +18,21 @@ from django.urls import reverse
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm, UserChangeForm
 # from django.contrib.auth.models import User
 from .models import UserProfuile
+# from .models import Wallet
+from . import models
+
+
+class DepositForm(forms.ModelForm):
+    deposited_amount = forms.DecimalField(widget=forms.TextInput(attrs={'type': 'number'}))
+
+    class Meta:
+        model = Wallet
+        fields = ['deposited_amount']
+
+    def clean_amount(self):
+        amount = self.cleaned_data['deposited_amount']
+        # Add any additional validation for the amount if needed
+        return deposited_amount
 
 
 

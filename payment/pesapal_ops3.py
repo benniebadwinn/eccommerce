@@ -7,10 +7,10 @@ pesapal_processor3.consumer_secret = 'osGQ364R49cXKeOYSpaOnT++rHs='
 pesapal_processor3.testing = False
 
 
-def post_transaction(Reference, FirstName, LastName, Email, PhoneNumber, Description, Amount, Type):
+def post_transaction(Reference,Description, Amount, Type):
     
     post_params = {
-        'oauth_callback': 'https://b358-105-50-154-185.ngrok-free.app/payment/oauth_callback/'
+        'oauth_callback': 'https://fda9-197-232-61-208.ngrok-free.app/payment/oauth_callback/'
     }
 
     request_data = {
@@ -18,10 +18,7 @@ def post_transaction(Reference, FirstName, LastName, Email, PhoneNumber, Descrip
         'Description': Description,
         'Type': 'MERCHANT',
         'Reference': Reference,
-        'PhoneNumber': str(PhoneNumber),
-        'Email': Email,
-        'FirstName': FirstName,
-        'LastName': LastName
+
     }
 
     url = pesapal_processor3.postDirectOrder(post_params, request_data)

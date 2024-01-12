@@ -1,5 +1,5 @@
 from django.contrib import admin
-from moontag_app.models import Category,Cart,CartProduct,Vendor,OrderItem,Offer,Color,Size,Brand,Product,ProductAttribute,Banner,Coupon,Wishlist,Order, OrderItem,MpesaPayment,CouponUsage,Subscriber, Contact,Feedback,ReviewRating,ShippingCompany,OfferStatus
+from moontag_app.models import Category,Cart,CartProduct,Vendor,OrderItem,Offer,Color,Size,Brand,Product,ProductAttribute,Banner,Coupon,Wishlist,Order, OrderItem,MpesaPayment,CouponUsage, Contact,Feedback,ReviewRating,ShippingCompany,OfferStatus
 from moontag_app.models import Category,Color,Size,Brand,Product,ProductAttribute,Todo,Withraw
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.utils.translation import gettext_lazy as _
@@ -137,7 +137,7 @@ admin.site.register(Banner, BannerAdmin)
 
 
 
-admin.site.register(Subscriber)
+
 admin.site.register(Contact)
 admin.site.register(Feedback)
 admin.site.register(ShippingCompany)

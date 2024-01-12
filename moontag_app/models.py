@@ -39,6 +39,23 @@ from django.db.utils import OperationalError, ProgrammingError
 User = get_user_model()
 
 
+class Customer(models.Model):
+    email = models.EmailField(unique=True)
+    # Add other customer-related fields as needed
+
+    def __str__(self):
+        return self.email
+
+class Newsletter(models.Model):
+    subject = models.CharField(max_length=255)
+    content = models.TextField()
+    sent_at = models.DateTimeField(auto_now_add=True)
+    recipients = models.ManyToManyField(Customer, related_name='newsletters_sent')
+
+    def __str__(self):
+        return self.subject
+
+
 class ChatRoom(models.Model):
     name = models.CharField(max_length=100)
 
@@ -1080,16 +1097,7 @@ class Contact(models.Model):
         verbose_name='Contact'
         verbose_name_plural = 'Contacts'
 
-class Subscriber(models.Model):
-    email = models.CharField(unique=True, max_length=50)
-    date_added = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        verbose_name = 'Newsletter Subscriber'
-        verbose_name_plural = 'Newsletter Subscribers'
-
-    def __str__(self):
-        return '%s' % self.email
 
 
 class Feedback(models.Model):

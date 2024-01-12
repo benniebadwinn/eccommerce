@@ -3,6 +3,8 @@ from django.contrib.auth.views import LogoutView, PasswordResetView, PasswordRes
 from account.views import *
 # from django.views.generic import RedirectView
 from . import views
+# from account.views import (DepositeView,)
+
 # from django_registration.backends.one_step.views import RegistrationView
 
 
@@ -61,13 +63,18 @@ urlpatterns = [
     path('edit_profile/', views.UpdateUserView.as_view(), name="edit_user"),
     path('delete_user/<int:pk>/', views.DeleteUser.as_view(), name="delete_user"),
     path('ushboardpdate_public_details/', views.UpdatePublicDetails.as_view(), name="user_public_details"),
-    path('subscribe/', views.Subscribe, name ='subscribe'),
+    
     # path('auth/', include('social_django.urls', namespace='social')),
     path('wallet/', wallet, name='wallet'),
-    path('deposit/', deposit, name='deposit'),
+   
+    
+    
     path('wallet_balance/', wallet_balance, name='wallet_balance'),
+    path('deposit/', views.DepositeView.as_view(), name='deposit'),
     path('deposit_success/', deposit_success, name='deposit_success'),
-    
-    
-    
+    path('confirm-deposit/', PaymentView.as_view(), name='confirm_deposit'),
+    # path('pay1/<str:deposited_amount>/', PaymentView.as_view(), name='pay1'),
+    path('statement/', WalletStatementView.as_view(), name='wallet_statement'),
+
+   
 ]

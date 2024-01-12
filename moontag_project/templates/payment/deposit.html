@@ -1,7 +1,21 @@
 <!-- deposit.html -->
-<form method="post" action="{% url 'account:deposit' %}">
+{% extends 'base.html' %}
+
+{% block content %}
+{% if form_errors %}
+  <div class="alert alert-danger">
+    <strong>Form errors:</strong>
+    <ul>
+      {% for error in form_errors %}
+        <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+  <h2>Deposit Money</h2>
+  <form action="{% url 'account:deposit' %}" method="post">
     {% csrf_token %}
-    <label for="amount">Deposit Amount:</label>
-    <input type="number" name="amount" required>
+    {{ form.as_p }}
     <button type="submit">Deposit</button>
-</form>
+  </form>
+{% endblock %}

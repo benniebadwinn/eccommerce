@@ -3,7 +3,7 @@ from account.forms import SignUpForm
 from django.contrib.auth.models import User
 from django.contrib import messages
 import random
-from .models import UserOTP
+from .models import UserOTP,Wallet, Transaction
 from django.core.mail import send_mail
 from django.conf import settings
 from django.http import HttpResponse, Http404, JsonResponse
@@ -16,7 +16,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from django.urls import reverse_lazy
 from django.urls import reverse
-from .forms import UserPublicDetailsForm
+from .forms import UserPublicDetailsForm,DepositForm
 from django.http import  HttpResponse, HttpResponseRedirect
 # from main.models import Post
 
@@ -38,141 +38,216 @@ from .models import subscriptions
 from django.shortcuts import render, redirect,get_object_or_404
 from moontag_app.models import ProductAttribute,Product
 from django.db.models import Sum
-from .models import WalletTransaction
+
 from django.contrib.auth.models import User
 from payment.utils import get_user_wallet_balance
 import smtplib
 from email.message import EmailMessage
+from django.views import View
+from django.views.generic import (
+    
+    CreateView, ListView
+)
+from django.utils.decorators import method_decorator
+from decimal import Decimal
+import string
+from payment import pesapal_ops3
 
+from django.template.loader import render_to_string
+from reportlab.lib.pagesizes import letter
+import tempfile
+from io import BytesIO
 
-# success_url = reverse_lazy("django_registration_complete")
+from io import BytesIO
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
 
-# def panel(request):
-# 	return render(request, "user/admin_page.html")
+def generate_pdf(username, balance):
+    # Create a BytesIO buffer to receive PDF data
+    buffer = BytesIO()
 
-# @login_required
-# success_url = reverse_lazy("django_registration_complete")
+    # Create the PDF object, using BytesIO as its "file"
+    p = canvas.Canvas(buffer, pagesize=letter)
+
+    # PDF content generation using ReportLab
+    p.drawString(100, 750, f"Username: {username}")
+    p.drawString(100, 730, f"Balance: {balance}")
+
+    # More content can be added as needed
+
+    # Close the PDF object cleanly, and we're done
+    p.showPage()
+    p.save()
+
+    # File buffer to begin from the start
+    buffer.seek(0)
+
+    return buffer
+
 
 def panel(request):
     return render(request, "user/admin_page.html")
 
-@login_required
-def deposit(request):
-    if request.method == 'POST':
-        amount = float(request.POST['amount'])
-        # Perform validation on the amount if needed
 
-        # Create a deposit transaction
-        deposit_transaction = WalletTransaction.objects.create(
-            user=request.user,
-            amount=amount,
-            transaction_type='deposit'
-        )
+class WalletStatementView(ListView):
+    model = Transaction
+    template_name = 'account/statement.html'
+    context_object_name = 'transactions'
+    paginate_by = 10  # Adjust the number of transactions per page as needed
 
-        # # Send email to user
-        # subject = 'Deposit Confirmation'
-        # # Use the get_user_wallet_balance function from utils to get the updated balance
-        # new_wallet_balance = get_user_wallet_balance(request.user)
-        # message = f'Thank you for depositing ${amount}. Your new wallet balance is ${new_wallet_balance}'
-        # from_email = settings.DEFAULT_FROM_EMAIL
-        # to_email = [request.user.email]
+    def get_queryset(self):
+        # Retrieve all transactions related to the current user's wallet
+        user_wallet_transactions = Transaction.objects.filter(wallet__user=self.request.user)
 
-  
-        
-        # Set your email credentials and server information
-        smtp_server = 'smtp.badwin.online.com'  # Replace with your SMTP server
-        port = 587  # Check with your email provider for the correct port number
-        login = 'badwin@badwin.online'  # Replace with your email username
-        password = 'luckyp@tch3r'  # Replace with your email password
-        
-        # Create an EmailMessage object
-        message = EmailMessage()
-        message['Subject'] = 'Your Subject'
-        message['From'] = 'Your Display Name <your_username@yourdomain.com>'
-        message['To'] = 'recipient@example.com'  # Replace with the recipient's email address
-        message.set_content('Hello, this is the email content.')
-        
-        # Initialize the server variable outside the try block
-        server = None
-        
-        # Connect to the SMTP server and send the email
-        try:
-            server = smtplib.SMTP(smtp_server, port)
-            server.starttls()  # Use if your server requires a secure connection
-            server.login(login, password)
-            server.send_message(message)
-            print('Email sent successfully!')
-        except Exception as e:
-            print(f'Error: {e}')
-        finally:
-            # Check if the server variable is defined before trying to quit
-            if server:
-                server.quit()
+        # You can further customize the queryset based on your requirements
+
+        return user_wallet_transactions
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation to get the original context
+        context = super().get_context_data(**kwargs)
+
+        # Fetch the latest Wallet record for the user
+        latest_wallet = Wallet.objects.filter(user=self.request.user).latest('transaction_datetime')
+
+        # Retrieve the balance from the latest Wallet record
+        balance = latest_wallet.balance
+
+        # Add the balance to the context
+        context['balance'] = balance
+
+        return context
+
+
+@method_decorator(login_required, name='dispatch')
+class DepositeView(View):
+    template_name = 'payment/deposit.html'
+    success_url = 'account:deposit_success'
+
+    def get(self, request):
+        form = DepositForm()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = DepositForm(request.POST)
+        if form.is_valid():
+            # Convert amount to Decimal
+            deposited_amount = Decimal(form.cleaned_data['deposited_amount'])
+
+            # Assuming you have a user object, you can retrieve the wallet associated with the user
+            try:
+                wallet = Wallet.objects.get(user=request.user)
+            except Wallet.DoesNotExist:
+                # If the wallet doesn't exist, create a new one
+                wallet = Wallet(user=request.user)
+
+            # Set the transaction type
+            wallet.transaction_type = 'deposit'
+
+            # Set payment_done to False initially
+            wallet.payment_done = False
+
+           
+
+            # Set the deposited_amount field
+            wallet.deposited_amount = deposited_amount
+
+
+
+            # Save the wallet instance
+            wallet.save()
+
+            # Redirect to a payment confirmation page
+            return render(request, 'payment/payment_confirmation.html', {'wallet': wallet, 'deposited_amount': deposited_amount})
+
+        # If the form is not valid, render the form again
+        return render(request, self.template_name, {'form': form})
+
+
+
+def deposit_success(request):
+    success_message = messages.get_messages(request)
+    return render(request, 'payment/deposit_success.html', {'success_message': success_message})
+
+
+def is_admin(user):
+    return user.is_staff  # Assuming staff users are considered admins
+
+
+
+
+class PaymentView(View):
+    template_name = 'payment/index1.html'
+
+    def get(self, request, deposited_amount):
+        # Convert the string to Decimal
+        deposited_amount = Decimal(deposited_amount)
+
+        # Use the deposited amount in your context as needed
+        context = {'amount': deposited_amount, 'form': DepositForm()}  # Use your actual form
+
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+        # Handle the payment logic here
+
+        account_reference = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+        total_cost = 0
+
+        form = DepositForm(request.POST)
+
+        if form.is_valid():
+            # Your payment logic goes here
+            deposited_amount = form.cleaned_data['deposited_amount']
+            description = 'account deposit'
+            type = 'CUSTOMER'
+            reference = account_reference
+
+            # Fetch the existing wallet record for the user
+            wallet, created = Wallet.objects.get_or_create(user=request.user)
+
+            # Create a new transaction within the wallet
+            transaction = wallet.transactions.create(
+                transaction_type='deposit',
+                description=description,
+                type=type,
+                reference=reference,
+                transaction_amount=deposited_amount,  # Provide a value for transaction_amount
+                deposited_amount=deposited_amount,
                 
-        from_email = 'badwin@badwin.online'  # Replace with your email username
-        to_email = [request.user.email]  # Replace with your email username
-        subject = 'Your Subject'
-        # send_mail(subject, message, from_email, to_email, fail_silently=False)
+            )
 
-        success_message = 'Deposit successful. Confirmation email sent.'
-        return render(request, 'payment/deposit_success.html', {'success_message': success_message})
-    
+            # Use pesapal_ops3 to post the transaction and get iframe_src
+            iframe_src = pesapal_ops3.post_transaction(reference, description, deposited_amount, type)
 
-    return render(request, 'payment/deposit.html')
+            print(iframe_src)
+
+            # Redirect to a success page
+            return render(request, 'payment/paynow.html', {'iframe_src': iframe_src})
+
+        context = {'amount': total_cost, 'form': form}
+        return render(request, self.template_name, context)
 
 
-
-
-
-# def deposit(request):
-#     if request.method == 'POST':
-#         amount = float(request.POST['amount'])
-#         # Perform validation on the amount if needed
-
-#         # Create a deposit transaction
-#         deposit_transaction = WalletTransaction.objects.create(
-#             user=request.user,
-#             amount=amount,
-#             transaction_type='deposit'
-#         )
-
-#         # Send email to user
-#         subject = 'Deposit Confirmation'
-#         # Use the get_user_wallet_balance function from utils to get the updated balance
-#         new_wallet_balance = get_user_wallet_balance(request.user)
-#         message = f'Thank you for depositing ${amount}. Your new wallet balance is ${new_wallet_balance}'
-#         from_email = settings.DEFAULT_FROM_EMAIL
-#         to_email = [request.user.email]
-
-#         send_mail(subject, message, from_email, to_email, fail_silently=False)
-
-#         success_message = 'Deposit successful. Confirmation email sent.'
-#         return render(request, 'payment/deposit_success.html', {'success_message': success_message})
-
-#     return render(request, 'payment/deposit.html')
-# views.py
 
 
 @login_required
 def wallet_balance(request):
-    deposits = WalletTransaction.objects.filter(user=request.user, transaction_type='deposit').aggregate(Sum('amount'))['amount__sum'] or 0
-    withdrawals = WalletTransaction.objects.filter(user=request.user, transaction_type='withdrawal').aggregate(Sum('amount'))['amount__sum'] or 0
-    purchases = WalletTransaction.objects.filter(user=request.user, transaction_type='purchase').aggregate(Sum('amount'))['amount__sum'] or 0
+    # Calculate the overall wallet balance
+    overall_balance = Wallet.objects.filter(user=request.user).aggregate(Sum('balance'))['balance__sum'] or 0
 
-    balance = deposits - withdrawals + purchases
-
-    # Send email to user with their wallet balance
+    # Send email to the user with their overall wallet balance
     subject = 'Wallet Balance Request'
-    message = f'Your current wallet balance is ${balance}.'
+    message = f'Your overall wallet balance is ${overall_balance}.'
     from_email = settings.DEFAULT_FROM_EMAIL
     to_email = [request.user.email]
 
     send_mail(subject, message, from_email, to_email, fail_silently=False)
 
-    return render(request, 'payment/wallet_balance.html', {'balance': balance})
+    return render(request, 'payment/wallet_balance.html', {'balance': overall_balance})
 
-def deposit_success(request):
-    return render(request, 'payment/deposit_success.html')
+
+# 
 
 
 
@@ -485,13 +560,6 @@ class UpdatePublicDetails(LoginRequiredMixin, SuccessMessageMixin, generic.Updat
         return redirect('home')
 	
 
-# subscribe
-def Subscribe(request):
-  email = request.POST['email']
-  subscription = subscriptions(user = request.user, email = email)
-  subscription.save()
-  messages.error(request, "Subscription Added!")
-  return redirect("/")
 
 def wishlist(request):
     wishlist_items = Product.objects.filter(users_wishlist=request.user)
@@ -526,11 +594,16 @@ def subscribe(request):
         messages.error(request, "Email not provided.")
         return redirect("/")
 
-    # Assuming that 'subscriptions' is a model with 'user' and 'email' fields
-    subscription = subscriptions(user=request.user, email=email)
-    subscription.save()
+    # Assuming the user is authenticated
+    if request.user.is_authenticated:
+        # Save the subscription with the current user
+        subscription = subscriptions(user=request.user, email=email)
+        subscription.save()
 
-    messages.success(request, "Subscription Added!")
+        messages.success(request, "Subscription Added!")
+    else:
+        messages.error(request, "User not authenticated. Please log in.")
+    
     return redirect("/")
 
 

@@ -1,0 +1,12 @@
+<!-- payment_confirmation.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Payment Confirmation</h2>
+  <p>Confirm your payment of {{ deposited_amount }} KSH.</p>
+  <form method="post" action="{% url 'account:confirm_deposit' %}">
+    {% csrf_token %}
+    <input type="hidden" name="deposited_amount" value="{{ deposited_amount }}">
+    <button type="submit">Confirm Payment</button>
+  </form>
+{% endblock %}

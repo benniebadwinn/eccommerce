@@ -1,5 +1,53 @@
 from django import forms
-from moontag_app.models import Product, ProductAttribute
+from moontag_app.models import Product, ProductAttribute,Newsletter
+from account.models import subscriptions
+
+
+
+
+
+class NewsletterForm(forms.ModelForm):
+    recipients = forms.ModelMultipleChoiceField(
+        queryset=subscriptions.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
+    send_to_all = forms.BooleanField(
+        required=False,
+        initial=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+
+    class Meta:
+        model = Newsletter
+        fields = ['subject', 'content', 'recipients', 'send_to_all']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Dynamically set the choices for the recipients field
+        self.fields['recipients'].queryset = subscriptions.objects.all()
+
+        # Hide the recipients field when send_to_all is selected
+        if self.initial.get('send_to_all', False):
+            self.fields['recipients'].widget.attrs['disabled'] = True
+
+    def clean(self):
+        cleaned_data = super().clean()
+        send_to_all = cleaned_data.get('send_to_all')
+        recipients = cleaned_data.get('recipients')
+
+        if not send_to_all and not recipients:
+            # Raise a validation error if no recipients are selected
+            raise forms.ValidationError("No recipients selected. The newsletter will not be sent.")
+
+        if send_to_all:
+            # If send_to_all is selected, clear the recipients field
+            cleaned_data['recipients'] = []
+
+        return cleaned_data
+
 
 
 

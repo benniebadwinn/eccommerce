@@ -1,0 +1,15 @@
+#HomeButtons {
+    color: black;
+    background-color: #FF9900;
+    border-color: #FF9900;
+    border-radius: 6px;
+    transition: all .2s linear;
+    margin-bottom: 20px;
+}
+
+#HomeButtons:hover {
+    color: #FF9900;
+    background-color: black;
+    border-radius: 6px;
+    border-color: black;
+}

@@ -7,6 +7,7 @@ from django.db import models
 # from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model  # current user model
 from django.utils.translation import gettext_lazy as _
+from django.urls import reverse
 
 User = get_user_model()
 
@@ -44,8 +45,11 @@ class UserProfuile(models.Model):
 	
 
 class subscriptions(models.Model):
-  user = models.CharField(max_length=200)
-  email = models.CharField(max_length=200)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    email = models.EmailField()
+
+    def __str__(self):
+        return self.user.username 
 
 
 
@@ -131,12 +135,34 @@ class PickupStation(models.Model):
         return reverse('pickupstation_detail', kwargs={'pk': self.pk})
 
 
-class WalletTransaction(models.Model):
+
+class Wallet(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    transaction_type = models.CharField(max_length=20)  # 'deposit', 'withdrawal', etc.
-    timestamp = models.DateTimeField(auto_now_add=True)
+    deposited_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    transaction_type = models.CharField(max_length=20)
+    description = models.CharField(max_length=100, default='product/service purchased')
+    type = models.CharField(default='CUSTOMER', max_length=9)
+    payment_done = models.BooleanField(default=False)
+    transaction_datetime = models.DateTimeField(auto_now_add=True)
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     def __str__(self):
         return f"{self.user.username} - {self.transaction_type}"
 
+    class Meta:
+        ordering = ['-transaction_datetime']
+
+
+
+class Transaction(models.Model):
+    wallet = models.ForeignKey(Wallet, related_name='transactions', on_delete=models.CASCADE)
+    transaction_type = models.CharField(max_length=20)
+    description = models.CharField(max_length=100, default='product/service purchased')
+    type = models.CharField(default='CUSTOMER', max_length=9)
+    reference = models.CharField(max_length=6)
+    transaction_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    deposited_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    transaction_datetime = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.wallet.user.username} - {self.transaction_type}"

@@ -1,4 +1,4 @@
-from account.models import WalletTransaction
+from account.models import Wallet
 from django.db.models import Sum  # Import the Sum function
 
 
@@ -6,11 +6,11 @@ from django.db.models import Sum  # Import the Sum function
 def get_user_wallet_balance(user):
     try:
         # Calculate the sum of wallet transactions for the user
-        deposits = WalletTransaction.objects.filter(user=user, transaction_type='deposit').aggregate(Sum('amount'))['amount__sum'] or 0
-        withdrawals = WalletTransaction.objects.filter(user=user, transaction_type='withdrawal').aggregate(Sum('amount'))['amount__sum'] or 0
+        deposits = Wallet.objects.filter(user=user, transaction_type='deposit').aggregate(Sum('amount'))['amount__sum'] or 0
+        withdrawals = Wallet.objects.filter(user=user, transaction_type='withdrawal').aggregate(Sum('amount'))['amount__sum'] or 0
 
         # Calculate the sum of purchase transactions
-        purchases = WalletTransaction.objects.filter(user=user, transaction_type='purchase').aggregate(Sum('amount'))['amount__sum'] or 0
+        purchases = Wallet.objects.filter(user=user, transaction_type='purchase').aggregate(Sum('amount'))['amount__sum'] or 0
 
         # Calculate the wallet balance
         wallet_balance = deposits - withdrawals + purchases

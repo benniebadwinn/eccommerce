@@ -51,8 +51,8 @@ from django.views.generic import (
 )
 
 
-from .forms import CartAddProductForm,MpesaNumberForm,VendorForm,OrderCreateForm,CouponForm,  PickupStationForm,AddressForm,ContactForm,FeedbackForm,ReviewForm
-from .models import Category,ProductAttribute,Offer,Cart,CartProduct ,Banner,Product,CouponUsage,Coupon,Wishlist,Order,OrderItem,Address,MpesaPayment,PickupStation,OrderItem,Subscriber,ReviewRating,OfferStatus
+from .forms import CartAddProductForm,MpesaNumberForm,VendorForm,OrderCreateForm,CouponForm,NewsletterForm, subscriptions, PickupStationForm,AddressForm,ContactForm,FeedbackForm,ReviewForm
+from .models import Category,ProductAttribute,Offer,Cart,CartProduct ,Banner,Product,CouponUsage,Coupon,Wishlist,Order,OrderItem,Address,MpesaPayment,PickupStation,OrderItem,ReviewRating,OfferStatus
 # from .cart import Cart
 from django.template.loader import render_to_string
 from django.db.models import Min, Max
@@ -107,6 +107,85 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404
 from django.http import Http404
 from .models import ChatRoom, Message
+from account.models import subscriptions  # Add this line
+from moontag_app.models import Newsletter
+
+
+def adminpanel(request):
+    return render(request, 'adminpanel/adminpanel.html')
+
+
+
+class SendNewsletterView(View):
+    template_name = 'newsletter/send_newsletter.html'
+
+    def get(self, request):
+        form = NewsletterForm()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = NewsletterForm(request.POST)
+        if form.is_valid():
+            sender = request.user
+            recipients = form.cleaned_data['recipients']
+
+            print(f"Sender: {sender}")
+            print(f"Recipients: {recipients}")
+
+            newsletter = form.save(commit=False)
+            newsletter.sender = sender
+            newsletter.save()
+
+            # Check if any recipients are selected or send_to_all is True
+            if recipients or form.cleaned_data['send_to_all']:
+                # Send the newsletter using Django's send_mail function
+                subject = newsletter.subject
+                message = newsletter.content
+                recipient_emails = [user.email for user in recipients]
+
+                try:
+                    # Sending logic here (modify as per your requirements)
+                    if form.cleaned_data['send_to_all']:
+                        # Send the newsletter to all subscribers
+                        recipient_emails = [subscriber.email for subscriber in subscriptions.objects.all()]
+                        send_mail(
+                            subject,
+                            message,
+                            'sender@example.com',  # Replace with your actual sender email
+                            recipient_emails,
+                            fail_silently=False,
+                        )
+                    elif recipients:
+                        # Send the newsletter to selected recipients
+                        send_mail(
+                            subject,
+                            message,
+                            'sender@example.com',  # Replace with your actual sender email
+                            recipient_emails,
+                            fail_silently=False,
+                        )
+
+                    # Mark the newsletter as sent after successfully sending
+                    newsletter.sent_at = timezone.now()
+                    newsletter.save()
+
+                    # Display success message on the same page
+                    messages.success(request, 'Newsletter sent successfully!')
+                    return render(request, self.template_name, {'form': NewsletterForm()})
+
+                except Exception as e:
+                    print(f"An error occurred while sending the newsletter: {e}")
+                    messages.error(request, f'Error sending newsletter. Details: {e}')
+
+            else:
+                # Handle the case when no recipients are selected
+                print("No recipients selected. The newsletter will not be sent.")
+                messages.warning(request, 'No recipients selected. The newsletter will not be sent.')
+
+        return render(request, self.template_name, {'form': form})
+
+
+
 
 
 def get_chatrooms_with_last_message():
@@ -132,7 +211,7 @@ def get_chatrooms_with_last_message():
 def index(request):
     user = request.user
     if not user.is_authenticated:
-        return redirect('login')
+        return redirect('account:login')
     chat_rooms = get_chatrooms_with_last_message()
     
     return render(request, 'account/index.html', context={'chat_rooms': chat_rooms})
@@ -1764,6 +1843,59 @@ def paypal(request):
 
 
 @method_decorator(login_required(login_url='login:user_login_page'), name='dispatch')
+# class CouponAddView(View):
+#     template_name = 'orders/create.html'
+
+#     @transaction.atomic
+#     def post(self, *args, **kwargs):
+#         form = CouponForm(self.request.POST or None)
+
+#         if form.is_valid():
+#             code = form.cleaned_data.get('code')
+
+#             if 'cartdata' in self.request.session:
+#                 cartdata = self.request.session['cartdata']
+#             else:
+#                 # Handle case where 'cartdata' is not present in the session
+#                 cartdata = {}
+
+#             coupon = get_coupon(self.request, code)
+
+#             if not coupon:
+#                 messages.error(self.request, "Invalid coupon code. Please try again.")
+#                 return JsonResponse({'success': False, 'message': 'Invalid coupon code'})
+
+#             discount_amount = coupon.value
+
+#             # Apply coupon to cartdata
+#             for item in cartdata.values():
+#                 # Check if 'total_price' key exists in the item
+#                 if 'total_price' in item:
+#                     # Assuming 'qty' key exists in each item
+#                     item['total_price'] -= discount_amount * item.get('qty', 0)
+
+#             # Store coupon information in the session
+#             self.request.session['coupon_code'] = coupon.code
+#             self.request.session['coupon_amount'] = discount_amount
+#             self.request.session.modified = True
+
+#             # Update coupon usage
+#             coupon.used += 1
+#             coupon.save()
+
+#             messages.success(self.request, f"Successfully added coupon '{coupon.code}' with a value of {discount_amount} to cart")
+
+#             # Include print statements for debugging
+#             print(f"Coupon Code: {coupon.code}")
+#             print(f"Coupon Amount: {discount_amount}")
+
+#             return redirect(self.request.META.get('HTTP_REFERER', 'shop:order_create'))
+
+#         else:
+#             messages.error(self.request, "Invalid form submission. Please try again.")
+#             return JsonResponse({'success': False, 'errors': form.errors})
+
+
 class CouponAddView(View):
     template_name = 'orders/create.html'
 
@@ -1772,27 +1904,38 @@ class CouponAddView(View):
         form = CouponForm(self.request.POST or None)
 
         if form.is_valid():
+            # Step 1: Print statement to check entered coupon code
             code = form.cleaned_data.get('code')
+            print(f"Entered Coupon Code: {code}")
 
-            if 'cartdata' in self.request.session:
-                cartdata = self.request.session['cartdata']
-            else:
-                # Handle case where 'cartdata' is not present in the session
-                cartdata = {}
-
-            coupon = get_coupon(self.request, code)
+            # Step 2: Your logic to retrieve the coupon
+            try:
+                coupon = Coupon.objects.get(code=code)
+                print(f"Retrieved Coupon: {coupon}")
+            except Coupon.DoesNotExist:
+                coupon = None
+                print("Coupon not found in the database.")
 
             if not coupon:
                 messages.error(self.request, "Invalid coupon code. Please try again.")
-                return JsonResponse({'success': False, 'message': 'Invalid coupon code'})
+                return redirect(self.request.META.get('HTTP_REFERER', 'shop:order_create'))
+
+            # Step 3: Check if the coupon has already been used in this session
+            if 'coupon_code' in self.request.session and self.request.session['coupon_code'] == coupon.code:
+                messages.error(self.request, "Coupon has already been used in this session.")
+                return redirect(self.request.META.get('HTTP_REFERER', 'shop:order_create'))
+
+            # Step 4: Check if the coupon is valid (you might have additional validation criteria)
+            if not coupon.is_active:
+                messages.error(self.request, "Coupon is not active. Please try again.")
+                return redirect(self.request.META.get('HTTP_REFERER', 'shop:order_create'))
 
             discount_amount = coupon.value
 
-            # Apply coupon to cartdata
+            # Apply coupon to cartdata (replace with your logic)
+            cartdata = self.request.session.get('cartdata', {})
             for item in cartdata.values():
-                # Check if 'total_price' key exists in the item
                 if 'total_price' in item:
-                    # Assuming 'qty' key exists in each item
                     item['total_price'] -= discount_amount * item.get('qty', 0)
 
             # Store coupon information in the session
@@ -1800,24 +1943,22 @@ class CouponAddView(View):
             self.request.session['coupon_amount'] = discount_amount
             self.request.session.modified = True
 
-            # Update coupon usage
+            # Update coupon usage (replace with your logic)
             coupon.used += 1
             coupon.save()
 
             messages.success(self.request, f"Successfully added coupon '{coupon.code}' with a value of {discount_amount} to cart")
 
-            # Include print statements for debugging
+            # Step 5: Print statements for debugging
             print(f"Coupon Code: {coupon.code}")
             print(f"Coupon Amount: {discount_amount}")
 
             return redirect(self.request.META.get('HTTP_REFERER', 'shop:order_create'))
 
         else:
-            messages.error(self.request, "Invalid form submission. Please try again.")
-            return JsonResponse({'success': False, 'errors': form.errors})
-
-
-
+            # Handle case where form is not valid (e.g., no code entered)
+            messages.error(self.request, "Invalid form submission. Please enter a coupon code.")
+            return redirect(self.request.META.get('HTTP_REFERER', 'shop:order_create'))
 
 
 @csrf_exempt

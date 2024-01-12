@@ -24,7 +24,7 @@
         margin-bottom: 20px;
     }
   </style>
-{% endblock %}
+{% endblock head %}
 
 {% block content %}
   <h3>{{ room_name }}</h3>
@@ -83,7 +83,7 @@
             <i class="fa fa-paper-plane fa-fw"></i>
             <span class="d-none d-sm-inline"> Send</span>
           </button>
-        
+
           <script>
             // Add keypress event listener to the document
             document.addEventListener('keypress', function(event) {
@@ -105,9 +105,14 @@
     // Variables passed through template
     const roomName = JSON.parse(document.getElementById('room-name').textContent);
     const user_username = JSON.parse(document.getElementById('user_username').textContent);
-    
+
     // Connect WebSocket
     const chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
+    // 
+    
+    
+    // const chatSocket = new WebSocket(`wss://f978-197-232-61-230.ngrok-free.app/ws/chat/${roomName}/`);
+
 
     // Receive new messages from Web Socket
     chatSocket.onmessage = function (e) {
@@ -120,7 +125,7 @@
                   <div class="message-content">
                     <small style="font-size: 13px;">${message.username}</small>
                     <p class="mb-1">${message.message}</p>
-                    <small style="font-size: 11px;">${new Date()}</small>                
+                    <small style="font-size: 11px;">${new Date()}</small>
                   </div>
               </div>
           </div>

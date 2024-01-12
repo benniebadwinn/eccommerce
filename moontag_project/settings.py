@@ -19,9 +19,9 @@ SECRET_KEY = 'django-insecure-0tax$akm$_6h9&!vh=lnf!lv#v@n*ys(6t9qr5ssrk$a5wt$)y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = int(os.environ.get('DEBUG', default=True))
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
-CSRF_TRUSTED_ORIGINS=['https://64f1-197-232-76-74.ngrok-free.app']
+CSRF_TRUSTED_ORIGINS=['https://fda9-197-232-61-208.ngrok-free.app']
 
 SECURE_CROSS_ORIGIN_OPENER_POLICY='same-origin-allow-popups'
 
@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'crispy_forms',
     'account',
     'social_django',
-    
     'channels',
     
 ]
@@ -251,9 +250,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 ASGI_APPLICATION = "moontag_project.routing.application"
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
     },
 }
 
+PESAPAL_TRANSACTION_DEFAULT_REDIRECT_URL = 'payment:pesapal_callback'  # this needs to be a reversible
