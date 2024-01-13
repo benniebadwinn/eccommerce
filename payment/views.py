@@ -182,7 +182,9 @@ def purchase_via_wallet(request):
     total_price = sum(item.total for item in order.items.all())
 
     # Retrieve the user's wallet balance
-    wallet_balance = get_user_wallet_balance(request.user)
+    # wallet_balance = get_user_wallet_balance(request.user)
+        # Calculate the overall wallet balance
+    wallet_balance = Wallet.objects.filter(user=request.user).aggregate(Sum('balance'))['balance__sum'] or 0
 
     if wallet_balance >= total_price:
         # Sufficient balance in the wallet, proceed with the purchase
@@ -202,14 +204,14 @@ def purchase_via_wallet(request):
             )
 
         # Deduct the purchase amount from the wallet balance
-        WalletTransaction.objects.create(
+        Wallet.objects.create(
             user=request.user,
-            amount=-total_price,
+            balance=-total_price,
             transaction_type='purchase',
         )
 
         # Calculate the remaining wallet balance after the purchase
-        remaining_balance = get_user_wallet_balance(request.user)
+        remaining_balance = Wallet.objects.filter(user=request.user).aggregate(Sum('balance'))['balance__sum'] or 0
 
         # Send email to user
         subject = 'Purchase Confirmation'
@@ -224,11 +226,11 @@ def purchase_via_wallet(request):
         request.session.modified = True
 
         messages.success(request, 'Purchase successful. Amount deducted from wallet.')
-        return HttpResponseRedirect(reverse('payment:purchase_success'))  # Redirect to a success page
+        return HttpResponseRedirect(reverse('shop:home'))  # Redirect to a success page
     else:
         # Insufficient balance in the wallet
         messages.error(request, 'Insufficient balance in the wallet. Please deposit more funds.')
-        return HttpResponseRedirect(reverse('payment:insufficient_balance'))  # Redirect to a page indicating insufficient balance
+        return HttpResponseRedirect(reverse('account:deposit'))  # Redirect to a page indicating insufficient balance
 
 
 

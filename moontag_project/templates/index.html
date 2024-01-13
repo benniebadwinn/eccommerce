@@ -169,6 +169,11 @@
                                                 </div>
                                                 <div class="slide-down-box">
                                                     <p class="message">{{product.specs}}.</p>
+                                                {% if product.product_attribute %}
+                                                    <p>Stock: {{ product.product_attribute.stock }}</p>
+                                                {% else %}
+                                                    <p>Stock information not available</p>
+                                                {% endif %}
                                                     <div class="buttons">
                                                         {% if in_wishlist %}
                                                         <a href="{% url 'login:wishlist_product_toggle' product.id %}" pid="{{product.id}}" class="plus-wishlist btn">

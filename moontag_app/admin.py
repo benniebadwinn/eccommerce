@@ -6,43 +6,11 @@ from django.utils.translation import gettext_lazy as _
 
 
 
-# Register your models here.
-
-
-# class BannerAdmin(admin.ModelAdmin):
-#     list_display = ('text','image_tag')
-# admin.site.register(Banner, BannerAdmin)
-
-# class CategoryAdmin(admin.ModelAdmin):
-#     list_display = ('title','image_tag')
-# admin.site.register(Category, CategoryAdmin)
-
-# class ColorAdmin(admin.ModelAdmin):
-#     list_display = ('title','color_tag')
-# admin.site.register(Color,ColorAdmin)
-
-
-
-# class ProductAttributeAdmin(admin.ModelAdmin):
-#     list_display = ('id','image_tag','product','price','color','size')
-# admin.site.register(ProductAttribute, ProductAttributeAdmin)
-
-# class CartOrderAdmin(admin.ModelAdmin):
-#     list_display = ('user','total_amt','paid_status','order_dt')
-# admin.site.register(CartOrder, CartOrderAdmin)
-
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ('in_num','product','image_tag','quantity','price','total')
     # raw_id_fields = ['product']
 admin.site.register(OrderItem, OrderItemAdmin)
 
-# class ProductReviewAdmin(admin.ModelAdmin):
-#     list_display = ('user','product','review_text','review_rating')
-# admin.site.register(ProductReview, ProductReviewAdmin)
-
-# class VendorsAdmin(admin.ModelAdmin):
-#     list_display = ('user','store_name','company_name','business_email')
-# admin.site.register(Vendors, VendorsAdmin)
 
 class WithrawAdmin(admin.ModelAdmin):
     list_display = ('user','amount')
@@ -51,33 +19,6 @@ admin.site.register(Withraw, WithrawAdmin)
 class TodoAdmin(admin.ModelAdmin):
     list_display = ('user','todo')
 admin.site.register(Todo, TodoAdmin)
-
-# class VendorAddProductAdmin(admin.ModelAdmin):
-#     list_display = ('user','product')
-# admin.site.register(VendorAddProduct, VendorAddProductAdmin)
-
-# class WishlistAdmin(admin.ModelAdmin):
-#     list_display = ('user','product')
-# admin.site.register(Wishlist, WishlistAdmin)
-
-# class BrandAdmin(admin.ModelAdmin):
-#     list_display = ('title',)
-# admin.site.register(Brand, BrandAdmin)
-
-# class SizeAdmin(admin.ModelAdmin):
-#     list_display = ('title',)
-# admin.site.register(Size, SizeAdmin)
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -93,18 +34,11 @@ admin.site.register(Category, CategoryAdmin)
 
 
 
-# @admin.register(Product)
-# class ProductAdmin(admin.ModelAdmin):
-#     list_display = ['title', 'slug',
-#                     'available', 'created', 'updated']
-#     list_filter = ['available', 'created', 'updated']
-#     list_editable = [ 'available']
-#     prepopulated_fields = {'slug': ('title',)}
 
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('id','title','category','brand','status','is_featured','is_data3') # its a tuple but i will remember the name list better
-    list_editable = ('status','is_featured')
+    list_display = ('id','title','category','brand','is_featured','is_data3') # its a tuple but i will remember the name list better
+    
 admin.site.register(Product, ProductAdmin)
 
 

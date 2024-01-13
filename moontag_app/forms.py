@@ -54,7 +54,7 @@ class NewsletterForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['slug','detail','specs','category','brand','status','is_featured']
+        fields = ['slug','specs','category','brand','is_featured']
 
 
 # class ProductAttributeForm(forms.ModelForm):

@@ -23,6 +23,7 @@ import json
 from datetime import datetime
 import logging
 from django.utils.html import strip_tags
+from django.core.exceptions import ValidationError
 
 
 
@@ -230,86 +231,6 @@ def room(request, room_name):
 
 
 
-def register1(request,staff=False):
-    """
-    Register + Welcome email + Confirm email (the rdirect from here is to login)
-    """
-    if request.method == "POST":
-        username = request.POST['username']
-        fname = request.POST['fname']
-        lname = request.POST['lname']
-        email = request.POST['email']
-        pass1 = request.POST['pass1']
-        pass2 = request.POST['pass2']
-        # User checks for regisretions
-        if User.objects.filter(username=username):
-            messages.error(request, "Username already exist! Try other username")
-            return redirect('home')
-
-        if User.objects.filter(email=email):
-            messages.error(request, "The Email already exist! try new email")
-            return redirect('home')
-
-        if len(username) > 20:
-            messages.error(request, "user name must be less than 20 charecters")
-
-        if pass1 != pass2:
-            messages.error(request, "Password didn't match!")
-        #end
-
-        if staff == True:
-            myuser = User.objects.create_user(username, email, pass1,is_superuser=staff,is_staff=staff)
-            myuser.first_name = fname
-            myuser.last_name = lname
-            myuser.is_active = False
-            myuser.save()
-        else:
-            myuser = User.objects.create_user(username, email, pass1)
-            myuser.first_name = fname
-            myuser.last_name = lname
-            myuser.is_active = False
-            myuser.save()
-
-        messages.success(request, "Your Account successfully created, We have sent you a confirmation email, please confirm your email adress for activate your account")
-
-        # Welcome email
-        subject = "Welcome to the biggest brand Moontag"
-        message = "Hello " + myuser.first_name + "!! \n" + "Welcome to Moontag  \n We have sent you a confirmation email, please confirm your email adress for activate your account \n\n Thank you ! \n Moontag Brand "
-        from_email = settings.EMAIL_HOST_USER
-        to_list = [myuser.email]
-        send_mail(subject, message, from_email, to_list, fail_silently=True)
-
-        # Email Adress confirm
-        current_site = get_current_site(request)
-        email_subject = "Confirm your email @ moontag - django login!"
-        message2 = render_to_string('email_confirmation.html',{
-            'name': myuser.first_name,
-            'domain': current_site.domain,
-            'uid': urlsafe_base64_encode(force_bytes(myuser.pk)),
-            'token': generate_token.make_token(myuser)  
-        })
-        email = EmailMessage(
-            email_subject,
-            message2,
-            settings.EMAIL_HOST_USER,
-            [myuser.email]
-        )
-        email.fail_silently = True
-        email.send()
-
-        return redirect('login1')
-    if staff == True:
-        staff_html = 'Staff'
-    else:
-        staff_html = ' '
-
-    return render(request,'register.html',{'staff':staff_html})
-
-
-
-
-
-
 
 def categories(request):
     """
@@ -399,29 +320,54 @@ def filter_data(request):
 
 def add_to_cart(request):
     """
-    Add to cart function also with help of ajax and Javascript
+    Add to cart function also with the help of AJAX and JavaScript
     """
-    cart_product = {}
-    cart_product[str(request.GET['id'])] = {
-        'img':request.GET['img'],
-        'title':request.GET['title'],
-        'qty':request.GET['qty'],
-        'price':request.GET['price'],
-    }
+    product_id = str(request.GET.get('id'))
+    try:
+        product_attribute = get_object_or_404(ProductAttribute, id=product_id)
+        print(f"Product ID: {product_id}")
+        print(f"Product Attribute: {product_attribute}")
 
-    if 'cartdata' in request.session:
-        if str(request.GET['id']) in request.session['cartdata']:
-            cart_data = request.session['cartdata']
-            cart_data[str(request.GET['id'])]['qty'] = int(cart_product[str(request.GET['id'])]['qty']) # For get the qty from the user
-            cart_data.update(cart_data)
-            request.session['cartdata'] = cart_data
+        if product_attribute.stock > 0:
+            print(f"Stock level: {product_attribute.stock}")
+
+            cart_product = {}
+            cart_product[str(request.GET['id'])] = {
+                'img': request.GET['img'],
+                'title': request.GET['title'],
+                'qty': request.GET['qty'],
+                'price': request.GET['price'],
+            }
+
+            print("Adding to cart...")
+
+            if 'cartdata' in request.session:
+                if product_id in request.session['cartdata']:
+                    cart_data = request.session['cartdata']
+                    cart_data[product_id]['qty']
+                    request.session['cartdata'] = cart_data
+                else:
+                    cart_data = request.session['cartdata']
+                    cart_data.update(cart_product)
+                    request.session['cartdata'] = cart_data
+            else:
+                request.session['cartdata'] = cart_product
+
+            print("Cart updated successfully.")
+
+            return JsonResponse({'data': request.session['cartdata'], 'total_items': len(request.session['cartdata'])})
         else:
-            cart_data = request.session['cartdata'] # getting the data
-            cart_data.update(cart_product) # if dict not exist the update add him to the dict that exict
-            request.session['cartdata'] = cart_data # adding in the session
-    else:
-        request.session['cartdata'] = cart_product
-    return JsonResponse({'data':request.session['cartdata'],'total_items':len(request.session['cartdata'])})
+            error_message = 'Insufficient stock'
+            print(f"Error: {error_message}")
+            
+            return render(request, 'index.html', {'error_message': error_message})
+    except ProductAttribute.DoesNotExist:
+        error_message = 'Product not found'
+        print(f"Error: {error_message}")
+        return render(request, 'index.html', {'error_message': error_message})
+    
+
+
 
 
 
@@ -991,23 +937,25 @@ def home(request, offer_id=None):
     if request.user.id:
         in_wishlist = ProductAttribute.objects.filter(users_wishlist=request.user).exists()
 
-    # Fetch featured products
+    # Fetch featured products with associated ProductAttribute and stock level
     featured_products = Product.objects.filter(is_featured=True).order_by('-id')
+    for product in featured_products:
+        product.product_attribute = ProductAttribute.objects.filter(product=product).first()
 
-
-
-    # Fetch top-rated products (assuming you have a field for rating)
+    # Fetch top-rated products with associated ProductAttribute and stock level
     top_rated_products = Product.objects.filter(top_rated=True).order_by('-id')
-    
+    for product in top_rated_products:
+        product.product_attribute = ProductAttribute.objects.filter(product=product).first()
 
-    # Fetch new products (assuming you have a created field to determine newness)
-    new_products = Product.objects.order_by('-created')[:10]  # Adjust the number as needed
+    # Fetch new products with associated ProductAttribute and stock level
+    new_products = Product.objects.order_by('-created')[:10]
+    for product in new_products:
+        product.product_attribute = ProductAttribute.objects.filter(product=product).first()
 
-    # Fetch most selling products based on the number of orders
-    # most_selling_products = Product.objects.annotate(order_count=Count('order__product')).order_by('-order_count')[:10]
-
-    # Fetch most visited products
+    # Fetch most visited products with associated ProductAttribute and stock level
     most_visited_products = Product.objects.order_by('-view_count')[:10]
+    for product in most_visited_products:
+        product.product_attribute = ProductAttribute.objects.filter(product=product).first()
 
     category_data = Category.objects.all().order_by('-id')
     # sub_category_data = Sub_Category.objects.all().order_by('-id')
@@ -1178,53 +1126,6 @@ class ReturnPolicyView(TemplateView):
 
 
 
-# class EmailValidateView(DetailView):
-# 	model = Subscriber
-# 	template_name = 'index.html'
-# 	context_object_name = 'email'
-
-# 	def get_context_data(self, **kwargs):
-# 		context = super().get_context_data(**kwargs)
-# 		context['title'] = 'Email Validation'
-# 		return context
-
-# 	def get_object(self, *args, **kwargs):
-# 		email = self.request.GET.get('email')
-# 		if Subscriber.objects.filter(email=email).exists():
-# 			res = JsonResponse({'msg': 'Email already exists'})
-# 			return res
-# 		else:
-# 			res = JsonResponse({'msg': 'Email does not exists'})
-# 			return res
-
-
-# class FeedbackView(CreateView):
-# 	template_name = 'feedback.html'
-# 	form_class = FeedbackForm
-# 	success_url = reverse_lazy('feedback')
-
-# 	def form_valid(self, form):
-# 		form.save()
-# 		return super().form_valid(form)
-
-# 	def form_invalid(self, form):
-# 		return super().form_invalid(form)
-
-# 	def get_context_data(self, **kwargs):
-# 		context = super().get_context_data(**kwargs)
-# 		context['title'] = 'Feedback'
-# 		return context
-
-# 	def send_mail(self, form):
-# 		subject = form.cleaned_data['subject']
-# 		from_email = form.cleaned_data['from_email']
-# 		if subject and from_email:
-# 			try:
-# 				send_mail(subject, message, from_email, [''])
-# 			except BadHeaderError:
-# 				return HttpResponse('Invalid header found.')
-
-
 class ContactView(CreateView):
 	template_name = 'contact.html'
 	form_class = ContactForm
@@ -1253,55 +1154,6 @@ class ContactView(CreateView):
 
 
    
-    
-
-# class ProductCreateView( CreateView):
-#     model = Product
-#     fields = ['name', 'category', 'description', 'price', 'available', 'image']
-#     template_name = 'shop/product/create.html'
-#     success_url = reverse_lazy('shop:product_list')
-    
-#     def form_valid(self, form):
-#         form.instance.owner = self.request.user
-#         return super().form_valid(form)
-
-
-  
-
-# class ProductCreateView( CreateView):
-#     model = Product
-#     fields = ['name', 'category', 'description', 'price', 'available', 'image']
-#     template_name = 'shop/product/create.html'
-#     success_url = reverse_lazy('shop:product_list')
-    
-#     def form_valid(self, form):
-#         form.instance.owner = self.request.user
-#         return super().form_valid(form)
-
-
-
-# class ProductUpdateView( UpdateView):
-#     model = Product
-#     fields = ['name', 'category', 'description', 'price', 'available', 'image']
-#     template_name = 'shop/product/update.html'
-#     success_url = reverse_lazy('shop:product_list')
-    
-#     def form_valid(self, form):
-#         form.instance.owner = self.request.user
-#         return super().form_valid(form)
-
-
-# class ProductDeleteView( DeleteView):
-#     model = Product
-#     template_name = 'shop/product/delete.html'
-#     success_url = reverse_lazy('shop:product_list')
-    
-#     def get_queryset(self):
-#         queryset = super().get_queryset()
-#         return queryset.filter(owner=self.request.user)
-
-
-
 
 
 
@@ -1322,113 +1174,6 @@ class OrderSummaryView( View):
             return redirect("/")
 
    
-
-
-
-
-# # def add_to_cart(request):
-# #     """
-# #     Add to cart function also with help of ajax and Javascript
-# #     """
-# #     cart_product = {}
-# #     cart_product[str(request.GET['id'])] = {
-# #         'image':request.GET['image'],
-# #         'name':request.GET['name'],
-# #         'quantity':request.GET['quantity'],
-# #         'price':request.GET['price'],
-# #     }
-
-# #     if 'cartdata' in request.session:
-# #         if str(request.GET['id']) in request.session['cartdata']:
-# #             cart_data = request.session['cartdata']
-# #             cart_data[str(request.GET['id'])]['quantity'] = int(cart_product[str(request.GET['id'])]['quantity']) # For get the qty from the user
-# #             cart_data.update(cart_data)
-# #             request.session['cartdata'] = cart_data
-# #         else:
-# #             cart_data = request.session['cartdata'] # getting the data
-# #             cart_data.update(cart_product) # if dict not exist the update add him to the dict that exict
-# #             request.session['cartdata'] = cart_data # adding in the session
-# #     else:
-# #         request.session['cartdata'] = cart_product
-# #     return JsonResponse({'data':request.session['cartdata'],'total_items':len(request.session['cartdata'])})
-
-# #     def get_subtotal(self, cart_product):
-# #         # Calculate subtotal considering the discounted price if available
-# #         if cart_product.product.discountprice:
-# #             return cart_product.quantity * cart_product.product.discountprice
-# #         else:
-# #             return cart_product.quantity * cart_product.price
-
-
-
-# def add_to_cart(request):
-#     """
-#     Add to cart function also with help of ajax and Javascript
-#     """
-#     cart_product = {}
-#     cart_product[str(request.GET['id'])] = {
-#         'img':request.GET['img'],
-#         'title':request.GET['title'],
-#         'qty':request.GET['qty'],
-#         'price':request.GET['price'],
-#     }
-
-#     if 'cart' in request.session:
-#         if str(request.GET['id']) in request.session['cart']:
-#             cart = request.session['cart']
-#             cart[str(request.GET['id'])]['qty'] = int(cart_product[str(request.GET['id'])]['qty']) # For get the qty from the user
-#             cart.update(cart)
-#             request.session['cart'] = cart
-#         else:
-#             cart = request.session['cart'] # getting the data
-#             cart.update(cart_product) # if dict not exist the update add him to the dict that exict
-#             request.session['cart'] = cart # adding in the session
-#     else:
-#         request.session['cart'] = cart_product
-#     return JsonResponse({'data':request.session['cart'],'total_items':len(request.session['cart'])})
-
-
-
-
-# class ManageCartView(View):
-#     def get(self, request, *args, **kwargs):
-#         cp_id = self.kwargs["cp_id"]
-#         action = request.GET.get("action")
-#         cp_obj = get_object_or_404(CartProduct, id=cp_id)
-#         cart_obj = cp_obj.cart
-
-#         # Store the previous subtotal before updating the quantity
-#         prev_subtotal = cp_obj.subtotal
-
-#         if action == "inc":
-#             cp_obj.quantity += 1
-#         elif action == "dcr":
-#             cp_obj.quantity = max(1, cp_obj.quantity - 1)
-#         elif action == "rmv":
-#             cp_obj.quantity = 0
-
-#         cp_obj.subtotal = self.get_subtotal(cp_obj)
-#         cp_obj.save()
-
-#         # Subtract the previous subtotal and add the new one to update the cart total
-#         cart_obj.total -= prev_subtotal
-#         cart_obj.total += cp_obj.subtotal
-#         cart_obj.save()
-
-#         # Print details for debugging
-#         print(f"Action: {action}")
-#         print(f"Previous Subtotal: ${prev_subtotal}")
-#         print(f"New Subtotal: ${cp_obj.subtotal}")
-
-#         # Redirect to the cart page
-#         return redirect("shop:mycart")
-
-#     def get_subtotal(self, cart_product):
-#         # Calculate subtotal considering the discounted price if available
-#         if cart_product.product.discount_price:
-#             return cart_product.quantity * cart_product.product.discount_price
-#         else:
-#             return cart_product.quantity * cart_product.price
 
 
 
@@ -1474,156 +1219,6 @@ class ManageCartView(View):
 
 
 
-# class EmptyCartView(View):
-#     def get(self, request, *args, **kwargs):
-#         cart_id = request.session.get("cart_id", None)
-#         if cart_id:
-#             cart = get_object_or_404(Cart, id=cart_id)
-#             cart.cartproduct_set.all().delete()
-            
-#             # Update the 'total' field in the 'Cart' object
-#             cart.total = 0
-#             cart.save()
-
-#             return redirect("shop:mycart")
-
-
-
-
-# class MyCartView(TemplateView):
-#     template_name = "cart/detail.html"
-    
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         cart_id = self.request.session.get("cart_id", None)
-
-#         if cart_id:
-#             try:
-#                 cart = Cart.objects.get(id=cart_id)
-#                 context['cart'] = cart
-
-#                 # Calculate subtotal for each item in the cart
-#                 cart_items = cart.cartproduct_set.all()
-#                 for item in cart_items:
-#                     item.subtotal = self.get_subtotal(item)
-
-#                 context['cart_items'] = cart_items
-#                 context['debug_cart_items'] = [{'name': item.product.product.name, 'subtotal': item.subtotal} for item in cart_items]
-
-#             except Cart.DoesNotExist:
-#                 cart = None
-#         else:
-#             cart = None
-
-#         context['cart'] = cart
-#         context['total_items'] = cart.total_items() if cart else 0
-        
-
-#         return context
-    
-
-
-#     def get_subtotal(self, cart_product):
-#         # Calculate subtotal considering the discounted price if available
-#         if cart_product.product.discountprice:
-#             subtotal = cart_product.quantity * cart_product.product.discountprice
-#             print(f"Discounted Subtotal: {subtotal}")
-#             return subtotal
-#         else:
-#             subtotal = cart_product.quantity * cart_product.product.price
-#             print(f"Original Subtotal: {subtotal}")
-#             return subtotal
-    
-    
-    
-
-# # orders
-# @method_decorator(login_required(login_url='login:user_login_page'), name='dispatch')
-# class ConfirmShippingAddressView(FormView):
-#     template_name = 'orders/shipping_address.html'
-#     form_class = PickupStationForm
-#     success_url = reverse_lazy('shop:order_create')
-
-#     def get_form_kwargs(self):
-#         kwargs = super().get_form_kwargs()
-#         kwargs['request'] = self.request
-#         return kwargs
-
-#     def form_valid(self, form):
-#         print(form.cleaned_data.keys())
-#         pickup_station = form.cleaned_data['pickup_station']
-
-#         if pickup_station == 'Dropped at a Pickup Station':
-#             # If the user selected a pickup station, access its ID
-#             pickup_station_id = form.cleaned_data['pickup_station_hidden']
-#             self.request.session['pickup_station'] = int(pickup_station_id) if pickup_station_id else None
-#         else:
-#             # Handle other cases (e.g., home/office delivery)
-#             self.request.session['pickup_station'] = None
-
-#         return super().form_valid(form)
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-
-#         # Retrieve all orders that match the specified criteria
-#         orders = Order.objects.filter(user=self.request.user, ordered=False)
-
-#         # If you want to get the latest order, you can order the queryset by some field (e.g., date_created)
-#         order = orders.order_by('-created').first()
-
-#         # Add the order object to the context
-#         context['object'] = order
-#         context['address'] = Address.objects.filter(user=self.request.user).first()
-#         context['couponform'] = CouponForm()
-#         context['SHOW_COUPON_FORM'] = True
-
-
-#         # Fetch and pass cart details to the template
-#         cart_id = self.request.session.get('cart_id')
-#         cart_items = []
-        
-#         if cart_id:
-#             try:
-#                 cart = Cart.objects.get(id=cart_id)
-#                 context['cart'] = cart
-        
-#                 # Calculate subtotal for each item in the cart
-#                 cart_items = cart.cartproduct_set.all()
-#                 for item in cart_items:
-#                     item.subtotal = self.get_subtotal(item)
-        
-#                 context['debug_cart_items'] = [{'name': item.product.product.name, 'subtotal': item.subtotal} for item in cart_items]
-        
-#             except Cart.DoesNotExist:
-#                 cart = None
-        
-#         context['cart_items'] = list(cart_items)
-#         context['total_items'] = cart.total_items() if cart else 0
-        
-#         return context
-    
-
-#     def get_subtotal(self, cart_product):
-#             # Calculate subtotal considering the discounted price if available
-#             if cart_product.product.discount_price:
-#                 subtotal = cart_product.quantity * cart_product.product.discount_price
-#                 print(f"Discounted Subtotal: {subtotal}")
-#                 return subtotal
-#             else:
-#                 subtotal = cart_product.quantity * cart_product.product.price
-#                 print(f"Original Subtotal: {subtotal}")
-#                 return subtotal
-
-    
-
-
-
-
-
-
-
-
 
 @method_decorator(login_required(login_url='account:login'), name='dispatch')
 class OrderCreateView(CreateView):
@@ -1664,8 +1259,8 @@ class OrderCreateView(CreateView):
 
         return context
 
+    @transaction.atomic
     def form_valid(self, form):
-        print("Form is valid. Executing form_valid method.")
         order = form.save(commit=False)
         order.user = self.request.user
         order.address = Address.objects.filter(user=self.request.user).first()
@@ -1673,10 +1268,8 @@ class OrderCreateView(CreateView):
         if pickup_station_id:
             order.pickup_station = get_object_or_404(PickupStation, id=pickup_station_id)
 
-        # Calculate total price from cart_data
         total_price = sum(int(item['qty']) * float(item['price']) for item in self.request.session.get('cartdata', {}).values())
 
-        # Check if a coupon is applied
         coupon_code = self.request.session.get('coupon_code')
         coupon_amount = 0
 
@@ -1685,53 +1278,41 @@ class OrderCreateView(CreateView):
             if coupon:
                 coupon_amount = coupon.value
 
-        # Include coupon amount in the total price
         total_amount_before_coupon = total_price
         total_amount_after_coupon = total_price - coupon_amount
-
-        print(f"Total Price: {total_price}")
-        print(f"Coupon Code: {coupon_code}")
-        print(f"Coupon Value: {coupon_amount}")
-        print(f"Coupon Amount in Session Data: {self.request.session.get('coupon_amount', 0)}")
-        print(f"Total Amount Before Coupon: {total_amount_before_coupon}")
-        print(f"Total Amount After Coupon: {total_amount_after_coupon}")
 
         order.total_amount = total_amount_after_coupon
         order.save()
 
         for p_id, item in self.request.session.get('cartdata', {}).items():
-            items = OrderItem.objects.create(order=order, in_num='INV-' + str(order.id),
-                                             product=item['title'], img=item['img'], quantity=item['qty'],
-                                             price=item['price'], total=float(item['qty']) * float(item['price']))
+            product_attribute = get_object_or_404(ProductAttribute, id=p_id)
+            quantity_ordered = int(item['qty'])
 
-        # Clear the cart
+            if product_attribute.stock >= quantity_ordered > 0:
+                product_attribute.stock -= quantity_ordered
+                product_attribute.save()
+                
+                OrderItem.objects.create(order=order, in_num='INV-' + str(order.id),
+                                         product=item['title'], img=item['img'], quantity=quantity_ordered,
+                                         price=item['price'], total=float(quantity_ordered) * float(item['price']))
+            else:
+                messages.error(self.request, f"0 stock for product {product_attribute.product.title}. Kindly select another product.")
+                return redirect('shop:home')  # Replace 'home' with the actual name or URL pattern for your home page
+
         self.request.session['cartdata'].clear()
-
-        # Clear coupon information from the session
-
-
         self.request.session.modified = True
-
-        # Set the order in the session
         self.request.session['order_id'] = order.id
 
-        # Clear the total_amount from the session
         if 'total_amount' in self.request.session:
             del self.request.session['total_amount']
             self.request.session.modified = True
 
-
-
-        # Send email to the user
         subject = 'Order Confirmation'
         message = render_to_string('orders/order_confirmation.html', {'order': order})
-        plain_message = strip_tags(message)  # Create a plain text version for clients that don't support HTML
+        plain_message = strip_tags(message)
         from_email = settings.DEFAULT_FROM_EMAIL
         to_email = [order.user.email]
         send_mail(subject, plain_message, from_email, to_email, html_message=message, fail_silently=False)
-
-        # Debug information
-        print(f"Email sent to {order.user.email} for Order ID {order.id}")
 
         return super().form_valid(form)
 

@@ -20,10 +20,7 @@ app_name = 'shop'
 
 urlpatterns = [
     path('',views.home,name='home'),
-    path('register1',views.register1,name='register1'),
-    # path('login1',views.login1,name='login1'),
-    # path('logout1',views.logout1,name='log_out1'),
-    # path('activate/<uidb64>/<token>',views.activate,name='activate'),
+
     path('categories',views.categories,name='categories'),
     path('brands',views.brands,name='brands'),
     path('product-list',views.product_list,name='product-list'),

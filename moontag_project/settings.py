@@ -17,7 +17,7 @@ STATIC_DIR = BASE_DIR/'moontag_project'/'static'
 SECRET_KEY = 'django-insecure-0tax$akm$_6h9&!vh=lnf!lv#v@n*ys(6t9qr5ssrk$a5wt$)y'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.environ.get('DEBUG', default=True))
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 

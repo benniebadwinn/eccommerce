@@ -526,13 +526,7 @@ jQuery(function ($) {
                                 <span class="menu-title">All departments</span>
                                 <span class="angle" data-tgleclass="fa fa-caret-down"><i class="fa fa-caret-up" aria-hidden="true"></i></span>
                             </div>
-                            
-                            {% if error_message %}
-                            <h1>Error</h1>
-                            <p>{{ error_message }}</p>
-                        {% else %}
-                        {% include 'includes/alerts.html' %}
-                        {% endif %}
+                            {% include 'includes/alerts.html' %}
 
                             <div class="wrap-menu">
                                 <ul class="menu clone-main-menu">
