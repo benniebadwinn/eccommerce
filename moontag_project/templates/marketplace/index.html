@@ -137,9 +137,9 @@
                                 {% for order in orders %}
                                 <tr>
                                     <td>{{order.user}}</td>
-                                    <td>{{order.total_amt}}</td>
-                                    <td>{{order.paid_status}}</td>
-                                    <td>{{order.order_dt}}</td>
+                                    <td>{{order.total_amount}}</td>
+                                    <td>{{order.paid}}</td>
+                                    <td>{{order.created}}</td>
                                     <td><button type="button" class="btn btn-sm btn-primary"><a style="color: white;" href="/store/order/{{order.id}}">Detail</a></button></td>
                                     </form>
                                 </tr>
@@ -221,7 +221,7 @@
                 <div class="bg-secondary rounded-top p-4">
                     <div class="row">
                         <div class="col-12 col-sm-6 text-center text-sm-start">
-                            &copy; <a href="/store">Monntag</a>, All Right Reserved. 
+                            &copy; <a href="/store">badwin</a>, All Right Reserved. 
                         </div>
                     </div>
                 </div>

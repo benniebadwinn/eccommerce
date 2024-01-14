@@ -132,7 +132,12 @@
                                     <p class="desc">Based on 56789</p>
                                 </div>
                                 <div class="btn-checkout">
+                                {% if user.address %}
                                     <a href="{% url 'shop:order_create' %}" class="btn checkout">Check out</a>
+                                {% else %}
+                                <a href="{% url 'shop:address_create' %}" class="btn checkout">Kindly add address and proceed to checkout</a>
+                                    <!-- You can add a link to the address page or a modal to add address here -->
+                                {% endif %}
                                 </div>
                                 <div class="biolife-progress-bar">
                                     <table>

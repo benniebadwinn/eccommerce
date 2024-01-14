@@ -67,45 +67,15 @@ urlpatterns = [
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-        
-    # path('',views.home,name='home'),
-    
-    # path('product-list',views.product_list,name='product-list'),
-    # path('filter-data',views.filter_data,name='filter_data'),
    
     path('create/', views.OrderCreateView.as_view(), name='order_create'),
-    
-   
-    # # path('cart_detail/', OrderSummaryView.as_view(), name='cart_detail'), 
-    # path('wishlist', views.WishlistView.as_view(), name='wishlist'),
-    # path('wishlist/add/<int:id>/', views.AddToWishlistView.as_view(), name='wishlist_add'),
-    # path('wishlist/remove/<int:id>/', views.RemoveFromWishlistView.as_view(), name='wishlist_remove'),
-    
-    # path('coupon-list/', views.CouponListView.as_view(), name='coupon_list'),
-    # # path('product-page/<int:id>/<slug:slug>/', ProductDetailView.as_view(), name='product-page'), 
-    # path('product/<str:slug>/<int:id>',views.product_page,name='product_page'),    # the slug, and "as_view" and name are as per the format giving by Django for using the "Detail view". It is required. Ref: https://docs.djangoproject.com/en/3.2/ref/class-based-views/generic-display/#detailview)
-    
+ 
     path('submit_review/<int:product_id>/', views.submit_review, name='submit_review'),
-    # path('create/', views.ProductCreateView.as_view(), name='product_create'),
-    # # path('add-to-my-cart/<slug:slug>>/', addition_to_cart, name='add-to-cart'),               # This is in connection to the addition_to_cart function in the views.py
+   
     path('add-coupon/', CouponAddView.as_view(), name='add-coupon'),                   
-    # # path('remove-from-cart/<slug>/', remove_item_from_cart, name='remove-from-cart'),   # This is in connection to the remove_item_from_cart function in the views.py
+  
     path('remove-coupon/', remove_coupon, name='remove-coupon'),                        # This is in connection to the remove_item_from_cart function in the views.py
-    # # path('remove-item-from-cart/<slug>/', remove_one_item_from_cart, name='remove-one-item-from-cart'),    # This is in connection to the remove_one_item_from_cart function in the views.py
-    # path('delivery_method', views.ConfirmShippingAddressView.as_view(), name='delivery_method'),
-    # path('Newsletter', views.NewsLetterView.as_view(), name='Newsletter'),
+
     path('list', views.OrderListView.as_view(), name='my_orders'),
     path('list-cancelled', views.CancelledOrderListView.as_view(), name='cancelled_orders'),
     path('cancelled-detail/<int:pk>/', views.CancelledOrderDetailView.as_view(),name='cancelled_order_detail'),
@@ -135,26 +105,16 @@ urlpatterns = [
     # path('bank-transfer/', BankTransferView.as_view(), name='bank_transfer'),
     path('completed', PaymentCompletedView.as_view(), name='completed'),
     path('cancelled', PaymentCancelledView.as_view(), name='cancelled'),
-    # path('search-result',views.search_result,name='search_result'),
-    # path('filter-data',views.filter_data,name='filter_data'),
-    # # moontag functions
-    # path('data/',views.data,name='data'),
-    # path('checkout-purchasing',views.checkout_purchasing,name='checkout_purchasing'),
-    # # path('product-list',views.product_list,name='product-list'),
 
-    # # path('category-product-list/<int:cat_id>',views.category_product_list,name='category-product-list'),
-    # path('categories/', views.category_list, name='category_list'),
 
     path('update_offer_status/<int:offer_id>/', views.home, name='update_offer_status'),
 
 
     
     path("manage-cart/<int:cp_id>/", ManageCartView.as_view(), name="managecart"),
-    # # path("my-cart/", MyCartView.as_view(), name="mycart"),
+ 
     path('cart',views.cart_page,name='cart'),
-    # path('empty-cart/', EmptyCartView.as_view(), name='emptycart'),
-    # # path("add-to-cart-<int:product_id>/", AddToCartView.as_view(), name="add-to-cart"),
-    # path('add-to-cart',views.add_to_cart,name='add_to_cart'),
+
     path('paypal/', views.paypal, name='paypal'),
     path('paypal/', include('paypal.standard.ipn.urls')),
     path('payment-done/', views.payment_done, name='payment_done'),

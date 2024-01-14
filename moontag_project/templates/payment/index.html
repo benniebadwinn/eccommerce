@@ -44,7 +44,7 @@
                                             <form action="{% url 'payment:pay' %}" method="post">
                                                     {% csrf_token %}
                                                     <p class="form-row">
-<!--                                                     
+                                                     
                                                     <div id="div_id_first_name" class="mb-3" style="display: none;">
                                                         <label for="id_first_name" class="form-label requiredField">First name<span class="asteriskField">*</span> </label>
                                                         <input type="text" name="first_name" value="{{ user.first_name }}" maxlength="20" class="textinput form-control" required="" id="id_first_name">
@@ -55,7 +55,7 @@
                                                     </div>
                                                     <div id="div_id_email" class="mb-3" style="display: none;">
                                                         <label for="id_email" class="form-label requiredField">Email<span style="display: none;" class="asteriskField">*</span> </label>
-                                                        <input type="email" name="email" value="{{ user.username }}" maxlength="254" class="emailinput form-control" required="" id="id_email">
+                                                        <input type="email" name="email" value="{{ user.email }}" maxlength="254" class="emailinput form-control" required="" id="id_email">
                                                     </div>
                                                     {% for address in addresses %}
                                                     <div id="div_id_phone" class="mb-3" style="display: none;">
@@ -63,7 +63,7 @@
                                                         <input type="tel" name="phone" value="{{ address.phone_number }}" value="+254" required maxlength="128" class="regionalphonenumberwidget form-control" required="" id="id_phone">
                                                     </div>
                                                     {% endfor %}
-         -->
+        
                                                     <div id="div_id_phone" class="mb-3" style="display: none;">
                                                         <strong ><label for="id_amount44">Order Total KSH:<span class="asteriskField">*</span></label></strong>
                                                         <input type="number" name="amount" step="0.01" class="numberinput form-control" required="" id="id_amount44" readonly value="{{amount}}">

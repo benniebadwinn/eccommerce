@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from moontag_app.models import Product,Category,Brand,Banner,ProductAttribute,Color,Size,Wishlist,Todo,Withraw
+from moontag_app.models import Product,Category,Brand,Banner,ProductAttribute,Color,Size,Wishlist,Todo,Withraw,Vendors,VendorAddProduct,OrderItem
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -730,27 +730,37 @@ def store(request):
     """
     Vendor Admin Panel With many of the data
     """
+    orders = Order.objects.none()  # Initialize as an empty queryset
+
     if len(Vendors.objects.filter(user=request.user)) > 0:
         vendor = Vendors.objects.get(user=request.user)
         todos = Todo.objects.filter(user=request.user)
         vendor_products = VendorAddProduct.objects.filter(user=request.user)
         li = []
         for i in vendor_products:
-            products = CartOrderItems.objects.filter(item=i.product).exclude(order__paid_status=False)
+            products = OrderItem.objects.filter(product=i.product).exclude(order__paid=False)
             li.append(products)
-        total_sales = 0
+        total_sales = Decimal('0')
         for item in li:
             for p in item:
-                orders = CartOrder.objects.filter(id=int(p.in_num[4:]))
+                orders = Order.objects.filter(id=int(p.in_num[4:]))
                 total_sales += p.total
-        after_moontag_commission = total_sales - (int(total_sales) * 0.17)
+
+        commission_rate = Decimal('0.17')
+        after_moontag_commission = total_sales - (total_sales * commission_rate)
+
         if request.method == 'POST':
             new_task = request.POST['todo']
-            save_task = Todo.objects.create(user=request.user,todo=new_task)
+            save_task = Todo.objects.create(user=request.user, todo=new_task)
             save_task.save()
-        return render(request, 'marketplace/index.html', {'user':request.user,'vendor':vendor,'products':li,'total_sales':total_sales,'commission':after_moontag_commission,'todos':todos,'orders':orders,'vendor_products':vendor_products})
+
+        return render(request, 'marketplace/index.html', {'user': request.user, 'vendor': vendor, 'products': li,
+                                                           'total_sales': total_sales, 'commission': after_moontag_commission,
+                                                           'todos': todos, 'orders': orders, 'vendor_products': vendor_products})
     else:
         return redirect('/store-register')
+
+
 
 
 
@@ -758,7 +768,7 @@ def order_details(request,id):
     """
     Order Details in Vendor Store
     """
-    orders = CartOrderItems.objects.filter(order_id=id)
+    orders = OrderItem.objects.filter(order_id=id)
     return render(request, 'marketplace/orders_detail.html',{'orders':orders})
 
 
@@ -768,10 +778,17 @@ def delete_todo(request):
     Delete Todo task in Admin marketplace panel
     """
     if request.method == 'POST':
-        todo_id = request.POST['todoId']
-        todo = Todo.objects.get(id=todo_id)
-        todo.delete()
-        return redirect('/store')
+        todo_id = request.POST.get('todoId')
+        if todo_id:
+            todo = Todo.objects.get(id=todo_id)
+            todo.delete()
+            return redirect('/store')
+        else:
+            # Handle the case when 'todoId' is not present in the POST data
+            return HttpResponse("Invalid request", status=400)
+    else:
+        # Handle the case when the request method is not POST
+        return HttpResponse("Method not allowed", status=405)
  
 
 
@@ -788,13 +805,13 @@ def vendor_add_product(request):
     if request.method == 'POST':
         title = request.POST['title']
         slug = request.POST['slug']
-        detail = request.POST['detail']
+        
         specs = request.POST['specs']
         category = Category.objects.get(id=request.POST['category'])
         brand = Brand.objects.get(id=request.POST['brand'])
         color =  Color.objects.get(id=request.POST['color']) 
         size = Size.objects.get(id=request.POST['size'])
-        product = Product.objects.create(title=title,slug=slug,detail=detail,specs=specs,category=category,brand=brand,color=color,size=size,status=True,is_featured=False)
+        product = Product.objects.create(title=title,slug=slug,specs=specs,category=category,brand=brand,is_featured=False)
         product.save()
         new_added_product = Product.objects.last()
         vendor_add_product_model = VendorAddProduct.objects.create(user=request.user,product=new_added_product)
@@ -863,24 +880,31 @@ def withraw(request):
     vendor_products = VendorAddProduct.objects.filter(user=request.user)
     li = []
     for i in vendor_products:
-        products = CartOrderItems.objects.filter(item=i.product).exclude(order__paid_status=False)
+        products = OrderItem.objects.filter(product=i.product).exclude(order__paid=False)
         li.append(products)
-    total_sales = 0
+    total_sales = Decimal('0')
     for item in li:
         for p in item:
             total_sales += p.total
-    after_moontag_commission = total_sales - (int(total_sales) * 0.17)
+    commission_rate = Decimal('0.17')
+    after_moontag_commission = total_sales - (total_sales * commission_rate)
+
     user_withraws = Withraw.objects.filter(user=request.user)
-    what_paid = 0
+    what_paid = Decimal('0')
     for y in user_withraws:
-        what_paid += int(y.amount)
+        what_paid += Decimal(y.amount)
+    
     after_moontag_commission -= what_paid
+
     if request.method == 'POST':
         withraw_request = request.POST['withraw']
-        withraw_request_save = Withraw.objects.create(user=request.user,amount=withraw_request)
+        withraw_request_save = Withraw.objects.create(user=request.user, amount=withraw_request)
         withraw_request_save.save()
         return redirect('/store/withraw')
-    return render(request, 'marketplace/withraw.html',{'vendor':vendor,'user':request.user,'after_moontag_commission':after_moontag_commission,'total_sales':total_sales,'paid':what_paid})
+
+    return render(request, 'marketplace/withraw.html', {'vendor': vendor, 'user': request.user,
+                                                        'after_moontag_commission': after_moontag_commission,
+                                                        'total_sales': total_sales, 'paid': what_paid})
 
 
 
@@ -1217,6 +1241,8 @@ class ManageCartView(View):
         else:
             return cart_product.quantity * cart_product.price
 
+import logging
+
 
 
 
@@ -1233,10 +1259,17 @@ class OrderCreateView(CreateView):
         return kwargs
 
     def get_context_data(self, **kwargs):
+        print("get_context_data is being called")  # Add this line
+        print("User: ", self.request.user)
         context = super().get_context_data(**kwargs)
         context['cart'] = Cart(self.request)
         context['cart_data'] = self.request.session.get('cartdata', {})
+        logger = logging.getLogger(__name__)
+        # Add the following lines to include address object
+        address = Address.objects.filter(user=self.request.user).first()
+        print("Address: ", address)
 
+        context['address'] = address
         context = {
                 'cart_data': self.request.session.get('cartdata', {}),                                                               # A Context is a dictionary with variable names as the key and their values as the value. Hence, if your context for the above template looks like: {myvar1: 101, myvar2: 102}, when you pass this context to the template render method, {{ myvar1 }} would be replaced with 101 and {{ myvar2 }} with 102 in your template. This is a simplistic example, but really a Context object is the context in which the template is being rendered. ref https://stackoverflow.com/questions/20957388/what-is-a-context-in-django
                                                                            # form is set equal to the form variable above
@@ -1267,54 +1300,60 @@ class OrderCreateView(CreateView):
         pickup_station_id = self.request.session.get('pickup_station')
         if pickup_station_id:
             order.pickup_station = get_object_or_404(PickupStation, id=pickup_station_id)
-
+    
         total_price = sum(int(item['qty']) * float(item['price']) for item in self.request.session.get('cartdata', {}).values())
-
+    
         coupon_code = self.request.session.get('coupon_code')
         coupon_amount = 0
-
+    
         if coupon_code:
             coupon = get_coupon(self.request, coupon_code)
             if coupon:
                 coupon_amount = coupon.value
-
+    
         total_amount_before_coupon = total_price
         total_amount_after_coupon = total_price - coupon_amount
-
+    
         order.total_amount = total_amount_after_coupon
         order.save()
-
+    
         for p_id, item in self.request.session.get('cartdata', {}).items():
             product_attribute = get_object_or_404(ProductAttribute, id=p_id)
             quantity_ordered = int(item['qty'])
-
+    
             if product_attribute.stock >= quantity_ordered > 0:
                 product_attribute.stock -= quantity_ordered
                 product_attribute.save()
-                
+    
                 OrderItem.objects.create(order=order, in_num='INV-' + str(order.id),
                                          product=item['title'], img=item['img'], quantity=quantity_ordered,
                                          price=item['price'], total=float(quantity_ordered) * float(item['price']))
+                
+                # Mark the product as ordered
+                product_attribute.product.ordered = True
+                product_attribute.product.save()
+    
             else:
                 messages.error(self.request, f"0 stock for product {product_attribute.product.title}. Kindly select another product.")
                 return redirect('shop:home')  # Replace 'home' with the actual name or URL pattern for your home page
-
+    
         self.request.session['cartdata'].clear()
         self.request.session.modified = True
         self.request.session['order_id'] = order.id
-
+    
         if 'total_amount' in self.request.session:
             del self.request.session['total_amount']
             self.request.session.modified = True
-
+    
         subject = 'Order Confirmation'
         message = render_to_string('orders/order_confirmation.html', {'order': order})
         plain_message = strip_tags(message)
         from_email = settings.DEFAULT_FROM_EMAIL
         to_email = [order.user.email]
         send_mail(subject, plain_message, from_email, to_email, html_message=message, fail_silently=False)
-
+    
         return super().form_valid(form)
+
 
 
 
@@ -1324,7 +1363,7 @@ class OrderCreateView(CreateView):
         if payment_type == 'mpesa_on_delivery':
             return reverse_lazy('shop:mpesa_on_delivery')
         elif payment_type == 'pesapal':
-            return reverse_lazy('payment:home')
+            return reverse_lazy('payment:pay')
         elif payment_type == 'paypal':
             return reverse_lazy('payment:purchase_via_wallet')
         elif payment_type == 'wallet':
@@ -1423,60 +1462,7 @@ def paypal(request):
 
 
 
-@method_decorator(login_required(login_url='login:user_login_page'), name='dispatch')
-# class CouponAddView(View):
-#     template_name = 'orders/create.html'
-
-#     @transaction.atomic
-#     def post(self, *args, **kwargs):
-#         form = CouponForm(self.request.POST or None)
-
-#         if form.is_valid():
-#             code = form.cleaned_data.get('code')
-
-#             if 'cartdata' in self.request.session:
-#                 cartdata = self.request.session['cartdata']
-#             else:
-#                 # Handle case where 'cartdata' is not present in the session
-#                 cartdata = {}
-
-#             coupon = get_coupon(self.request, code)
-
-#             if not coupon:
-#                 messages.error(self.request, "Invalid coupon code. Please try again.")
-#                 return JsonResponse({'success': False, 'message': 'Invalid coupon code'})
-
-#             discount_amount = coupon.value
-
-#             # Apply coupon to cartdata
-#             for item in cartdata.values():
-#                 # Check if 'total_price' key exists in the item
-#                 if 'total_price' in item:
-#                     # Assuming 'qty' key exists in each item
-#                     item['total_price'] -= discount_amount * item.get('qty', 0)
-
-#             # Store coupon information in the session
-#             self.request.session['coupon_code'] = coupon.code
-#             self.request.session['coupon_amount'] = discount_amount
-#             self.request.session.modified = True
-
-#             # Update coupon usage
-#             coupon.used += 1
-#             coupon.save()
-
-#             messages.success(self.request, f"Successfully added coupon '{coupon.code}' with a value of {discount_amount} to cart")
-
-#             # Include print statements for debugging
-#             print(f"Coupon Code: {coupon.code}")
-#             print(f"Coupon Amount: {discount_amount}")
-
-#             return redirect(self.request.META.get('HTTP_REFERER', 'shop:order_create'))
-
-#         else:
-#             messages.error(self.request, "Invalid form submission. Please try again.")
-#             return JsonResponse({'success': False, 'errors': form.errors})
-
-
+@method_decorator(login_required(login_url='account:login'), name='dispatch')
 class CouponAddView(View):
     template_name = 'orders/create.html'
 
@@ -1647,7 +1633,7 @@ def remove_coupon(request):                                                # Thi
 
 
 
-@method_decorator(login_required(login_url='login:user_login_page'), name='dispatch')
+@method_decorator(login_required(login_url='account:login'), name='dispatch')
 class OrderListView(LoginRequiredMixin,ListView):
     model = Order
     template_name = 'orders/list.html'
@@ -1656,7 +1642,7 @@ class OrderListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user)
     
-@method_decorator(login_required(login_url='login:user_login_page'), name='dispatch')   
+@method_decorator(login_required(login_url='account:login'), name='dispatch')   
 class OrderDetailView(LoginRequiredMixin,DetailView):
     model= Order
     template_name= 'orders/detail.html'
@@ -1671,7 +1657,7 @@ class OrderDetailView(LoginRequiredMixin,DetailView):
 
  
 #a view to show list of orders a user has cancelled.
-@method_decorator(login_required(login_url='login:user_login_page'), name='dispatch')   
+@method_decorator(login_required(login_url='account:login'), name='dispatch')   
 class CancelledOrderListView(ListView):
     model= Order
     template_name='orders/cancelled_list.html'
@@ -1696,12 +1682,12 @@ class CancelledOrderDetailView(DetailView):
 
 
     
-@method_decorator(login_required(login_url='login:user_login_page'), name='dispatch')
+@method_decorator(login_required(login_url='account:login'), name='dispatch')
 class AddressCreateView(CreateView):
     model = Address
     form_class = AddressForm
     template_name = 'users/address_form.html'
-    success_url = reverse_lazy('shop:address_list')
+    success_url = reverse_lazy('shop:home')
     
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -1713,7 +1699,7 @@ class AddressCreateView(CreateView):
         return context
 
     
-@method_decorator(login_required(login_url='login:user_login_page'), name='dispatch')
+@method_decorator(login_required(login_url='account:login'), name='dispatch')
 class AddressListView(TemplateView):
     template_name = 'users/address_list.html'
     
@@ -1724,7 +1710,7 @@ class AddressListView(TemplateView):
 
 
 
-@method_decorator(login_required(login_url='login:user_login_page'), name='dispatch')    
+@method_decorator(login_required(login_url='account:login'), name='dispatch')    
 class AddressUpdateView(UpdateView):
     model = Address
     form_class = AddressForm
@@ -1735,7 +1721,10 @@ class AddressUpdateView(UpdateView):
         context = super().get_context_data(**kwargs)
         context['addresses'] = Address.objects.filter(user=self.request.user)
         return context
-@method_decorator(login_required(login_url='login:user_login_page'), name='dispatch')
+
+
+
+@method_decorator(login_required(login_url='account:login'), name='dispatch')
 class AddressDeleteView(TemplateView):
     template_name = 'users/address_confirm_delete.html'
     
@@ -1749,7 +1738,9 @@ class AddressDeleteView(TemplateView):
         address.delete()
         return HttpResponseRedirect(reverse('shop:address_list'))
 
-@method_decorator(login_required(login_url='login:user_login_page'), name='dispatch')
+
+
+@method_decorator(login_required(login_url='account:login'), name='dispatch')
 class AddressDefaultView(TemplateView):
     template_name = 'users/address_list.html'
     

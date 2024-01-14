@@ -132,98 +132,6 @@ class Size(models.Model):
         return self.title
 
 
-# Create your models here.
-# class Category(models.Model):
-#     title = models.CharField(max_length=100)
-#     img = models.ImageField(upload_to='media/category_images')
-
-#     class Meta:
-#         verbose_name_plural = '1. Categories'
-
-#     def image_tag(self):
-#         return mark_safe('<img src="%s" width="60" height="60" />' % (self.img.url))
-
-#     def __str__(self):
-#         return self.title
-
-
-# class Brand(models.Model):
-#     title = models.CharField(max_length=100)
-#     img = models.ImageField(upload_to='media/brand_images')
-
-#     class Meta:
-#         verbose_name_plural = '2. Brands'
-
-#     def __str__(self):
-#         return self.title
-
-
-# class Color(models.Model):
-#     title = models.CharField(max_length=100)
-#     color_code = models.CharField(max_length=100)
-
-#     class Meta:
-#         verbose_name_plural = '3. Colors'
-
-#     def color_tag(self):
-#         return mark_safe('<div style="width:30px; height:30px; background-color:%s"></div>' % (self.color_code))
-
-#     def __str__(self):
-#         return self.title
-
-
-# class Size(models.Model):
-#     title = models.CharField(max_length=100)
-
-#     class Meta:
-#         verbose_name_plural = '4. Sizes'
-
-#     def __str__(self):
-#         return self.title
-
-
-        
-        
-
-        # def get_absolute_url(self):
-        #         return reverse('shop:product_detail',
-        #                        args=[self.id, self.slug])
-
-
-        # def __str__(self):                                      # in every model you should define the standard Python class method __str__() to return a human-readable string for each object. This string is used to represent individual records in the administration site (and anywhere else you need to refer to a model instance). Often this will return a title or name field from the model. (ref: https://developer.mozilla.org/en-US/docs/Learn/Server-side/Django/Models)  
-        #         return self.title
-    
-        # def get_absolute_url(self):                             # Define a get_absolute_url() method to tell Django how to calculate the canonical (absolute, recognized) URL for an object. The reverse() function is usually the best approach to be used with get_absolute. One place Django uses get_absolute_url() is in the admin app.  If it makes sense for your model’s instances to each have a unique URL, you should define get_absolute_url(). It’s good practice to use get_absolute_url() in templates, instead of hard-coding your objects’ URLs.  The logic here is that if you change the URL structure of your objects, even for something small like correcting a spelling error, you don’t want to have to track down every place that the URL might be created. Specify it once, in get_absolute_url() and have all your other code call that one place.
-        #         # return reverse('shop:product-page', kwargs={self.id, self.slug})     # "SLUG" from line 26 models.py. "self.slug" is as per the format. "core" from urls.py from line 11 and product-page from line 18. The reverse() function can reverse a large variety of regular expression patterns for URLs, but not every possible one.  kwargs allows you to handle named arguments that you have not defined in advance. ref to for format: https://docs.djangoproject.com/en/3.2/ref/models/instances/#get-absolute-url
-        #         return reverse('shop:product_page', kwargs={'id': self.id, 'slug': self.slug})
-
-
-        # # def image_tag(self):
-        # #     return mark_safe('<img src="%s" width="60" height="60" />' % (self.img.url))
-
-        # def get_addition_to_cart_url(self):                     # This function was created mainly because to help with the add to cart feature
-        #         return reverse('shop:add-to-cart', kwargs={'slug': self.slug})     # "SLUG" from line 26 models.py. "self.slug" is as per the format. "core" from urls.py from line 11 and add-to-cart is from line 20. The reverse() function can reverse a large variety of regular expression patterns for URLs, but not every possible one.  kwargs allows you to handle named arguments that you have not defined in advance. ref to for format: https://docs.djangoproject.com/en/3.2/ref/models/instances/#get-absolute-url
-    
-        # def get_remove_item_from_cart(self):                     # This function was created mainly because to help with the add to cart feature
-        #         return reverse('shop:remove-from-cart', kwargs={'slug': self.slug})     # "SLUG" from line 26 models.py. "self.slug" is as per the format. "core" from urls.py from line 11 and add-to-cart is from line 20. The reverse() function can reverse a large variety of regular expression patterns for URLs, but not every possible one.  kwargs allows you to handle named arguments that you have not defined in advance. ref to for format: https://docs.djangoproject.com/en/3.2/ref/models/instances/#get-absolute-url
-
-    
-            
-        
-    #     class Meta:
-    #         verbose_name_plural = '5. Products'
-    #         ordering = ['name']
-    #         indexes = [
-    #             models.Index(fields=['id', 'slug']),
-    #             models.Index(fields=['name']),
-    #             models.Index(fields=['-created']),
-    #         ]
-        
-
- 
-    # except (OperationalError, ProgrammingError):
-    #         pass
-
 class Vendor(models.Model):
     name = models.CharField(max_length=100)
     owner=models.OneToOneField(
@@ -349,82 +257,6 @@ class OfferStatus(models.Model):
     created = models.BooleanField(default=False)
 
 
-
-# class Product(models.Model):
-#     try:
-#         title = models.CharField(max_length=200)
-#         slug = models.SlugField(max_length=200)
-#         # image = models.ImageField(upload_to='products/%Y/%m/%d',null=True,blank=True)
-#         description = models.TextField(blank=True)
-#         #specifications
-#         in_the_box=models.CharField(max_length=100, blank=True, null=True)
-#         key_features = models.TextField(blank=True)
-#         sku = models.CharField(max_length=50, blank=True, null=True)
-#         model=models.CharField(max_length=100, blank=True, null=True)
-#         size_of_package = models.CharField(
-#             max_length=100, blank=True, null=True, choices=SIZE_CHOICES, default='S')
-#         weight = models.DecimalField(
-#             max_digits=10, decimal_places=2,verbose_name='Weight (kg)',blank=True, null=True)
-#         main_material = models.CharField(max_length=100, blank=True, null=True)
-#         care_instructions = models.TextField(blank=True,verbose_name='Care Label',null=True)
-#         available = models.BooleanField(default=True)
-#         is_featured = models.BooleanField(default=False)
-#         top_rated = models.BooleanField(default=False)
-        
-#         num_visits = models.IntegerField(default=0)
-#         last_visit = models.DateTimeField(blank=True, null=True)
-#         category = models.ForeignKey(Category,on_delete=models.CASCADE)
-    
-#         brand = models.ForeignKey(Brand,on_delete=models.CASCADE)
-      
-#         created = models.DateTimeField(auto_now_add=True)
-#         updated = models.DateTimeField(auto_now=True)
-#         view_count = models.PositiveIntegerField(default=0)
-#         vendor=models.ForeignKey(
-#             Vendor,related_name='products',on_delete=models.CASCADE,blank=True,null=True)
-#         # users_wishlist = models.ManyToManyField(User, related_name="user_wishlist", blank=True)
-        
-        
-
-#         def get_absolute_url(self):
-#                 return reverse('shop:product_detail',
-#                                args=[self.id, self.slug])
-
-
-#         def __str__(self):                                      # in every model you should define the standard Python class method __str__() to return a human-readable string for each object. This string is used to represent individual records in the administration site (and anywhere else you need to refer to a model instance). Often this will return a title or name field from the model. (ref: https://developer.mozilla.org/en-US/docs/Learn/Server-side/Django/Models)  
-#                 return self.title
-    
-#         def get_absolute_url(self):                             # Define a get_absolute_url() method to tell Django how to calculate the canonical (absolute, recognized) URL for an object. The reverse() function is usually the best approach to be used with get_absolute. One place Django uses get_absolute_url() is in the admin app.  If it makes sense for your model’s instances to each have a unique URL, you should define get_absolute_url(). It’s good practice to use get_absolute_url() in templates, instead of hard-coding your objects’ URLs.  The logic here is that if you change the URL structure of your objects, even for something small like correcting a spelling error, you don’t want to have to track down every place that the URL might be created. Specify it once, in get_absolute_url() and have all your other code call that one place.
-#                 # return reverse('shop:product-page', kwargs={self.id, self.slug})     # "SLUG" from line 26 models.py. "self.slug" is as per the format. "core" from urls.py from line 11 and product-page from line 18. The reverse() function can reverse a large variety of regular expression patterns for URLs, but not every possible one.  kwargs allows you to handle named arguments that you have not defined in advance. ref to for format: https://docs.djangoproject.com/en/3.2/ref/models/instances/#get-absolute-url
-#                 return reverse('shop:product_page', kwargs={'id': self.id, 'slug': self.slug})
-
-
-#         # def image_tag(self):
-#         #     return mark_safe('<img src="%s" width="60" height="60" />' % (self.img.url))
-
-#         def get_addition_to_cart_url(self):                     # This function was created mainly because to help with the add to cart feature
-#                 return reverse('shop:add-to-cart', kwargs={'slug': self.slug})     # "SLUG" from line 26 models.py. "self.slug" is as per the format. "core" from urls.py from line 11 and add-to-cart is from line 20. The reverse() function can reverse a large variety of regular expression patterns for URLs, but not every possible one.  kwargs allows you to handle named arguments that you have not defined in advance. ref to for format: https://docs.djangoproject.com/en/3.2/ref/models/instances/#get-absolute-url
-    
-#         def get_remove_item_from_cart(self):                     # This function was created mainly because to help with the add to cart feature
-#                 return reverse('shop:remove-from-cart', kwargs={'slug': self.slug})     # "SLUG" from line 26 models.py. "self.slug" is as per the format. "core" from urls.py from line 11 and add-to-cart is from line 20. The reverse() function can reverse a large variety of regular expression patterns for URLs, but not every possible one.  kwargs allows you to handle named arguments that you have not defined in advance. ref to for format: https://docs.djangoproject.com/en/3.2/ref/models/instances/#get-absolute-url
-
-    
-            
-        
-#         class Meta:
-#             verbose_name_plural = '5. Products'
-#             ordering = ['name']
-#             indexes = [
-#                 models.Index(fields=['id', 'slug']),
-#                 models.Index(fields=['name']),
-#                 models.Index(fields=['-created']),
-#             ]
-        
-
- 
-#     except (OperationalError, ProgrammingError):
-#             pass
-    
 
 class ProductAttribute(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -676,8 +508,7 @@ class Order(models.Model):
         PickupStation, on_delete=models.CASCADE, null=True, blank=True)
     order_number = models.CharField(max_length=9, blank=True, null=True, unique=True)
     coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, null=True, blank=True)
-    
-   
+
     order_status = models.CharField(
         max_length=50, choices=ORDER_STATUS, default='pending')
     created = models.DateTimeField(auto_now_add=True)
@@ -685,6 +516,11 @@ class Order(models.Model):
     updated = models.DateTimeField(auto_now=True)
     paid = models.BooleanField(default=False)
     ordered = models.BooleanField(default=False)
+    merchant_reference = models.CharField(max_length=255, blank=True, null=True)
+    transaction_tracking_id = models.CharField(max_length=255, blank=True, null=True)
+    # merchant = models.CharField(max_length=255, blank=True, null=True)
+    # payment = models.CharField(max_length=255, blank=True, null=True)
+    # transaction_date = models.CharField(max_length=255, blank=True, null=True)
     payment_method = models.CharField(
         max_length=50, choices=PAYMENT_METHOD, default='mpesa_on_delivery')
     returnable = models.BooleanField(default=True)

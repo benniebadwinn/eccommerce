@@ -46,18 +46,20 @@
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <a href="{% url 'shop:address_list' %}" class="button light">ADD/CHANGE</a>
+                                        <a href="{% url 'shop:address_list' %}" class="button light">CHANGE</a>
                 
                                     </p>
                                         <div class="box-content">
 
                                             <div class="login-on-checkout">
-                                                
-                                                <b>{{address.user.first_name}} {{address.user.last_name}}</b><br>
-                                                {{address.address_name}}<br>
-                                                {{address.phone_number}}
-
-                                                
+                            
+                                                              
+                                        <b>{{user.address.user.first_name}} {{user.address.user.last_name}}</b><br>
+                                        {{user.address.address_name}}<br>
+                                        {{user.address.region}}<br>
+                                        {{ user.address.phone_number }}
+                                 
+                                            
                                             </div>
                                         </div>
                                     </div>

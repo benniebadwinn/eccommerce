@@ -24,6 +24,7 @@ from django.db import transaction, models
 from django.views.generic.base import View
 from decimal import Decimal
 from account.models import Wallet, Transaction
+from django.http import JsonResponse
 
 
 
@@ -31,7 +32,7 @@ def payment(request):
     account_reference = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
     total_cost = 0
     order = None  # Set a default value
-    show_more = None  # Set a default value
+   
     if request.method == 'POST':
         form = forms.Payment(request.POST)
 
@@ -39,7 +40,7 @@ def payment(request):
             payment = form.save(commit=False)
             payment.reference = account_reference
             payment.type = 'MERCHANT'
-            payment.description = 'product purch'
+            payment.description = 'product purchased'
             Reference = payment.reference
             FirstName = payment.first_name
             LastName = payment.last_name
@@ -67,7 +68,7 @@ def payment(request):
     
     # Pass order items to the template
     order_items = order.items.all()  # Assuming 'items' is the related name in your Order model
-    context = {'amount': total_cost, 'order': order, 'form': form, 'profile': show_more, 'addresses': addresses, 'order_items': order_items}
+    context = {'amount': total_cost, 'order': order, 'form': form, 'addresses': addresses, 'order_items': order_items}
 
     return render(request, 'payment/index.html', context)
 
@@ -170,6 +171,69 @@ def callback(request):
 
 
 
+@csrf_exempt
+def callback1(request):
+    order = None  # Initialize the order variable
+
+    if request.method == 'POST':
+        print(request.body)
+        print('POST')
+    else:
+        params = request.GET
+        print(params)
+    # merchant = params['pesapal_merchant']
+    merchant_reference = params['pesapal_merchant_reference']
+    transaction_tracking_id = params['pesapal_transaction_tracking_id']
+    # payment = params['pesapal_payment'] 
+    # transaction_date = params['pesapal_transaction_date']
+    print(merchant_reference)
+    print(transaction_tracking_id)
+
+    # status = pesapal_ops3.get_detailed_order_status(merchant_reference, transaction_tracking_id)
+    status = pesapal_ops3.get_payment_status(merchant_reference, transaction_tracking_id).decode('utf-8')
+    p_status = str(status).split('=')[1]
+
+    # Check if pesapal status is COMPLETED
+    if p_status == 'COMPLETED':
+        # Check if the user has an Order
+        orders = Order.objects.filter(user=request.user)
+    
+        if orders.exists():
+            # If orders exist, choose one of them or handle accordingly
+            order = orders.first()
+        else:
+            # If no order exists, create it
+            order = Order.objects.create(user=request.user)
+    
+        # Set payment_done status to True
+        order.paid = True
+        order.ordered = True  # Mark the order as paid
+        order.save()
+
+        # Save merchant_reference and transaction_tracking_id to the Order model
+        order.merchant_reference = merchant_reference
+        order.transaction_tracking_id = transaction_tracking_id
+        # order.merchant = merchant
+        # order.payment = payment
+        # order.transaction_date = transaction_date
+    
+        order.save()
+    
+        # Add a success message
+        messages.success(request, 'Order was successfully created!')
+    
+        # Redirect to a success page or return a success response
+        return redirect('shop:home')  # Replace 'shop:home' with your actual URL name
+    
+    # Add a failure message or return a failure response if needed
+    messages.error(request, 'Insufficient funds.')
+    return HttpResponse(status=400)  # Bad Request
+
+
+
+
+
+
 
 logger = logging.getLogger(__name__)
 @login_required
@@ -182,8 +246,6 @@ def purchase_via_wallet(request):
     total_price = sum(item.total for item in order.items.all())
 
     # Retrieve the user's wallet balance
-    # wallet_balance = get_user_wallet_balance(request.user)
-        # Calculate the overall wallet balance
     wallet_balance = Wallet.objects.filter(user=request.user).aggregate(Sum('balance'))['balance__sum'] or 0
 
     if wallet_balance >= total_price:
@@ -191,6 +253,8 @@ def purchase_via_wallet(request):
 
         # Create an order and order items
         order.total_amount = total_price
+        order.paid = True  # Mark the order as paid
+        order.ordered = True  # Mark the order as paid
         order.save()
 
         for item in order.items.all():
@@ -231,6 +295,7 @@ def purchase_via_wallet(request):
         # Insufficient balance in the wallet
         messages.error(request, 'Insufficient balance in the wallet. Please deposit more funds.')
         return HttpResponseRedirect(reverse('account:deposit'))  # Redirect to a page indicating insufficient balance
+
 
 
 

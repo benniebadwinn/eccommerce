@@ -62,7 +62,7 @@ class SizeAdmin(admin.ModelAdmin):
 admin.site.register(Size, SizeAdmin)
 
 class ProductAttributeAdmin(admin.ModelAdmin):
-    list_display = ('id','product','image_tag','price','color','size','stock')
+    list_display = ('product','image_tag','price','color','size','stock')
 admin.site.register(ProductAttribute, ProductAttributeAdmin)
 
 class BannerAdmin(admin.ModelAdmin):

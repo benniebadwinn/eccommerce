@@ -17,11 +17,11 @@ STATIC_DIR = BASE_DIR/'moontag_project'/'static'
 SECRET_KEY = 'django-insecure-0tax$akm$_6h9&!vh=lnf!lv#v@n*ys(6t9qr5ssrk$a5wt$)y'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['1063-197-232-61-228.ngrok-free.app']
 
-CSRF_TRUSTED_ORIGINS=['https://fda9-197-232-61-208.ngrok-free.app']
+CSRF_TRUSTED_ORIGINS=['https://1063-197-232-61-228.ngrok-free.app']
 
 SECURE_CROSS_ORIGIN_OPENER_POLICY='same-origin-allow-popups'
 
